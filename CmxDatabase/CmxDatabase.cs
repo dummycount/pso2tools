@@ -85,6 +85,11 @@ public class CmxDatabase : ICmxDatabase
 		teethTask = null;
 	}
 
+	public async Task LoadAsync()
+	{
+		await GetFactoryAsync();
+	}
+
 	public async Task<IEnumerable<CmxColorSet>> GetColorsAsync()
 	{
 		colorsTask ??= Task.Run(async () =>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -30,6 +31,10 @@ public sealed partial class MainWindow : Window
 
 		ExtendsContentIntoTitleBar = true;
 		SetTitleBar(TitleBar);
+
+		// Begin loading as soon as possible
+		var database = App.Current.Services.GetService<ICmxDatabase>();
+		database?.LoadAsync();
 	}
 
 	private void TitleBar_BackRequested(TitleBar sender, object args)

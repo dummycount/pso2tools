@@ -9,6 +9,8 @@ public interface ICmxDatabase
 {
 	public string? Pso2BinPath { get; set; }
 
+	public Task LoadAsync();
+
 	public Task<IEnumerable<CmxColorSet>> GetColorsAsync();
 
 	public Task<IEnumerable<CmxEntry<ACCEObject>>> GetAccessoriesAsync();
