@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "CmxViewer (Package)": {
+      "commandName": "MsixPackage",
+      "nativeDebugging": true
+    },
+    "CmxViewer (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

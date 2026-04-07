@@ -1,0 +1,43 @@
+<Solution>
+  <Configurations>
+    <Platform Name="ARM64" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path=".gitmodules" />
+    <File Path=".pre-commit-config.yaml" />
+    <File Path="dotnet-tools.json" />
+    <File Path="setup_fbx_sdk.py" />
+  </Folder>
+  <Project Path="CmxDatabase/CmxDatabase.csproj" Id="021e5587-9fc7-4d79-9f30-3a71b6a7e879" />
+  <Project Path="CmxViewer/CmxViewer.csproj" Id="70593afb-be33-4aaa-bb09-c355454e1db7">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
+  <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Core/AquaModelLibrary.Core.csproj" />
+  <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Data/AquaModelLibrary.Data.csproj" />
+  <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Helpers/AquaModelLibrary.Helpers.csproj" />
+  <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Native/AquaModelLibrary.Native.vcxproj" Id="2c3b66bb-f1a9-4513-ab63-570d7687c6a7">
+    <Platform Solution="*|ARM64" Project="x64" />
+  </Project>
+  <Project Path="PSO2-Aqua-Library/NvTriStrip.Net/NvTriStripDotNet/NvTriStripDotNet.csproj" Id="66b926ee-ff73-42be-a27e-cbcb333a4c07" />
+  <Project Path="PSO2-Aqua-Library/SAToolsShared/ArchiveLib/ArchiveLib.csproj">
+    <Platform Solution="*|ARM64" Project="x64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+  <Project Path="PSO2-Aqua-Library/SAToolsShared/VrSharp/VrSharp.csproj">
+    <Platform Solution="*|ARM64" Project="x64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+  </Project>
+  <Project Path="PSO2-Aqua-Library/SoulsFormatsNEXT/SoulsFormats/SoulsFormats.csproj" />
+  <Project Path="PSO2-Aqua-Library/UnluacNET/UnluacNET.csproj" />
+  <Project Path="PSO2-Aqua-Library/ZamboniLib/ZamboniLib/ZamboniLib.csproj" Id="84d63988-81de-4639-8e44-fe5a25eddc97" />
+  <Project Path="Utilities/Utilities.csproj" Id="5cdc4a21-6e7f-44e7-aed8-626ca092ee69" />
+</Solution>
