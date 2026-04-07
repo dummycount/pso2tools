@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -10,6 +13,7 @@ using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -18,23 +22,49 @@ using Windows.Foundation.Collections;
 
 namespace Pso2Tools.CmxViewer.Controls;
 
-public sealed partial class ColorBlock : UserControl
+public sealed partial class ColorBlock : UserControl, INotifyPropertyChanged
 {
+	private Color color;
 	public Color Color
 	{
-		get => (Color)GetValue(ColorProperty);
-		set => SetValue(ColorProperty, value);
+		get => color;
+		set
+		{
+			if (value != color)
+			{
+				color = value;
+				NotifyPropertyChanged();
+				NotifyPropertyChanged(nameof(Hex));
+			}
+		}
 	}
 
-	public static readonly DependencyProperty ColorProperty = DependencyProperty.Register(
-		nameof(Color),
-		typeof(Color),
-		typeof(ColorBlock),
-		new PropertyMetadata(default(Color))
-	);
+	public string Hex => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";
+
+	public event PropertyChangedEventHandler? PropertyChanged;
 
 	public ColorBlock()
 	{
 		InitializeComponent();
+	}
+
+	private void NotifyPropertyChanged([CallerMemberName] string propertyName = "")
+	{
+		PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+	}
+
+	private void Button_Click(object sender, RoutedEventArgs e)
+	{
+		if (!DataPopup.IsOpen)
+		{
+			DataPopup.IsOpen = true;
+		}
+	}
+
+	private void CopyButton_Click(object sender, RoutedEventArgs e)
+	{
+		var package = new DataPackage();
+		package.SetText(Hex);
+		Clipboard.SetContent(package);
 	}
 }

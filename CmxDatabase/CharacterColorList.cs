@@ -14,6 +14,16 @@ public struct Color
 	public byte G;
 	public byte R;
 	public byte A;
+
+	public static bool operator ==(Color left, Color right)
+	{
+		return left.R == right.R && left.G == right.G && left.B == right.B && left.A == right.A;
+	}
+
+	public static bool operator !=(Color left, Color right)
+	{
+		return !(left == right);
+	}
 }
 
 public struct ItemColors

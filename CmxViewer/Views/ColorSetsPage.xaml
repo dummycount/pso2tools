@@ -120,11 +120,13 @@
 									Width="32"
 									Height="32"
 									Color="{x:Bind Colors.Outerwear1}"
+									ToolTipService.ToolTip="Outerwear color 1"
 								/>
 								<cmxcontrols:ColorBlock
 									Width="32"
 									Height="32"
 									Color="{x:Bind Colors.Outerwear2}"
+									ToolTipService.ToolTip="Outerwear color 2"
 								/>
 							</StackPanel>
 							<StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,24,8">
@@ -132,11 +134,13 @@
 									Width="32"
 									Height="32"
 									Color="{x:Bind Colors.Basewear1}"
+									ToolTipService.ToolTip="Basewear color 1"
 								/>
 								<cmxcontrols:ColorBlock
 									Width="32"
 									Height="32"
 									Color="{x:Bind Colors.Basewear2}"
+									ToolTipService.ToolTip="Basewear color 2"
 								/>
 							</StackPanel>
 							<StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,24,8">
@@ -144,11 +148,13 @@
 									Width="32"
 									Height="32"
 									Color="{x:Bind Colors.Innerwear1}"
+									ToolTipService.ToolTip="Innerwear color 1"
 								/>
 								<cmxcontrols:ColorBlock
 									Width="32"
 									Height="32"
 									Color="{x:Bind Colors.Innerwear2}"
+									ToolTipService.ToolTip="Innerwear color 2"
 								/>
 							</StackPanel>
 						</controls:DataRow>

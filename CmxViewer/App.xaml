@@ -12,7 +12,7 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
-				<!-- Other merged dictionaries here -->
+				<ResourceDictionary Source="/Controls/CopyButton.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
 			<SolidColorBrush
@@ -52,6 +52,26 @@
 						</DataTemplate>
 					</Setter.Value>
 				</Setter>
+			</Style>
+
+			<Style x:Name="ColorHeaderStyle" TargetType="controls:HeaderedContentControl">
+				<Setter Property="HeaderTemplate">
+					<Setter.Value>
+						<DataTemplate>
+							<TextBlock
+								Text="{Binding}"
+								Style="{StaticResource BodyStrongTextBlockStyle}"
+								Margin="0,0,0,4"
+								HorizontalAlignment="Right"
+							/>
+						</DataTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+
+			<Style x:Name="CodeBlockStyle" TargetType="TextBlock">
+				<Setter Property="IsTextSelectionEnabled" Value="True" />
+				<Setter Property="FontFamily" Value="Consolas, Cascadia Code" />
 			</Style>
 		</ResourceDictionary>
 	</Application.Resources>
