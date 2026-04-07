@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
-using System.Runtime.InteropServices;
-using System.Text;
+﻿using System.Runtime.InteropServices;
 using AquaModelLibrary.Data.PSO2.Aqua;
 using AquaModelLibrary.Helpers.Readers;
 
@@ -23,6 +19,16 @@ public struct Color
 	public static bool operator !=(Color left, Color right)
 	{
 		return !(left == right);
+	}
+
+	public override readonly bool Equals(object? obj)
+	{
+		return (obj is Color color) && this == color;
+	}
+
+	public override readonly int GetHashCode()
+	{
+		return HashCode.Combine(B, G, R, A);
 	}
 }
 

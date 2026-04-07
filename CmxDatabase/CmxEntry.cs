@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Text;
-using AquaModelLibrary.Data.LegacyObj;
+﻿using System.ComponentModel.DataAnnotations;
 using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using AquaModelLibrary.Data.PSO2.Constants;
 

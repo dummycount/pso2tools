@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using AquaModelLibrary.Data.PSO2.Aqua;
-using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
+﻿using AquaModelLibrary.Data.PSO2.Aqua;
 
 namespace Pso2Tools;
 

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using CommunityToolkit.WinUI.Collections;
 using FluentIcons.Common;
 using Microsoft.UI.Xaml.Data;

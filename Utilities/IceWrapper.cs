@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Zamboni;
+﻿using Zamboni;
 
 namespace Pso2Tools;
 

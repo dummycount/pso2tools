@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-using AquaModelLibrary.Data.LegacyObj;
-using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
-using AquaModelLibrary.Data.PSO2.Aqua.MusFileRebootData.Composition;
+﻿using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using AquaModelLibrary.Data.Utility;
 
 namespace Pso2Tools;

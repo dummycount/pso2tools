@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
-using System.Xml.Linq;
 using AquaModelLibrary.Data.PSO2.Constants;
 
 namespace Pso2Tools;
