@@ -26,13 +26,13 @@ namespace Pso2Tools.CmxViewer.Views;
 /// </summary>
 public sealed partial class ColorSetsPage : Page
 {
-	private readonly ColorSetsModel? viewModel;
+	private readonly ColorSetsModel viewModel;
 
 	private readonly Brush alternateRowColorBrush;
 
 	public ColorSetsPage()
 	{
-		viewModel = App.Current.Services.GetService<ColorSetsModel>();
+		viewModel = App.Current.Services.GetRequiredService<ColorSetsModel>();
 		alternateRowColorBrush = (Brush)App.Current.Resources["AlternateRowColorBrush"];
 
 		InitializeComponent();

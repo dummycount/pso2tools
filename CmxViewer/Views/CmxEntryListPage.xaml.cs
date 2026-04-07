@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.CmxViewer.ViewModels;
 using Windows.Foundation;
@@ -28,33 +29,47 @@ namespace Pso2Tools.CmxViewer.Views;
 /// </summary>
 public sealed partial class CmxEntryListPage : Page
 {
-	private readonly CmxEntryListModel? viewModel;
+	private readonly CmxEntryListModel viewModel;
 
 	public CmxEntryListPage()
 	{
-		viewModel = App.Current.Services.GetService<CmxEntryListModel>();
+		viewModel = App.Current.Services.GetRequiredService<CmxEntryListModel>();
 
 		InitializeComponent();
 
+		EntryList.ItemClick += EntryList_ItemClick;
+
 		// TODO: persist sort property and order in settings
 		// TODO: persist filter toggles in settings, but only apply if object type uses them
+	}
+
+	private void EntryList_ItemClick(object sender, ItemClickEventArgs e)
+	{
+		if (e.ClickedItem is ICmxEntry entry)
+		{
+			App.MainWindow.Navigate(
+				typeof(CmxEntryPage),
+				new CmxEntryPageParam(viewModel.ObjectType, entry),
+				new SlideNavigationTransitionInfo()
+				{
+					Effect = SlideNavigationTransitionEffect.FromRight,
+				}
+			);
+		}
 	}
 
 	protected override async void OnNavigatedTo(NavigationEventArgs e)
 	{
 		base.OnNavigatedTo(e);
 
-		if (viewModel is not null)
+		if (e.Parameter is CmxObjectType objectType)
 		{
-			if (e.Parameter is CmxObjectType objectType)
-			{
-				viewModel.ObjectType = objectType;
-			}
-
-			await viewModel.LoadAsync();
-
-			Progress.IsActive = false;
+			viewModel.ObjectType = objectType;
 		}
+
+		await viewModel.LoadAsync();
+
+		Progress.IsActive = false;
 	}
 
 	// Can't use two-way binding with Segmented because it reports SelectedValue as null sometimes
@@ -63,7 +78,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is CmxEntrySort sort)
 		{
-			viewModel?.SortProperty = sort;
+			viewModel.SortProperty = sort;
 		}
 	}
 
@@ -71,7 +86,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is SortDirection directon)
 		{
-			viewModel?.SortDirection = directon;
+			viewModel.SortDirection = directon;
 		}
 	}
 
@@ -79,7 +94,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is GameVersionFilter version)
 		{
-			viewModel?.GameVersion = version;
+			viewModel.GameVersion = version;
 		}
 	}
 
@@ -87,7 +102,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is GenderFilter gender)
 		{
-			viewModel?.Gender = gender;
+			viewModel.Gender = gender;
 		}
 	}
 }

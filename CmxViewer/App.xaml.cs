@@ -31,6 +31,16 @@ public partial class App : Application
 {
 	public static new App Current => (App)Application.Current;
 
+	internal static MainWindow MainWindow
+	{
+		get
+		{
+			var mainWindow = Current.Window as MainWindow;
+			ArgumentNullException.ThrowIfNull(mainWindow);
+			return mainWindow;
+		}
+	}
+
 	public IServiceProvider Services { get; }
 
 	public Window? Window { get; set; }
@@ -43,13 +53,14 @@ public partial class App : Application
 		services.AddSingleton<SettingsService>();
 		services.AddSingleton<ICmxDatabase>(x =>
 		{
-			var settings = x.GetService<SettingsService>();
+			var settings = x.GetRequiredService<SettingsService>();
 
-			return new CmxDatabase(settings?.Pso2BinPath);
+			return new CmxDatabase(settings.Pso2BinPath);
 		});
 
 		// ViewModels
 		services.AddTransient<CmxEntryListModel>();
+		services.AddTransient<CmxEntryModel>();
 		services.AddTransient<ColorSetsModel>();
 
 		return services.BuildServiceProvider();

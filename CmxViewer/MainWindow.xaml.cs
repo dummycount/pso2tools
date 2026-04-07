@@ -10,6 +10,7 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.CmxViewer.Views;
 using Windows.Foundation;
@@ -33,13 +34,27 @@ public sealed partial class MainWindow : Window
 		SetTitleBar(TitleBar);
 
 		// Begin loading as soon as possible
-		var database = App.Current.Services.GetService<ICmxDatabase>();
-		database?.LoadAsync();
+		var database = App.Current.Services.GetRequiredService<ICmxDatabase>();
+		database.LoadAsync();
+	}
+
+	public void Navigate(
+		Type pageType,
+		object? parameter = null,
+		NavigationTransitionInfo? infoOverride = null
+	)
+	{
+		NavFrame.Navigate(pageType, parameter, infoOverride);
+	}
+
+	public void GoBack()
+	{
+		NavFrame.GoBack();
 	}
 
 	private void TitleBar_BackRequested(TitleBar sender, object args)
 	{
-		NavFrame.GoBack();
+		GoBack();
 	}
 
 	private void NavView_SelectionChanged(
@@ -60,18 +75,18 @@ public sealed partial class MainWindow : Window
 
 	private void NavView_Navigate(NavigationViewItem item)
 	{
-		if (item.Tag is null)
+		switch (item.Tag)
 		{
-			return;
-		}
+			case "Colors":
+				Navigate(typeof(ColorSetsPage));
+				break;
 
-		if ((string)item.Tag == "Colors")
-		{
-			NavFrame.Navigate(typeof(ColorSetsPage));
-		}
-		else if (Enum.TryParse<CmxObjectType>((string)item.Tag, out var objectType))
-		{
-			NavFrame.Navigate(typeof(CmxEntryListPage), objectType);
+			case string value:
+				if (Enum.TryParse<CmxObjectType>(value, out var objectType))
+				{
+					Navigate(typeof(CmxEntryListPage), objectType);
+				}
+				break;
 		}
 	}
 }

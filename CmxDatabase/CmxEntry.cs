@@ -140,7 +140,7 @@ public class CmxEntry<T> : ICmxEntry
 	public required CmxNames Names { get; set; }
 	public required T Data { get; set; }
 
-	public string Name => Names.En ?? Names.Jp ?? string.Empty;
+	public string Name => Names.En ?? Names.Jp ?? $"Unnamed {Id}";
 
 	BaseCMXObject ICmxEntry.Data
 	{

@@ -76,6 +76,7 @@
   <ItemGroup>
     <None Remove="Controls\ColorBlock.xaml" />
     <None Remove="Controls\CopyButton.xaml" />
+    <None Remove="Views\CmxEntryPage.xaml" />
     <None Remove="Views\ColorSetsPage.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
   </ItemGroup>
@@ -87,6 +88,11 @@
   <ItemGroup>
     <None Include="EnumDisplayNameConverter.cs" />
     <None Include="SettingsService.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\CmxEntryPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Controls\CopyButton.xaml">

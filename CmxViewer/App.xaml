@@ -12,6 +12,7 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+				<ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
 				<ResourceDictionary Source="/Controls/CopyButton.xaml" />
 			</ResourceDictionary.MergedDictionaries>
 
@@ -21,6 +22,7 @@
 			/>
 
 			<local:ColorToBrushConverter x:Key="ColorToBrushConverter" />
+			<local:DimIfNullConverter x:Key="DimIfNullConverter" />
 			<local:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
 			<local:SortDirectionIconConverter x:Key="SortDirectionIconConverter" />
 

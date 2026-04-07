@@ -15,14 +15,6 @@
 	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
 	mc:Ignorable="d"
 >
-	<Page.Resources>
-		<ResourceDictionary>
-			<ResourceDictionary.MergedDictionaries>
-				<ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
-			</ResourceDictionary.MergedDictionaries>
-		</ResourceDictionary>
-	</Page.Resources>
-
 	<Grid>
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
@@ -109,6 +101,8 @@
 			Grid.Row="2"
 			Padding="20,0,20,24"
 			ItemsSource="{x:Bind viewModel.Objects, Mode=OneWay}"
+			IsItemClickEnabled="True"
+			SelectionMode="None"
 		>
 			<ListView.Header>
 				<Border
@@ -134,8 +128,16 @@
 				<DataTemplate x:DataType="pso:ICmxEntry">
 					<controls:DataRow HorizontalAlignment="Left">
 						<TextBlock VerticalAlignment="Center" Text="{x:Bind Id}" />
-						<TextBlock VerticalAlignment="Center" Text="{x:Bind Names.En}" />
-						<TextBlock VerticalAlignment="Center" Text="{x:Bind Names.Jp}" />
+						<TextBlock
+							VerticalAlignment="Center"
+							Text="{x:Bind Names.En, TargetNullValue='Unnamed'}"
+							Opacity="{x:Bind Names.En, Converter={StaticResource DimIfNullConverter}}"
+						/>
+						<TextBlock
+							VerticalAlignment="Center"
+							Text="{x:Bind Names.Jp, TargetNullValue='Unnamed'}"
+							Opacity="{x:Bind Names.Jp, Converter={StaticResource DimIfNullConverter}}"
+						/>
 					</controls:DataRow>
 				</DataTemplate>
 			</ListView.ItemTemplate>

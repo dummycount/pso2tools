@@ -1,15 +1,10 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Text;
 using System.Threading.Tasks;
-using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Collections;
-using Reloaded.Memory.Extensions;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
 

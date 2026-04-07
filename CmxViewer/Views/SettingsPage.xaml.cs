@@ -26,17 +26,17 @@ namespace Pso2Tools.CmxViewer.Views;
 /// </summary>
 public sealed partial class SettingsPage : Page
 {
-	private readonly ICmxDatabase? database;
-	private readonly SettingsService? settings;
+	private readonly ICmxDatabase database;
+	private readonly SettingsService settings;
 
 	public SettingsPage()
 	{
-		database = App.Current.Services.GetService<ICmxDatabase>();
-		settings = App.Current.Services.GetService<SettingsService>();
+		database = App.Current.Services.GetRequiredService<ICmxDatabase>();
+		settings = App.Current.Services.GetRequiredService<SettingsService>();
 
 		InitializeComponent();
 
-		settings?.PropertyChanged += Settings_PropertyChanged;
+		settings.PropertyChanged += Settings_PropertyChanged;
 	}
 
 	private void Settings_PropertyChanged(
@@ -47,14 +47,14 @@ public sealed partial class SettingsPage : Page
 		switch (e.PropertyName)
 		{
 			case nameof(settings.Pso2BinPath):
-				database?.Pso2BinPath = settings?.Pso2BinPath;
+				database.Pso2BinPath = settings.Pso2BinPath;
 				break;
 		}
 	}
 
 	private void DataPathResetButton_Click(object sender, RoutedEventArgs e)
 	{
-		settings?.Pso2BinPath = GameFinder.FindPso2BinPath();
+		settings.Pso2BinPath = GameFinder.FindPso2BinPath();
 		// TODO: show an error if it couldn't be found
 	}
 
@@ -71,7 +71,7 @@ public sealed partial class SettingsPage : Page
 		var folder = await openPicker.PickSingleFolderAsync();
 		if (folder != null)
 		{
-			settings?.Pso2BinPath = folder.Path;
+			settings.Pso2BinPath = folder.Path;
 		}
 	}
 }
