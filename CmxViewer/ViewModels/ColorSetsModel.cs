@@ -70,21 +70,11 @@ public partial class ColorSetsModel : ObservableObject
 			return true;
 		}
 
+		// TODO: how much of a performance hit is Id.ToString()?
+
 		return item.Names.Any(
-			(names) =>
-				FilterTextMatches(trimmedFilterText, names.En)
-				|| FilterTextMatches(trimmedFilterText, names.Jp)
-		);
-	}
-
-	private static bool FilterTextMatches(string filterText, string? value)
-	{
-		if (value == null)
-		{
-			return false;
-		}
-
-		return value.Contains(filterText, StringComparison.InvariantCultureIgnoreCase);
+				(names) => Filters.MatchesString(trimmedFilterText, names.En, names.Jp)
+			) || Filters.MatchesString(trimmedFilterText, item.Id.ToString());
 	}
 
 	partial void OnFilterTextChanged(string value)

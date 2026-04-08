@@ -68,10 +68,10 @@
 				</StackPanel>
 			</controls:HeaderedContentControl>
 
-			<!-- TODO: only show these controls for certain object types -->
 			<controls:HeaderedContentControl
 				Header="Game version"
 				Style="{StaticResource HeaderedFieldStyle}"
+				Visibility="{x:Bind viewModel.UsesGameVersion, Converter={StaticResource BoolToVisibilityConverter}}"
 			>
 				<controls:Segmented
 					x:Name="GameVersion"
@@ -85,6 +85,7 @@
 			<controls:HeaderedContentControl
 				Header="Gender"
 				Style="{StaticResource HeaderedFieldStyle}"
+				Visibility="{x:Bind viewModel.UsesGender, Converter={StaticResource BoolToVisibilityConverter}}"
 			>
 				<controls:Segmented
 					x:Name="Gender"

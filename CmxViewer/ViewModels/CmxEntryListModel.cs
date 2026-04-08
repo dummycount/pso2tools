@@ -43,7 +43,13 @@ public partial class CmxEntryListModel : ObservableObject
 	private string trimmedFilterText = "";
 
 	[ObservableProperty]
+	public partial bool UsesGameVersion { get; private set; }
+
+	[ObservableProperty]
 	public partial GameVersionFilter GameVersion { get; set; } = GameVersionFilter.All;
+
+	[ObservableProperty]
+	public partial bool UsesGender { get; private set; }
 
 	[ObservableProperty]
 	public partial GenderFilter Gender { get; set; } = GenderFilter.All;
@@ -54,6 +60,7 @@ public partial class CmxEntryListModel : ObservableObject
 
 		Objects.Filter = x => FilterItem((ICmxEntry)x);
 
+		UpdateUsedFilters();
 		UpdateSort();
 	}
 
@@ -72,14 +79,20 @@ public partial class CmxEntryListModel : ObservableObject
 		}
 	}
 
+	private void UpdateUsedFilters()
+	{
+		UsesGameVersion = Filters.UsesVersion(ObjectType);
+		UsesGender = Filters.UsesGender(ObjectType);
+	}
+
 	private bool FilterItem(ICmxEntry item)
 	{
-		if (!Filters.MatchesVersion(GameVersion, item.Id))
+		if (UsesGameVersion && !Filters.MatchesVersion(GameVersion, item.Id))
 		{
 			return false;
 		}
 
-		if (!Filters.MatchesGender(Gender, item.Id))
+		if (UsesGender && !Filters.MatchesGender(Gender, item.Id))
 		{
 			return false;
 		}
@@ -89,18 +102,10 @@ public partial class CmxEntryListModel : ObservableObject
 			return true;
 		}
 
-		return FilterTextMatches(trimmedFilterText, item.Names.En)
-			|| FilterTextMatches(trimmedFilterText, item.Names.Jp);
-	}
+		// TODO: how much of a performance hit is Id.ToString()?
 
-	private static bool FilterTextMatches(string filterText, string? value)
-	{
-		if (value == null)
-		{
-			return false;
-		}
-
-		return value.Contains(filterText, StringComparison.InvariantCultureIgnoreCase);
+		return Filters.MatchesString(trimmedFilterText, item.Names.En, item.Names.Jp)
+			|| Filters.MatchesString(trimmedFilterText, item.Id.ToString());
 	}
 
 	private void UpdateSort()
@@ -138,6 +143,8 @@ public partial class CmxEntryListModel : ObservableObject
 	partial void OnGameVersionChanged(GameVersionFilter value) => Objects.RefreshFilter();
 
 	partial void OnGenderChanged(GenderFilter value) => Objects.RefreshFilter();
+
+	partial void OnObjectTypeChanged(CmxObjectType value) => UpdateUsedFilters();
 
 	partial void OnSortPropertyChanged(CmxEntrySort value) => UpdateSort();
 

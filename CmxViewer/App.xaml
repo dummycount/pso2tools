@@ -7,6 +7,7 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:collections="using:CommunityToolkit.WinUI.Collections"
 	xmlns:ic="using:FluentIcons.WinUI"
+	xmlns:converters="using:CommunityToolkit.WinUI.Converters"
 >
 	<Application.Resources>
 		<ResourceDictionary>
@@ -21,6 +22,7 @@
 				Color="{ThemeResource LayerOnMicaBaseAltFillColorSecondary}"
 			/>
 
+			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 			<local:ColorToBrushConverter x:Key="ColorToBrushConverter" />
 			<local:DimIfNullConverter x:Key="DimIfNullConverter" />
 			<local:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
