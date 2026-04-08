@@ -1,3 +1,4 @@
+using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
@@ -52,11 +53,27 @@ public sealed partial class ColorSetsPage : Page
 
 	// Can't use two-way binding with Segmented because it reports SelectedValue as null sometimes
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/3268
+	private void SortProperty_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (sender is Segmented control && control.SelectedValue is SortProperty sort)
+		{
+			viewModel.Settings.SortProperty = sort;
+		}
+	}
+
+	private void SortDirection_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (sender is Segmented control && control.SelectedValue is SortDirection directon)
+		{
+			viewModel.Settings.SortDirection = directon;
+		}
+	}
+
 	private void GameVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
 	{
 		if (sender is Segmented control && control.SelectedValue is GameVersion version)
 		{
-			viewModel.GameVersion = version;
+			viewModel.Settings.GameVersionFilter = version;
 		}
 	}
 
@@ -64,7 +81,7 @@ public sealed partial class ColorSetsPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is BodyType bodyType)
 		{
-			viewModel.BodyType = bodyType;
+			viewModel.Settings.BodyTypeFilter = bodyType;
 		}
 	}
 }

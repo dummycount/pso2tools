@@ -5,6 +5,18 @@ using System.Linq;
 
 namespace Pso2Tools.CmxViewer;
 
+public enum SortProperty
+{
+	[Display(Name = "ID")]
+	Id,
+
+	[Display(Name = "Name (EN)")]
+	NameEn,
+
+	[Display(Name = "Name (JP)")]
+	NameJp,
+}
+
 public enum GameVersion
 {
 	[Display(Name = "All")]

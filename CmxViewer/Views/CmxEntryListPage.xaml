@@ -51,8 +51,8 @@
 				<StackPanel Orientation="Horizontal" Spacing="8">
 					<controls:Segmented
 						x:Name="SortProperty"
-						ItemsSource="{ui:EnumValues Type=model:CmxEntrySort}"
-						SelectedItem="{x:Bind viewModel.SortProperty, Mode=OneWay}"
+						ItemsSource="{ui:EnumValues Type=cmx:SortProperty}"
+						SelectedItem="{x:Bind viewModel.Settings.SortProperty, Mode=OneWay}"
 						ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
 						SelectionChanged="SortProperty_SelectionChanged"
 					/>
@@ -61,7 +61,7 @@
 						x:Name="SortDirection"
 						xmlns:collections="using:CommunityToolkit.WinUI.Collections"
 						ItemsSource="{ui:EnumValues Type=collections:SortDirection}"
-						SelectedItem="{x:Bind viewModel.SortDirection, Mode=OneWay}"
+						SelectedItem="{x:Bind viewModel.Settings.SortDirection, Mode=OneWay}"
 						ItemTemplate="{StaticResource SortDirectionIconTemplate}"
 						SelectionChanged="SortDirection_SelectionChanged"
 					/>
@@ -76,7 +76,7 @@
 				<controls:Segmented
 					x:Name="GameVersion"
 					ItemsSource="{ui:EnumValues Type=cmx:GameVersion}"
-					SelectedItem="{x:Bind viewModel.GameVersion, Mode=OneWay}"
+					SelectedItem="{x:Bind viewModel.Settings.GameVersionFilter, Mode=OneWay}"
 					ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
 					SelectionChanged="GameVersion_SelectionChanged"
 				/>
@@ -90,7 +90,7 @@
 				<controls:Segmented
 					x:Name="BodyType"
 					ItemsSource="{ui:EnumValues Type=cmx:BodyType}"
-					SelectedItem="{x:Bind viewModel.BodyType, Mode=OneWay}"
+					SelectedItem="{x:Bind viewModel.Settings.BodyTypeFilter, Mode=OneWay}"
 					ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
 					SelectionChanged="BodyType_SelectionChanged"
 				/>

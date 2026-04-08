@@ -1,19 +1,38 @@
-﻿using AquaModelLibrary.Data.PSO2.Aqua;
+﻿using System.Collections.ObjectModel;
+using AquaModelLibrary.Data.PSO2.Aqua;
 
 namespace Pso2Tools;
 
-public class CmxColorSet(ItemColors colors)
+public class CmxColorSet
 {
-	public ItemColors Colors { get; set; } = colors;
-	public List<CmxNames> Names { get; set; } = [];
+	public readonly ItemColors Colors;
+	public readonly IEnumerable<CmxNames> Names;
 
-	public string NamesEn =>
-		string.Join('\n', Names.Select(name => name.En ?? "").Where(name => name != string.Empty));
-
-	public string NamesJp =>
-		string.Join('\n', Names.Select(name => name.Jp ?? "").Where(name => name != string.Empty));
+	public readonly string? NamesEn;
+	public readonly string? NamesJp;
 
 	public int Id => Colors.Id;
+
+	public CmxColorSet(ItemColors colors, IEnumerable<CmxNames> names)
+	{
+		Colors = colors;
+		Names = names;
+
+		NamesEn = GetCombinedNames(name => name.En);
+		NamesJp = GetCombinedNames(name => name.Jp);
+	}
+
+	private string? GetCombinedNames(Func<CmxNames, string?> selector)
+	{
+		var names = Names.Select(selector).Where(name => name is not null);
+
+		if (names.Any())
+		{
+			return string.Join('\n', names);
+		}
+
+		return null;
+	}
 
 	public static IEnumerable<CmxColorSet> GetColorSets(
 		CharacterColorList colors,
@@ -22,18 +41,18 @@ public class CmxColorSet(ItemColors colors)
 	{
 		foreach (var set in colors.ColorSets.Values)
 		{
-			var result = new CmxColorSet(set);
+			List<CmxNames> mappedNames = [];
 
 			foreach (var nameDict in names)
 			{
-				var name = nameDict[result.Id];
+				var name = nameDict[set.Id];
 				if (name)
 				{
-					result.Names.Add(name);
+					mappedNames.Add(name);
 				}
 			}
 
-			yield return result;
+			yield return new CmxColorSet(set, mappedNames);
 		}
 	}
 

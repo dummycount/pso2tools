@@ -12,6 +12,8 @@ public partial class ColorSetsModel : ObservableObject
 {
 	private readonly ICmxDatabase database;
 
+	public SettingsService Settings { get; }
+
 	[ObservableProperty]
 	public partial AdvancedCollectionView ColorSets { get; private set; } = [];
 
@@ -20,19 +22,35 @@ public partial class ColorSetsModel : ObservableObject
 
 	private string trimmedFilterText = "";
 
-	[ObservableProperty]
-	public partial GameVersion GameVersion { get; set; } = GameVersion.All;
-
-	[ObservableProperty]
-	public partial BodyType BodyType { get; set; } = BodyType.All;
-
-	public ColorSetsModel(ICmxDatabase database)
+	public ColorSetsModel(ICmxDatabase database, SettingsService settings)
 	{
 		this.database = database;
+		Settings = settings;
+
+		Settings.PropertyChanged += Settings_PropertyChanged;
 
 		ColorSets.Filter = x => FilterItem((CmxColorSet)x);
 
-		ColorSets.SortDescriptions.Add(new(SortDirection.Ascending, IdComparer.Instance));
+		UpdateSort();
+	}
+
+	private void Settings_PropertyChanged(
+		object? sender,
+		System.ComponentModel.PropertyChangedEventArgs e
+	)
+	{
+		switch (e.PropertyName)
+		{
+			case nameof(SettingsService.BodyTypeFilter):
+			case nameof(SettingsService.GameVersionFilter):
+				ColorSets.RefreshFilter();
+				break;
+
+			case nameof(SettingsService.SortDirection):
+			case nameof(SettingsService.SortProperty):
+				UpdateSort();
+				break;
+		}
 	}
 
 	[RelayCommand]
@@ -52,12 +70,12 @@ public partial class ColorSetsModel : ObservableObject
 
 	private bool FilterItem(CmxColorSet item)
 	{
-		if (!Filters.MatchesGameVersion(GameVersion, item.Id))
+		if (!Filters.MatchesGameVersion(Settings.GameVersionFilter, item.Id))
 		{
 			return false;
 		}
 
-		if (!Filters.MatchesBodyType(BodyType, item.Id))
+		if (!Filters.MatchesBodyType(Settings.BodyTypeFilter, item.Id))
 		{
 			return false;
 		}
@@ -74,15 +92,41 @@ public partial class ColorSetsModel : ObservableObject
 			) || Filters.MatchesString(trimmedFilterText, item.Id.ToString());
 	}
 
+	private void UpdateSort()
+	{
+		ColorSets.SortDescriptions.Clear();
+
+		// Can't use SortDescription(propertyName, sortDirection) due to
+		// https://github.com/CommunityToolkit/Windows/issues/642
+		switch (Settings.SortProperty)
+		{
+			case SortProperty.Id:
+				ColorSets.SortDescriptions.Add(new(Settings.SortDirection, IdComparer.Instance));
+				break;
+
+			case SortProperty.NameEn:
+				ColorSets.SortDescriptions.Add(
+					new(Settings.SortDirection, NameEnComparer.Instance)
+				);
+				ColorSets.SortDescriptions.Add(new(Settings.SortDirection, IdComparer.Instance));
+				break;
+
+			case SortProperty.NameJp:
+				ColorSets.SortDescriptions.Add(
+					new(Settings.SortDirection, NameJpComparer.Instance)
+				);
+				ColorSets.SortDescriptions.Add(new(Settings.SortDirection, IdComparer.Instance));
+				break;
+		}
+
+		ColorSets.RefreshSorting();
+	}
+
 	partial void OnFilterTextChanged(string value)
 	{
 		trimmedFilterText = value.Trim();
 		ColorSets.RefreshFilter();
 	}
-
-	partial void OnGameVersionChanged(GameVersion value) => ColorSets.RefreshFilter();
-
-	partial void OnBodyTypeChanged(BodyType value) => ColorSets.RefreshFilter();
 
 	private class IdComparer : IComparer
 	{
@@ -94,6 +138,52 @@ public partial class ColorSetsModel : ObservableObject
 			var idy = (y as CmxColorSet)?.Id ?? 0;
 
 			return idx - idy;
+		}
+	}
+
+	private class NameEnComparer : IComparer
+	{
+		public static readonly IComparer Instance = new NameEnComparer();
+
+		public int Compare(object? x, object? y)
+		{
+			var namex = (x as CmxColorSet)?.Names.FirstOrDefault()?.En;
+			var namey = (y as CmxColorSet)?.Names.FirstOrDefault()?.En;
+
+			if (string.IsNullOrEmpty(namex))
+			{
+				return string.IsNullOrEmpty(namey) ? 0 : 1;
+			}
+
+			if (string.IsNullOrEmpty(namey))
+			{
+				return -1;
+			}
+
+			return namex.CompareTo(namey, StringComparison.OrdinalIgnoreCase);
+		}
+	}
+
+	private class NameJpComparer : IComparer
+	{
+		public static readonly IComparer Instance = new NameJpComparer();
+
+		public int Compare(object? x, object? y)
+		{
+			var namex = (x as CmxColorSet)?.Names.FirstOrDefault()?.Jp;
+			var namey = (y as CmxColorSet)?.Names.FirstOrDefault()?.Jp;
+
+			if (string.IsNullOrEmpty(namex))
+			{
+				return string.IsNullOrEmpty(namey) ? 0 : 1;
+			}
+
+			if (string.IsNullOrEmpty(namey))
+			{
+				return -1;
+			}
+
+			return namex.CompareTo(namey, StringComparison.OrdinalIgnoreCase);
 		}
 	}
 }

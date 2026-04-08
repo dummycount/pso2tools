@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -8,21 +7,11 @@ using CommunityToolkit.WinUI.Collections;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
 
-public enum CmxEntrySort
-{
-	[Display(Name = "ID")]
-	Id,
-
-	[Display(Name = "Name (EN)")]
-	NameEn,
-
-	[Display(Name = "Name (JP)")]
-	NameJp,
-}
-
 public partial class CmxEntryListModel : ObservableObject
 {
 	private readonly ICmxDatabase database;
+
+	public SettingsService Settings { get; }
 
 	// TODO: make this a list of view models instead of a list of ICmxEntry?
 	[ObservableProperty]
@@ -30,12 +19,6 @@ public partial class CmxEntryListModel : ObservableObject
 
 	[ObservableProperty]
 	public partial CmxObjectType ObjectType { get; set; } = CmxObjectType.Basewear;
-
-	[ObservableProperty]
-	public partial CmxEntrySort SortProperty { get; set; } = CmxEntrySort.Id;
-
-	[ObservableProperty]
-	public partial SortDirection SortDirection { get; set; } = SortDirection.Ascending;
 
 	[ObservableProperty]
 	public partial string FilterText { get; set; } = "";
@@ -46,22 +29,38 @@ public partial class CmxEntryListModel : ObservableObject
 	public partial bool UsesGameVersion { get; private set; }
 
 	[ObservableProperty]
-	public partial GameVersion GameVersion { get; set; } = GameVersion.All;
-
-	[ObservableProperty]
 	public partial bool UsesBodyType { get; private set; }
 
-	[ObservableProperty]
-	public partial BodyType BodyType { get; set; } = BodyType.All;
-
-	public CmxEntryListModel(ICmxDatabase database)
+	public CmxEntryListModel(ICmxDatabase database, SettingsService settings)
 	{
 		this.database = database;
+		Settings = settings;
+
+		Settings.PropertyChanged += Settings_PropertyChanged;
 
 		Objects.Filter = x => FilterItem((ICmxEntry)x);
 
 		UpdateUsedFilters();
 		UpdateSort();
+	}
+
+	private void Settings_PropertyChanged(
+		object? sender,
+		System.ComponentModel.PropertyChangedEventArgs e
+	)
+	{
+		switch (e.PropertyName)
+		{
+			case nameof(SettingsService.BodyTypeFilter):
+			case nameof(SettingsService.GameVersionFilter):
+				Objects.RefreshFilter();
+				break;
+
+			case nameof(SettingsService.SortDirection):
+			case nameof(SettingsService.SortProperty):
+				UpdateSort();
+				break;
+		}
 	}
 
 	[RelayCommand]
@@ -87,12 +86,12 @@ public partial class CmxEntryListModel : ObservableObject
 
 	private bool FilterItem(ICmxEntry item)
 	{
-		if (UsesGameVersion && !Filters.MatchesGameVersion(GameVersion, item.Id))
+		if (UsesGameVersion && !Filters.MatchesGameVersion(Settings.GameVersionFilter, item.Id))
 		{
 			return false;
 		}
 
-		if (UsesBodyType && !Filters.MatchesBodyType(BodyType, item.Id))
+		if (UsesBodyType && !Filters.MatchesBodyType(Settings.BodyTypeFilter, item.Id))
 		{
 			return false;
 		}
@@ -114,20 +113,20 @@ public partial class CmxEntryListModel : ObservableObject
 
 		// Can't use SortDescription(propertyName, sortDirection) due to
 		// https://github.com/CommunityToolkit/Windows/issues/642
-		switch (SortProperty)
+		switch (Settings.SortProperty)
 		{
-			case CmxEntrySort.Id:
-				Objects.SortDescriptions.Add(new(SortDirection, IdComparer.Instance));
+			case SortProperty.Id:
+				Objects.SortDescriptions.Add(new(Settings.SortDirection, IdComparer.Instance));
 				break;
 
-			case CmxEntrySort.NameEn:
-				Objects.SortDescriptions.Add(new(SortDirection, NameEnComparer.Instance));
-				Objects.SortDescriptions.Add(new(SortDirection, IdComparer.Instance));
+			case SortProperty.NameEn:
+				Objects.SortDescriptions.Add(new(Settings.SortDirection, NameEnComparer.Instance));
+				Objects.SortDescriptions.Add(new(Settings.SortDirection, IdComparer.Instance));
 				break;
 
-			case CmxEntrySort.NameJp:
-				Objects.SortDescriptions.Add(new(SortDirection, NameJpComparer.Instance));
-				Objects.SortDescriptions.Add(new(SortDirection, IdComparer.Instance));
+			case SortProperty.NameJp:
+				Objects.SortDescriptions.Add(new(Settings.SortDirection, NameJpComparer.Instance));
+				Objects.SortDescriptions.Add(new(Settings.SortDirection, IdComparer.Instance));
 				break;
 		}
 
@@ -140,15 +139,7 @@ public partial class CmxEntryListModel : ObservableObject
 		Objects.RefreshFilter();
 	}
 
-	partial void OnGameVersionChanged(GameVersion value) => Objects.RefreshFilter();
-
-	partial void OnBodyTypeChanged(BodyType value) => Objects.RefreshFilter();
-
 	partial void OnObjectTypeChanged(CmxObjectType value) => UpdateUsedFilters();
-
-	partial void OnSortPropertyChanged(CmxEntrySort value) => UpdateSort();
-
-	partial void OnSortDirectionChanged(SortDirection value) => UpdateSort();
 
 	private class IdComparer : IComparer
 	{

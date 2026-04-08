@@ -63,9 +63,9 @@ public sealed partial class CmxEntryListPage : Page
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/3268
 	private void SortProperty_SelectionChanged(object sender, SelectionChangedEventArgs e)
 	{
-		if (sender is Segmented control && control.SelectedValue is CmxEntrySort sort)
+		if (sender is Segmented control && control.SelectedValue is SortProperty sort)
 		{
-			viewModel.SortProperty = sort;
+			viewModel.Settings.SortProperty = sort;
 		}
 	}
 
@@ -73,7 +73,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is SortDirection directon)
 		{
-			viewModel.SortDirection = directon;
+			viewModel.Settings.SortDirection = directon;
 		}
 	}
 
@@ -81,7 +81,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is GameVersion version)
 		{
-			viewModel.GameVersion = version;
+			viewModel.Settings.GameVersionFilter = version;
 		}
 	}
 
@@ -89,7 +89,7 @@ public sealed partial class CmxEntryListPage : Page
 	{
 		if (sender is Segmented control && control.SelectedValue is BodyType bodyType)
 		{
-			viewModel.BodyType = bodyType;
+			viewModel.Settings.BodyTypeFilter = bodyType;
 		}
 	}
 }
