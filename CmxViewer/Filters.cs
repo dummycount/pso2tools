@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Pso2Tools.CmxViewer;
 
-public enum GameVersionFilter
+public enum GameVersion
 {
 	[Display(Name = "All")]
 	All,
@@ -17,7 +17,7 @@ public enum GameVersionFilter
 	Ngs,
 }
 
-public enum GenderFilter
+public enum BodyType
 {
 	[Display(Name = "All")]
 	All,
@@ -29,7 +29,7 @@ public enum GenderFilter
 	T2,
 
 	[Display(Name = "None")]
-	NonGendered,
+	Untyped,
 }
 
 public static class Filters
@@ -54,25 +54,25 @@ public static class Filters
 		return MatchesString(filterText, values.AsEnumerable());
 	}
 
-	public static bool MatchesVersion(GameVersionFilter version, int itemId)
+	public static bool MatchesGameVersion(GameVersion version, int itemId)
 	{
 		return version switch
 		{
-			GameVersionFilter.All => true,
-			GameVersionFilter.Classic => !CmxObjectIds.IsNgs(itemId),
-			GameVersionFilter.Ngs => CmxObjectIds.IsNgs(itemId),
+			GameVersion.All => true,
+			GameVersion.Classic => !CmxObjectIds.IsNgs(itemId),
+			GameVersion.Ngs => CmxObjectIds.IsNgs(itemId),
 			_ => true,
 		};
 	}
 
-	public static bool MatchesGender(GenderFilter gender, int itemId)
+	public static bool MatchesBodyType(BodyType bodyType, int itemId)
 	{
-		return gender switch
+		return bodyType switch
 		{
-			GenderFilter.All => true,
-			GenderFilter.T1 => CmxObjectIds.IsT1(itemId),
-			GenderFilter.T2 => CmxObjectIds.IsT2(itemId),
-			GenderFilter.NonGendered => CmxObjectIds.IsNonGendered(itemId),
+			BodyType.All => true,
+			BodyType.T1 => CmxObjectIds.IsT1(itemId),
+			BodyType.T2 => CmxObjectIds.IsT2(itemId),
+			BodyType.Untyped => CmxObjectIds.IsNonGendered(itemId),
 			_ => true,
 		};
 	}
@@ -100,7 +100,7 @@ public static class Filters
 		};
 	}
 
-	public static bool UsesGender(CmxObjectType objectType)
+	public static bool UsesBodyType(CmxObjectType objectType)
 	{
 		return objectType switch
 		{

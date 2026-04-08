@@ -46,13 +46,13 @@ public partial class CmxEntryListModel : ObservableObject
 	public partial bool UsesGameVersion { get; private set; }
 
 	[ObservableProperty]
-	public partial GameVersionFilter GameVersion { get; set; } = GameVersionFilter.All;
+	public partial GameVersion GameVersion { get; set; } = GameVersion.All;
 
 	[ObservableProperty]
-	public partial bool UsesGender { get; private set; }
+	public partial bool UsesBodyType { get; private set; }
 
 	[ObservableProperty]
-	public partial GenderFilter Gender { get; set; } = GenderFilter.All;
+	public partial BodyType BodyType { get; set; } = BodyType.All;
 
 	public CmxEntryListModel(ICmxDatabase database)
 	{
@@ -82,17 +82,17 @@ public partial class CmxEntryListModel : ObservableObject
 	private void UpdateUsedFilters()
 	{
 		UsesGameVersion = Filters.UsesVersion(ObjectType);
-		UsesGender = Filters.UsesGender(ObjectType);
+		UsesBodyType = Filters.UsesBodyType(ObjectType);
 	}
 
 	private bool FilterItem(ICmxEntry item)
 	{
-		if (UsesGameVersion && !Filters.MatchesVersion(GameVersion, item.Id))
+		if (UsesGameVersion && !Filters.MatchesGameVersion(GameVersion, item.Id))
 		{
 			return false;
 		}
 
-		if (UsesGender && !Filters.MatchesGender(Gender, item.Id))
+		if (UsesBodyType && !Filters.MatchesBodyType(BodyType, item.Id))
 		{
 			return false;
 		}
@@ -140,9 +140,9 @@ public partial class CmxEntryListModel : ObservableObject
 		Objects.RefreshFilter();
 	}
 
-	partial void OnGameVersionChanged(GameVersionFilter value) => Objects.RefreshFilter();
+	partial void OnGameVersionChanged(GameVersion value) => Objects.RefreshFilter();
 
-	partial void OnGenderChanged(GenderFilter value) => Objects.RefreshFilter();
+	partial void OnBodyTypeChanged(BodyType value) => Objects.RefreshFilter();
 
 	partial void OnObjectTypeChanged(CmxObjectType value) => UpdateUsedFilters();
 

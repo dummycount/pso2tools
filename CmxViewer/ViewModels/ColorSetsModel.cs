@@ -8,9 +8,6 @@ using CommunityToolkit.WinUI.Collections;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
 
-// TODO: add classic/NGS filter
-// TODO: add gender filter
-
 public partial class ColorSetsModel : ObservableObject
 {
 	private readonly ICmxDatabase database;
@@ -24,10 +21,10 @@ public partial class ColorSetsModel : ObservableObject
 	private string trimmedFilterText = "";
 
 	[ObservableProperty]
-	public partial GameVersionFilter GameVersion { get; set; } = GameVersionFilter.All;
+	public partial GameVersion GameVersion { get; set; } = GameVersion.All;
 
 	[ObservableProperty]
-	public partial GenderFilter Gender { get; set; } = GenderFilter.All;
+	public partial BodyType BodyType { get; set; } = BodyType.All;
 
 	public ColorSetsModel(ICmxDatabase database)
 	{
@@ -55,12 +52,12 @@ public partial class ColorSetsModel : ObservableObject
 
 	private bool FilterItem(CmxColorSet item)
 	{
-		if (!Filters.MatchesVersion(GameVersion, item.Id))
+		if (!Filters.MatchesGameVersion(GameVersion, item.Id))
 		{
 			return false;
 		}
 
-		if (!Filters.MatchesGender(Gender, item.Id))
+		if (!Filters.MatchesBodyType(BodyType, item.Id))
 		{
 			return false;
 		}
@@ -83,9 +80,9 @@ public partial class ColorSetsModel : ObservableObject
 		ColorSets.RefreshFilter();
 	}
 
-	partial void OnGameVersionChanged(GameVersionFilter value) => ColorSets.RefreshFilter();
+	partial void OnGameVersionChanged(GameVersion value) => ColorSets.RefreshFilter();
 
-	partial void OnGenderChanged(GenderFilter value) => ColorSets.RefreshFilter();
+	partial void OnBodyTypeChanged(BodyType value) => ColorSets.RefreshFilter();
 
 	private class IdComparer : IComparer
 	{

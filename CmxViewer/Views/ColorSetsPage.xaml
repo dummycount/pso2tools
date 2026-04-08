@@ -50,7 +50,7 @@
 			>
 				<controls:Segmented
 					x:Name="GameVersion"
-					ItemsSource="{ui:EnumValues Type=cmx:GameVersionFilter}"
+					ItemsSource="{ui:EnumValues Type=cmx:GameVersion}"
 					SelectedItem="{x:Bind viewModel.GameVersion, Mode=OneWay}"
 					ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
 					SelectionChanged="GameVersion_SelectionChanged"
@@ -58,15 +58,15 @@
 			</controls:HeaderedContentControl>
 
 			<controls:HeaderedContentControl
-				Header="Gender"
+				Header="Body type"
 				Style="{StaticResource HeaderedFieldStyle}"
 			>
 				<controls:Segmented
-					x:Name="Gender"
-					ItemsSource="{ui:EnumValues Type=cmx:GenderFilter}"
-					SelectedItem="{x:Bind viewModel.Gender, Mode=OneWay}"
+					x:Name="BodyType"
+					ItemsSource="{ui:EnumValues Type=cmx:BodyType}"
+					SelectedItem="{x:Bind viewModel.BodyType, Mode=OneWay}"
 					ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
-					SelectionChanged="Gender_SelectionChanged"
+					SelectionChanged="BodyType_SelectionChanged"
 				/>
 			</controls:HeaderedContentControl>
 		</controls:WrapPanel>

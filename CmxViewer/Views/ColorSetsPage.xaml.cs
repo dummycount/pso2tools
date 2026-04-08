@@ -54,17 +54,17 @@ public sealed partial class ColorSetsPage : Page
 	// https://github.com/microsoft/microsoft-ui-xaml/issues/3268
 	private void GameVersion_SelectionChanged(object sender, SelectionChangedEventArgs e)
 	{
-		if (sender is Segmented control && control.SelectedValue is GameVersionFilter version)
+		if (sender is Segmented control && control.SelectedValue is GameVersion version)
 		{
-			viewModel?.GameVersion = version;
+			viewModel.GameVersion = version;
 		}
 	}
 
-	private void Gender_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	private void BodyType_SelectionChanged(object sender, SelectionChangedEventArgs e)
 	{
-		if (sender is Segmented control && control.SelectedValue is GenderFilter gender)
+		if (sender is Segmented control && control.SelectedValue is BodyType bodyType)
 		{
-			viewModel?.Gender = gender;
+			viewModel.BodyType = bodyType;
 		}
 	}
 }
