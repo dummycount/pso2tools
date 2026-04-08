@@ -22,11 +22,14 @@ public sealed partial class ColorBlock : UserControl, INotifyPropertyChanged
 				color = value;
 				NotifyPropertyChanged();
 				NotifyPropertyChanged(nameof(Hex));
+				NotifyPropertyChanged(nameof(Rgb));
 			}
 		}
 	}
 
-	public string Hex => $"#{Color.R:X2}{Color.G:X2}{Color.B:X2}";
+	public string Hex => $"#{Color.R:x2}{Color.G:x2}{Color.B:x2}";
+
+	public string Rgb => $"rgb({Color.R}, {Color.G}, {Color.B})";
 
 	public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -48,10 +51,17 @@ public sealed partial class ColorBlock : UserControl, INotifyPropertyChanged
 		}
 	}
 
-	private void CopyButton_Click(object sender, RoutedEventArgs e)
+	private void CopyHexButton_Click(object sender, RoutedEventArgs e)
 	{
 		var package = new DataPackage();
 		package.SetText(Hex);
+		Clipboard.SetContent(package);
+	}
+
+	private void CopyRgbButton_Click(object sender, RoutedEventArgs e)
+	{
+		var package = new DataPackage();
+		package.SetText(Rgb);
 		Clipboard.SetContent(package);
 	}
 }

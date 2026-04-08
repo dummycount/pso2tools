@@ -35,57 +35,45 @@
 				BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
 				Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
 			>
-				<StackPanel Spacing="16">
-					<StackPanel Orientation="Horizontal" Spacing="8">
-						<controls:HeaderedContentControl
-							Header="R"
-							Style="{StaticResource ColorHeaderStyle}"
-							Width="24"
-							HorizontalContentAlignment="Right"
-						>
-							<TextBlock
-								Text="{x:Bind Color.R, Mode=OneWay}"
-								Style="{StaticResource CodeBlockStyle}"
-							/>
-						</controls:HeaderedContentControl>
+				<Grid RowSpacing="16" ColumnSpacing="24">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" />
+					</Grid.RowDefinitions>
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="Auto" />
+						<ColumnDefinition Width="Auto" />
+					</Grid.ColumnDefinitions>
 
-						<controls:HeaderedContentControl
-							Header="G"
-							Style="{StaticResource ColorHeaderStyle}"
-							Width="24"
-							HorizontalContentAlignment="Right"
-						>
-							<TextBlock
-								Text="{x:Bind Color.G, Mode=OneWay}"
-								Style="{StaticResource CodeBlockStyle}"
-							/>
-						</controls:HeaderedContentControl>
+					<TextBlock
+						Grid.Row="0"
+						Grid.Column="0"
+						Text="{x:Bind Rgb, Mode=OneWay}"
+						VerticalAlignment="Center"
+					/>
+					<local:CopyButton
+						Grid.Row="0"
+						Grid.Column="1"
+						x:Name="CopyRgbButton"
+						Click="CopyRgbButton_Click"
+						Content="&#xE8C8;"
+					/>
 
-						<controls:HeaderedContentControl
-							Header="B"
-							Style="{StaticResource ColorHeaderStyle}"
-							Width="24"
-							HorizontalContentAlignment="Right"
-						>
-							<TextBlock
-								Text="{x:Bind Color.B, Mode=OneWay}"
-								Style="{StaticResource CodeBlockStyle}"
-							/>
-						</controls:HeaderedContentControl>
-					</StackPanel>
-					<StackPanel Orientation="Horizontal" Spacing="12">
-						<TextBlock
-							Text="{x:Bind Hex, Mode=OneWay}"
-							Style="{StaticResource CodeBlockStyle}"
-							VerticalAlignment="Center"
-						/>
-						<local:CopyButton
-							x:Name="CopyButton"
-							Click="CopyButton_Click"
-							Content="&#xE8C8;"
-						/>
-					</StackPanel>
-				</StackPanel>
+					<TextBlock
+						Grid.Row="1"
+						Grid.Column="0"
+						Text="{x:Bind Hex, Mode=OneWay}"
+						Style="{StaticResource CodeBlockStyle}"
+						VerticalAlignment="Center"
+					/>
+					<local:CopyButton
+						Grid.Row="1"
+						Grid.Column="1"
+						x:Name="CopyHexButton"
+						Click="CopyHexButton_Click"
+						Content="&#xE8C8;"
+					/>
+				</Grid>
 			</Border>
 		</Popup>
 	</Grid>
