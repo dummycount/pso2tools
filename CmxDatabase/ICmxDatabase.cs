@@ -6,6 +6,8 @@ public interface ICmxDatabase
 {
 	public string? Pso2BinPath { get; set; }
 
+	public event EventHandler<ErrorEventArgs>? LoadFailed;
+
 	public Task LoadAsync();
 
 	public Task<IEnumerable<CmxColorSet>> GetColorsAsync();

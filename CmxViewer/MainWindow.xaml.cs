@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -15,6 +17,8 @@ namespace Pso2Tools.CmxViewer;
 /// </summary>
 public sealed partial class MainWindow : Window
 {
+	public NavigationView NavigationView => NavView;
+
 	public MainWindow()
 	{
 		InitializeComponent();
@@ -22,9 +26,8 @@ public sealed partial class MainWindow : Window
 		ExtendsContentIntoTitleBar = true;
 		SetTitleBar(TitleBar);
 
-		// Begin loading as soon as possible
 		var database = App.Current.Services.GetRequiredService<ICmxDatabase>();
-		database.LoadAsync();
+		database.LoadFailed += Database_LoadFailed;
 	}
 
 	public void Navigate(
@@ -77,5 +80,31 @@ public sealed partial class MainWindow : Window
 				}
 				break;
 		}
+	}
+
+	private void Database_LoadFailed(object? sender, System.IO.ErrorEventArgs e)
+	{
+		DispatcherQueue.TryEnqueue(() =>
+		{
+			var button = new Button { Content = "Settings" };
+			button.Click += SettingsButton_Click;
+
+			var notification = new Notification
+			{
+				Title = "Failed to load CMX",
+				Message = e.GetException().Message,
+				Severity = InfoBarSeverity.Error,
+				ActionButton = button,
+			};
+
+			NotificationQueue.Show(notification);
+		});
+	}
+
+	private void SettingsButton_Click(object sender, RoutedEventArgs e)
+	{
+		NavView.SelectedItem = NavView.SettingsItem;
+
+		NotificationQueue.Clear();
 	}
 }

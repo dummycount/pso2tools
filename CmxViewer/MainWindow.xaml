@@ -6,6 +6,8 @@
 	xmlns:local="using:Pso2Tools.CmxViewer"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+	xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
 	mc:Ignorable="d"
 	Title="CmxViewer"
 >
@@ -109,5 +111,11 @@
 				<Frame x:Name="NavFrame" />
 			</NavigationView.Content>
 		</NavigationView>
+
+		<InfoBar Grid.Row="1" HorizontalAlignment="Center">
+			<interactivity:Interaction.Behaviors>
+				<behaviors:StackedNotificationsBehavior x:Name="NotificationQueue" />
+			</interactivity:Interaction.Behaviors>
+		</InfoBar>
 	</Grid>
 </Window>

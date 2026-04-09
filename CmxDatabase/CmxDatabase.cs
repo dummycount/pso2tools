@@ -19,6 +19,8 @@ public class CmxDatabase : ICmxDatabase
 		}
 	}
 
+	public event EventHandler<ErrorEventArgs>? LoadFailed;
+
 	private Task<IEnumerable<CmxColorSet>?>? colorsTask;
 	private Task<CmxEntryFactory?>? factoryTask;
 
@@ -47,6 +49,11 @@ public class CmxDatabase : ICmxDatabase
 	public CmxDatabase(string? pso2BinPath = null)
 	{
 		Pso2BinPath = pso2BinPath ?? GameFinder.FindPso2BinPath();
+	}
+
+	protected virtual void OnLoadFailed(ErrorEventArgs e)
+	{
+		LoadFailed?.Invoke(this, e);
 	}
 
 	private void Reset()
@@ -98,10 +105,18 @@ public class CmxDatabase : ICmxDatabase
 			var basewear = CmxNameDictionary.GetItemNames(factory.PartsText, "basewear");
 			var innerwear = CmxNameDictionary.GetItemNames(factory.PartsText, "innerwear");
 
-			return CmxColorSet.GetColorSets(
-				CharacterColorList.Load(Pso2BinPath),
-				[outerwear, basewear, innerwear]
-			);
+			try
+			{
+				return CmxColorSet.GetColorSets(
+					CharacterColorList.Load(Pso2BinPath),
+					[outerwear, basewear, innerwear]
+				);
+			}
+			catch (IOException ex)
+			{
+				OnLoadFailed(new(ex));
+				return null;
+			}
 		});
 
 		return (await colorsTask) ?? [];
@@ -279,17 +294,25 @@ public class CmxDatabase : ICmxDatabase
 				return null;
 			}
 
-			var cmx = ReferenceGenerator.ExtractCMX(Pso2BinPath);
-			ReferenceGenerator.ReadCMXText(
-				Pso2BinPath,
-				out var partsText,
-				out var acceText,
-				out _,
-				out _
-			);
+			try
+			{
+				var cmx = ReferenceGenerator.ExtractCMX(Pso2BinPath);
+				ReferenceGenerator.ReadCMXText(
+					Pso2BinPath,
+					out var partsText,
+					out var acceText,
+					out _,
+					out _
+				);
 
-			var faceVariationDict = FaceVariationDict.Load(Pso2BinPath);
-			return new CmxEntryFactory(cmx, partsText, acceText, faceVariationDict);
+				var faceVariationDict = FaceVariationDict.Load(Pso2BinPath);
+				return new CmxEntryFactory(cmx, partsText, acceText, faceVariationDict);
+			}
+			catch (IOException ex)
+			{
+				OnLoadFailed(new(ex));
+				return null;
+			}
 		});
 
 		return await factoryTask;

@@ -37,6 +37,9 @@ public sealed partial class SettingsPage : Page
 		{
 			case nameof(settings.Pso2BinPath):
 				database.Pso2BinPath = settings.Pso2BinPath;
+
+				// Start loading immediately so you get notified if the path is wrong.
+				database.LoadAsync();
 				break;
 		}
 	}

@@ -1,7 +1,9 @@
 ﻿using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using Pso2Tools.CmxViewer.ViewModels;
+using Pso2Tools.CmxViewer.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -64,9 +66,12 @@ public partial class App : Application
 	/// Invoked when the application is launched.
 	/// </summary>
 	/// <param name="args">Details about the launch request and process.</param>
-	protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+	protected override void OnLaunched(LaunchActivatedEventArgs args)
 	{
 		Window = new MainWindow();
 		Window.Activate();
+
+		MainWindow.Navigate(typeof(CmxEntryListPage), CmxObjectType.Basewear);
+		((NavigationViewItem)MainWindow.NavigationView.MenuItems[0]).IsSelected = true;
 	}
 }
