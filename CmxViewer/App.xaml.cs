@@ -1,4 +1,6 @@
 ﻿using System;
+using System.IO;
+using Config.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -36,10 +38,25 @@ public partial class App : Application
 		var services = new ServiceCollection();
 
 		// Services
-		services.AddSingleton<SettingsService>();
+		services.AddSingleton<ISettingsService>(x =>
+		{
+			var settingsFilePath = Path.Join(
+				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				"PSO2CMXViewer",
+				"settings.ini"
+			);
+
+			var settings = new ConfigurationBuilder<ISettingsService>()
+				.UseIniFile(settingsFilePath)
+				.Build();
+
+			settings.Pso2BinPath ??= GameFinder.FindPso2BinPath();
+
+			return settings;
+		});
 		services.AddSingleton<ICmxDatabase>(x =>
 		{
-			var settings = x.GetRequiredService<SettingsService>();
+			var settings = x.GetRequiredService<ISettingsService>();
 
 			return new CmxDatabase(settings.Pso2BinPath);
 		});

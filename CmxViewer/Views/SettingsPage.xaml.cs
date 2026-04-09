@@ -16,12 +16,12 @@ namespace Pso2Tools.CmxViewer.Views;
 public sealed partial class SettingsPage : Page
 {
 	private readonly ICmxDatabase database;
-	private readonly SettingsService settings;
+	private readonly ISettingsService settings;
 
 	public SettingsPage()
 	{
 		database = App.Current.Services.GetRequiredService<ICmxDatabase>();
-		settings = App.Current.Services.GetRequiredService<SettingsService>();
+		settings = App.Current.Services.GetRequiredService<ISettingsService>();
 
 		InitializeComponent();
 

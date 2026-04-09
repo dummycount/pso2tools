@@ -11,7 +11,7 @@ public partial class CmxEntryListModel : ObservableObject
 {
 	private readonly ICmxDatabase database;
 
-	public SettingsService Settings { get; }
+	public ISettingsService Settings { get; }
 
 	// TODO: make this a list of view models instead of a list of ICmxEntry?
 	[ObservableProperty]
@@ -31,7 +31,7 @@ public partial class CmxEntryListModel : ObservableObject
 	[ObservableProperty]
 	public partial bool UsesBodyType { get; private set; }
 
-	public CmxEntryListModel(ICmxDatabase database, SettingsService settings)
+	public CmxEntryListModel(ICmxDatabase database, ISettingsService settings)
 	{
 		this.database = database;
 		Settings = settings;
@@ -51,13 +51,13 @@ public partial class CmxEntryListModel : ObservableObject
 	{
 		switch (e.PropertyName)
 		{
-			case nameof(SettingsService.BodyTypeFilter):
-			case nameof(SettingsService.GameVersionFilter):
+			case nameof(Settings.BodyTypeFilter):
+			case nameof(Settings.GameVersionFilter):
 				Objects.RefreshFilter();
 				break;
 
-			case nameof(SettingsService.SortDirection):
-			case nameof(SettingsService.SortProperty):
+			case nameof(Settings.SortDirection):
+			case nameof(Settings.SortProperty):
 				UpdateSort();
 				break;
 		}

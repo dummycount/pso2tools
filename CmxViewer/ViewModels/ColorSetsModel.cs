@@ -12,7 +12,7 @@ public partial class ColorSetsModel : ObservableObject
 {
 	private readonly ICmxDatabase database;
 
-	public SettingsService Settings { get; }
+	public ISettingsService Settings { get; }
 
 	[ObservableProperty]
 	public partial AdvancedCollectionView ColorSets { get; private set; } = [];
@@ -22,7 +22,7 @@ public partial class ColorSetsModel : ObservableObject
 
 	private string trimmedFilterText = "";
 
-	public ColorSetsModel(ICmxDatabase database, SettingsService settings)
+	public ColorSetsModel(ICmxDatabase database, ISettingsService settings)
 	{
 		this.database = database;
 		Settings = settings;
@@ -41,13 +41,13 @@ public partial class ColorSetsModel : ObservableObject
 	{
 		switch (e.PropertyName)
 		{
-			case nameof(SettingsService.BodyTypeFilter):
-			case nameof(SettingsService.GameVersionFilter):
+			case nameof(Settings.BodyTypeFilter):
+			case nameof(Settings.GameVersionFilter):
 				ColorSets.RefreshFilter();
 				break;
 
-			case nameof(SettingsService.SortDirection):
-			case nameof(SettingsService.SortProperty):
+			case nameof(Settings.SortDirection):
+			case nameof(Settings.SortProperty):
 				UpdateSort();
 				break;
 		}

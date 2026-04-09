@@ -6,8 +6,10 @@ using Microsoft.Windows.Storage;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
 
-public partial class SettingsService : ObservableObject
+public partial class SettingsService : ObservableObject, ISettingsService
 {
+	// Use GetForUnpackaged()
+	// https://github.com/microsoft/WindowsAppSDK/pull/6277
 	private readonly ApplicationDataContainer settings = ApplicationData.GetDefault().LocalSettings;
 
 	public string? Pso2BinPath
