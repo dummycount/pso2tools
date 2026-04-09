@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -42,6 +43,11 @@ public sealed partial class MainWindow : Window
 	public void GoBack()
 	{
 		NavFrame.GoBack();
+	}
+
+	private NavigationViewItem? FindNavViewItem(string tag)
+	{
+		return NavView.FindDescendant<NavigationViewItem>(item => tag.Equals(item.Tag));
 	}
 
 	private void TitleBar_BackRequested(TitleBar sender, object args)
@@ -106,5 +112,10 @@ public sealed partial class MainWindow : Window
 		NavView.SelectedItem = NavView.SettingsItem;
 
 		NotificationQueue.Clear();
+	}
+
+	private void NavView_Loaded(object sender, RoutedEventArgs e)
+	{
+		NavView.SelectedItem = FindNavViewItem(CmxObjectType.Basewear.ToString());
 	}
 }

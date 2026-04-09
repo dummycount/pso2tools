@@ -3,9 +3,7 @@ using System.IO;
 using Config.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Pso2Tools.CmxViewer.ViewModels;
-using Pso2Tools.CmxViewer.Views;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -87,8 +85,5 @@ public partial class App : Application
 	{
 		Window = new MainWindow();
 		Window.Activate();
-
-		MainWindow.Navigate(typeof(CmxEntryListPage), CmxObjectType.Basewear);
-		((NavigationViewItem)MainWindow.NavigationView.MenuItems[0]).IsSelected = true;
 	}
 }

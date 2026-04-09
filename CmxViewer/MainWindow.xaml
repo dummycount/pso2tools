@@ -41,6 +41,7 @@
 			IsPaneToggleButtonVisible="False"
 			IsSettingsVisible="True"
 			SelectionChanged="NavView_SelectionChanged"
+			Loaded="NavView_Loaded"
 		>
 			<NavigationView.MenuItems>
 				<NavigationViewItem Content="Layering Wear" IsExpanded="True">
