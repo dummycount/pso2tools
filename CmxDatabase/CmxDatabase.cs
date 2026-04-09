@@ -1,4 +1,5 @@
-﻿using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
+﻿using System.Diagnostics;
+using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using AquaModelLibrary.Data.Utility;
 
 namespace Pso2Tools;
@@ -296,6 +297,9 @@ public class CmxDatabase : ICmxDatabase
 
 			try
 			{
+				var watch = Stopwatch.StartNew();
+				Debug.WriteLine("CMX load started");
+
 				var cmx = ReferenceGenerator.ExtractCMX(Pso2BinPath);
 				ReferenceGenerator.ReadCMXText(
 					Pso2BinPath,
@@ -306,6 +310,10 @@ public class CmxDatabase : ICmxDatabase
 				);
 
 				var faceVariationDict = FaceVariationDict.Load(Pso2BinPath);
+
+				watch.Stop();
+				Debug.WriteLine($"CMX loaded in {watch.Elapsed.TotalSeconds} s");
+
 				return new CmxEntryFactory(cmx, partsText, acceText, faceVariationDict);
 			}
 			catch (IOException ex)
