@@ -18,12 +18,11 @@ public sealed partial class ColorSetsPage : Page
 {
 	private readonly ColorSetsModel viewModel;
 
-	private readonly Brush alternateRowColorBrush;
+	private readonly AlternatingRowColor alternatingRowColor = new();
 
 	public ColorSetsPage()
 	{
 		viewModel = App.Current.Services.GetRequiredService<ColorSetsModel>();
-		alternateRowColorBrush = (Brush)App.Current.Resources["AlternateRowColorBrush"];
 
 		InitializeComponent();
 
@@ -35,8 +34,7 @@ public sealed partial class ColorSetsPage : Page
 		ContainerContentChangingEventArgs args
 	)
 	{
-		((Grid)args.ItemContainer.ContentTemplateRoot).Background =
-			args.ItemIndex % 2 == 0 ? null : alternateRowColorBrush;
+		alternatingRowColor.Apply(args);
 	}
 
 	protected override async void OnNavigatedTo(NavigationEventArgs e)

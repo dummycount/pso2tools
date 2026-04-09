@@ -6,28 +6,117 @@
 	xmlns:local="using:Pso2Tools.CmxViewer.Views"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
+	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
+	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
+	xmlns:viewmodels="using:Pso2Tools.CmxViewer.ViewModels"
 	mc:Ignorable="d"
 >
 	<Grid>
 		<Grid.Resources>
+			<Style x:Name="BreadcrumbBarTitleStyle" TargetType="BreadcrumbBar">
+				<Setter Property="ItemTemplate">
+					<Setter.Value>
+						<DataTemplate>
+							<BreadcrumbBarItem Content="{Binding}">
+								<BreadcrumbBarItem.ContentTemplate>
+									<DataTemplate>
+										<TextBlock
+											Text="{Binding}"
+											Style="{StaticResource SubtitleTextBlockStyle}"
+										/>
+									</DataTemplate>
+								</BreadcrumbBarItem.ContentTemplate>
+							</BreadcrumbBarItem>
+						</DataTemplate>
+					</Setter.Value>
+				</Setter>
+			</Style>
+
 			<x:Double x:Key="BreadcrumbBarChevronFontSize">20</x:Double>
 		</Grid.Resources>
 
-		<BreadcrumbBar x:Name="Breadcrumbs" Margin="36,24,36,16">
-			<BreadcrumbBar.ItemTemplate>
-				<DataTemplate x:DataType="x:String">
-					<BreadcrumbBarItem Content="{Binding}">
-						<BreadcrumbBarItem.ContentTemplate>
-							<DataTemplate>
-								<TextBlock
-									Text="{Binding}"
-									Style="{StaticResource SubtitleTextBlockStyle}"
-								/>
-							</DataTemplate>
-						</BreadcrumbBarItem.ContentTemplate>
-					</BreadcrumbBarItem>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="*" />
+		</Grid.RowDefinitions>
+
+		<BreadcrumbBar
+			x:Name="Breadcrumbs"
+			Margin="36,24,36,16"
+			Style="{StaticResource BreadcrumbBarTitleStyle}"
+		/>
+
+		<ListView
+			x:Name="MemberList"
+			Grid.Row="1"
+			Padding="24,0,24,24"
+			ItemsSource="{x:Bind viewModel.Members, Mode=OneWay}"
+			SelectionMode="None"
+			ContainerContentChanging="MemberList_ContainerContentChanging"
+		>
+			<ListView.Header>
+				<Border
+					Padding="12,4,0,4"
+					Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
+					CornerRadius="4"
+				>
+					<!-- TODO: this doesn't stick until window is resized? -->
+					<interactivity:Interaction.Behaviors>
+						<behaviors:StickyHeaderBehavior />
+					</interactivity:Interaction.Behaviors>
+
+					<controls:DataTable ColumnSpacing="24">
+						<controls:DataColumn Content="Field" MinWidth="100" />
+						<controls:DataColumn Content="Value" MinWidth="100" />
+						<controls:DataColumn Content="Hexadecimal" MinWidth="100" />
+						<controls:DataColumn Content="Raw data (little-endian)" MinWidth="100" />
+					</controls:DataTable>
+				</Border>
+			</ListView.Header>
+
+			<ListView.ItemTemplate>
+				<DataTemplate x:DataType="viewmodels:ICmxMember">
+					<Border Padding="16,0,12,0" CornerRadius="4">
+						<controls:DataRow HorizontalAlignment="Left">
+							<TextBlock
+								VerticalAlignment="Center"
+								Padding="0,8,0,8"
+								Text="{x:Bind Name}"
+								Style="{StaticResource CodeBlockStyle}"
+							/>
+							<TextBlock
+								VerticalAlignment="Center"
+								Padding="0,8,0,8"
+								Text="{x:Bind Text}"
+								Style="{StaticResource CodeBlockStyle}"
+							/>
+							<TextBlock
+								VerticalAlignment="Center"
+								Padding="0,8,0,8"
+								Text="{x:Bind TextHex}"
+								Style="{StaticResource CodeBlockStyle}"
+							/>
+							<TextBlock
+								VerticalAlignment="Center"
+								Padding="0,8,0,8"
+								Text="{x:Bind Bytes}"
+								Style="{StaticResource CodeBlockStyle}"
+							/>
+						</controls:DataRow>
+					</Border>
 				</DataTemplate>
-			</BreadcrumbBar.ItemTemplate>
-		</BreadcrumbBar>
+			</ListView.ItemTemplate>
+
+			<ListView.ItemContainerStyle>
+				<Style
+					BasedOn="{StaticResource DefaultListViewItemStyle}"
+					TargetType="ListViewItem"
+				>
+					<Setter Property="Padding" Value="0,0,0,0" />
+					<Setter Property="HorizontalContentAlignment" Value="Left" />
+				</Style>
+			</ListView.ItemContainerStyle>
+		</ListView>
 	</Grid>
 </Page>

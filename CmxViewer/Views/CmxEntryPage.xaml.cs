@@ -21,6 +21,8 @@ public sealed partial class CmxEntryPage : Page
 {
 	private readonly CmxEntryModel viewModel;
 
+	private readonly AlternatingRowColor alternatingRowColor = new();
+
 	public CmxEntryPage()
 	{
 		viewModel = App.Current.Services.GetRequiredService<CmxEntryModel>();
@@ -45,6 +47,14 @@ public sealed partial class CmxEntryPage : Page
 				param.Object.Name,
 			};
 		}
+	}
+
+	private void MemberList_ContainerContentChanging(
+		ListViewBase sender,
+		ContainerContentChangingEventArgs args
+	)
+	{
+		alternatingRowColor.Apply(args);
 	}
 
 	private void Breadcrumbs_ItemClicked(
