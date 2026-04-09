@@ -10,6 +10,7 @@
     <File Path=".gitmodules" />
     <File Path=".pre-commit-config.yaml" />
     <File Path="dotnet-tools.json" />
+    <File Path="LICENSE" />
     <File Path="setup_fbx_sdk.py" />
   </Folder>
   <Project Path="CmxDatabase/CmxDatabase.csproj" Id="021e5587-9fc7-4d79-9f30-3a71b6a7e879" />
