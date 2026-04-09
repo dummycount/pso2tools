@@ -2,8 +2,8 @@ using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.Windows.Storage.Pickers;
 using Pso2Tools.CmxViewer.ViewModels;
-using Windows.Storage.Pickers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -47,18 +47,14 @@ public sealed partial class SettingsPage : Page
 	private void DataPathResetButton_Click(object sender, RoutedEventArgs e)
 	{
 		settings.Pso2BinPath = GameFinder.FindPso2BinPath();
-		// TODO: show an error if it couldn't be found
 	}
 
 	private async void DataPathButton_Click(object sender, RoutedEventArgs e)
 	{
-		var openPicker = new FolderPicker
+		var openPicker = new FolderPicker(App.MainWindow.AppWindow.Id)
 		{
 			SuggestedStartLocation = PickerLocationId.ComputerFolder,
 		};
-		openPicker.FileTypeFilter.Add("*");
-
-		openPicker.Initialize();
 
 		var folder = await openPicker.PickSingleFolderAsync();
 		if (folder != null)

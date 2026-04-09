@@ -2,13 +2,13 @@
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI.Collections;
-using Windows.Storage;
+using Microsoft.Windows.Storage;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
 
 public partial class SettingsService : ObservableObject
 {
-	private readonly ApplicationDataContainer settings = ApplicationData.Current.LocalSettings;
+	private readonly ApplicationDataContainer settings = ApplicationData.GetDefault().LocalSettings;
 
 	public string? Pso2BinPath
 	{
