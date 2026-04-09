@@ -50,7 +50,7 @@ public partial class App : Application
 
 			settings.Pso2BinPath ??= GameFinder.FindPso2BinPath();
 
-			return settings;
+			return new SettingsNotificationFixer(settings);
 		});
 		services.AddSingleton<ICmxDatabase>(x =>
 		{

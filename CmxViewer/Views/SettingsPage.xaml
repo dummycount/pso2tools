@@ -47,7 +47,7 @@
 
 				<controls:SettingsCard
 					Header="Path to pso2_bin folder"
-					Description="{x:Bind settings.Pso2BinPath, Mode=OneWay}"
+					Description="{x:Bind settings.Pso2BinPath, TargetNullValue='No path set', Mode=OneWay}"
 				>
 					<controls:SettingsCard.HeaderIcon>
 						<FontIcon Glyph="&#xE8B7;" />

@@ -85,8 +85,6 @@ public partial class ColorSetsModel : ObservableObject
 			return true;
 		}
 
-		// TODO: how much of a performance hit is Id.ToString()?
-
 		return item.Names.Any(
 				(names) => Filters.MatchesString(trimmedFilterText, names.En, names.Jp)
 			) || Filters.MatchesString(trimmedFilterText, item.Id.ToString());

@@ -1,4 +1,5 @@
 using System;
+using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -47,6 +48,19 @@ public sealed partial class SettingsPage : Page
 	private void DataPathResetButton_Click(object sender, RoutedEventArgs e)
 	{
 		settings.Pso2BinPath = GameFinder.FindPso2BinPath();
+
+		if (settings.Pso2BinPath is null)
+		{
+			App.MainWindow.ShowNotification(
+				new Notification
+				{
+					Title = "Failed to find pso2_bin folder",
+					Message = "Set the path to your PSO2 installation manually",
+					Severity = InfoBarSeverity.Error,
+					Duration = TimeSpan.FromSeconds(10),
+				}
+			);
+		}
 	}
 
 	private async void DataPathButton_Click(object sender, RoutedEventArgs e)

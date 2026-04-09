@@ -49,7 +49,7 @@ public class CmxDatabase : ICmxDatabase
 
 	public CmxDatabase(string? pso2BinPath = null)
 	{
-		Pso2BinPath = pso2BinPath ?? GameFinder.FindPso2BinPath();
+		Pso2BinPath = pso2BinPath;
 	}
 
 	protected virtual void OnLoadFailed(ErrorEventArgs e)

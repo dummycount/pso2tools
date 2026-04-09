@@ -13,7 +13,6 @@ public partial class CmxEntryListModel : ObservableObject
 
 	public ISettingsService Settings { get; }
 
-	// TODO: make this a list of view models instead of a list of ICmxEntry?
 	[ObservableProperty]
 	public partial AdvancedCollectionView Objects { get; private set; } = [];
 
@@ -100,8 +99,6 @@ public partial class CmxEntryListModel : ObservableObject
 		{
 			return true;
 		}
-
-		// TODO: how much of a performance hit is Id.ToString()?
 
 		return Filters.MatchesString(trimmedFilterText, item.Names.En, item.Names.Jp)
 			|| Filters.MatchesString(trimmedFilterText, item.Id.ToString());

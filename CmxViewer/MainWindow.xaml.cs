@@ -29,6 +29,11 @@ public sealed partial class MainWindow : Window
 
 		var database = App.Current.Services.GetRequiredService<ICmxDatabase>();
 		database.LoadFailed += Database_LoadFailed;
+
+		if (database.Pso2BinPath is null)
+		{
+			Database_Pso2BinPathNotSet();
+		}
 	}
 
 	public void Navigate(
@@ -43,6 +48,12 @@ public sealed partial class MainWindow : Window
 	public void GoBack()
 	{
 		NavFrame.GoBack();
+	}
+
+	public void ShowNotification(Notification notification)
+	{
+		NotificationQueue.Clear();
+		NotificationQueue.Show(notification);
 	}
 
 	private NavigationViewItem? FindNavViewItem(string tag)
@@ -88,23 +99,40 @@ public sealed partial class MainWindow : Window
 		}
 	}
 
+	private Button GetSettingsButton()
+	{
+		var button = new Button { Content = "Settings" };
+		button.Click += SettingsButton_Click;
+		return button;
+	}
+
 	private void Database_LoadFailed(object? sender, System.IO.ErrorEventArgs e)
 	{
 		DispatcherQueue.TryEnqueue(() =>
 		{
-			var button = new Button { Content = "Settings" };
-			button.Click += SettingsButton_Click;
-
-			var notification = new Notification
-			{
-				Title = "Failed to load CMX",
-				Message = e.GetException().Message,
-				Severity = InfoBarSeverity.Error,
-				ActionButton = button,
-			};
-
-			NotificationQueue.Show(notification);
+			ShowNotification(
+				new Notification
+				{
+					Title = "Failed to load CMX",
+					Message = e.GetException().Message,
+					Severity = InfoBarSeverity.Error,
+					ActionButton = GetSettingsButton(),
+				}
+			);
 		});
+	}
+
+	private void Database_Pso2BinPathNotSet()
+	{
+		ShowNotification(
+			new Notification
+			{
+				Title = "Failed to find pso2_bin folder",
+				Message = "Go to settings and set the path to your PSO2 installation",
+				Severity = InfoBarSeverity.Warning,
+				ActionButton = GetSettingsButton(),
+			}
+		);
 	}
 
 	private void SettingsButton_Click(object sender, RoutedEventArgs e)
