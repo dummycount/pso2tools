@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using AquaModelLibrary.Data.PSO2.Constants;
+using UnluacNET;
 
 namespace Pso2Tools;
 
@@ -105,9 +106,6 @@ public static class CmxObjectIds
 		|| (id >= NgsCasealStart && id < NgsGenderlessStart);
 
 	public static bool IsNonGendered(int id) => !IsT1(id) && !IsT2(id);
-
-	public static string GetFilePathStart(int id) =>
-		IsNgs(id) ? CharacterMakingDynamic.rebootStart : CharacterMakingDynamic.classicStart;
 }
 
 public class CmxColorMapping
@@ -120,27 +118,110 @@ public class CmxColorMapping
 
 public interface ICmxEntry
 {
-	public int Id { get; set; }
-	public int FileId { get; set; }
-	public CmxNames Names { get; set; }
-	public BaseCMXObject Data { get; set; }
-
-	public string Name { get; }
-}
-
-public class CmxEntry<T> : ICmxEntry
-	where T : BaseCMXObject
-{
-	public required int Id { get; set; }
-	public required int FileId { get; set; }
-	public required CmxNames Names { get; set; }
-	public required T Data { get; set; }
+	public CmxObjectType ObjectType { get; }
+	public int Id { get; }
+	public int FileId { get; }
+	public CmxNames Names { get; }
+	public BaseCMXObject Data { get; }
+	public IEnumerable<IceFileInfo> IceFiles { get; }
 
 	public string Name => Names.En ?? Names.Jp ?? $"Unnamed {Id}";
+}
 
-	BaseCMXObject ICmxEntry.Data
+public class BaseCmxEntry<T> : ICmxEntry
+	where T : BaseCMXObject, new()
+{
+	public CmxObjectType ObjectType { get; set; }
+	public int Id { get; set; }
+	public int FileId { get; set; }
+	public CmxNames Names { get; set; } = new();
+	public T Data { get; set; } = new();
+
+	public virtual IEnumerable<IceFileInfo> IceFiles => [new IceFileInfo(ObjectType, FileId)];
+
+	BaseCMXObject ICmxEntry.Data => Data;
+}
+
+public class CmxAccessoryEntry : BaseCmxEntry<ACCEObject> { }
+
+public class CmxBodypaintEntry : BaseCmxEntry<BBLYObject> { }
+
+public class CmxBodyEntry : BaseCmxEntry<BODYObject>
+{
+	public override IEnumerable<IceFileInfo> IceFiles
 	{
-		get => Data;
-		set => throw new NotImplementedException();
+		get
+		{
+			var main = new IceFileInfo(ObjectType, FileId);
+
+			yield return main;
+
+			if (Data.body2.linkedInnerId >= 0)
+			{
+				yield return new IceFileInfo(
+					main.Start,
+					CmxObjectType.Innerwear,
+					Data.body2.linkedInnerId
+				)
+				{
+					Description = "Linked inner",
+				};
+			}
+
+			if (Data.body2.linkedOuterId >= 0)
+			{
+				yield return new IceFileInfo(
+					main.Start,
+					CmxObjectType.Outerwear,
+					Data.body2.linkedOuterId
+				)
+				{
+					Description = "Linked outer",
+				};
+			}
+
+			if (Data.body2.headId >= 0)
+			{
+				// TODO
+			}
+
+			if (Data.body2.costumeSoundId >= 0)
+			{
+				yield return new IceFileInfo("bs", Data.body2.costumeSoundId)
+				{
+					Description = "Sounds",
+				};
+
+				if (!CmxObjectIds.IsNgs(Data.body2.costumeSoundId))
+				{
+					yield return new IceFileInfo("ls", Data.body2.costumeSoundId)
+					{
+						Description = "CAST sounds",
+					};
+				}
+			}
+		}
 	}
 }
+
+public class CmxEarEntry : BaseCmxEntry<NGS_EarObject> { }
+
+public class CmxEyeEntry : BaseCmxEntry<EYEObject> { }
+
+public class CmxEyebrowEntry : BaseCmxEntry<EYEBObject> { }
+
+public class CmxFaceEntry : BaseCmxEntry<FACEObject> { }
+
+public class CmxFacepaintEntry : BaseCmxEntry<FCPObject> { }
+
+public class CmxFaceTextureEntry : BaseCmxEntry<FaceTextureObject> { }
+
+public class CmxHairEntry : BaseCmxEntry<HAIRObject> { }
+
+public class CmxHornEntry : BaseCmxEntry<NGS_HornObject> { }
+
+public class CmxSkinEntry : BaseCmxEntry<NGS_SKINObject> { }
+
+public class CmxStickerEntry : BaseCmxEntry<StickerObject> { }
+
+public class CmxTeethEntry : BaseCmxEntry<NGS_TeethObject> { }

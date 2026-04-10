@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using AquaModelLibrary.Data.Utility;
 
 namespace Pso2Tools;
@@ -25,27 +24,27 @@ public class CmxDatabase : ICmxDatabase
 	private Task<IEnumerable<CmxColorSet>?>? colorsTask;
 	private Task<CmxEntryFactory?>? factoryTask;
 
-	private Task<IEnumerable<CmxEntry<ACCEObject>>?>? accessoriesTask;
-	private Task<IEnumerable<CmxEntry<BODYObject>>?>? basewearTask;
-	private Task<IEnumerable<CmxEntry<BBLYObject>>?>? bodypaintTask;
-	private Task<IEnumerable<CmxEntry<BODYObject>>?>? castBodiesTask;
-	private Task<IEnumerable<CmxEntry<BODYObject>>?>? castArmsTask;
-	private Task<IEnumerable<CmxEntry<BODYObject>>?>? castLegsTask;
-	private Task<IEnumerable<CmxEntry<BODYObject>>?>? costumesTask;
-	private Task<IEnumerable<CmxEntry<NGS_EarObject>>?>? earsTask;
-	private Task<IEnumerable<CmxEntry<EYEObject>>?>? eyesTask;
-	private Task<IEnumerable<CmxEntry<EYEBObject>>?>? eyebrowsTask;
-	private Task<IEnumerable<CmxEntry<EYEBObject>>?>? eyelashesTask;
-	private Task<IEnumerable<CmxEntry<FACEObject>>?>? facesTask;
-	private Task<IEnumerable<CmxEntry<FaceTextureObject>>?>? faceTexturesTask;
-	private Task<IEnumerable<CmxEntry<FCPObject>>?>? facePaintTask;
-	private Task<IEnumerable<CmxEntry<HAIRObject>>?>? hairTask;
-	private Task<IEnumerable<CmxEntry<NGS_HornObject>>?>? hornsTask;
-	private Task<IEnumerable<CmxEntry<BBLYObject>>?>? innerwearTask;
-	private Task<IEnumerable<CmxEntry<BODYObject>>?>? outerwearTask;
-	private Task<IEnumerable<CmxEntry<NGS_SKINObject>>?>? skinsTask;
-	private Task<IEnumerable<CmxEntry<StickerObject>>?>? stickersTask;
-	private Task<IEnumerable<CmxEntry<NGS_TeethObject>>?>? teethTask;
+	private Task<IEnumerable<CmxAccessoryEntry>?>? accessoriesTask;
+	private Task<IEnumerable<CmxBodyEntry>?>? basewearTask;
+	private Task<IEnumerable<CmxBodypaintEntry>?>? bodypaintTask;
+	private Task<IEnumerable<CmxBodyEntry>?>? castBodiesTask;
+	private Task<IEnumerable<CmxBodyEntry>?>? castArmsTask;
+	private Task<IEnumerable<CmxBodyEntry>?>? castLegsTask;
+	private Task<IEnumerable<CmxBodyEntry>?>? costumesTask;
+	private Task<IEnumerable<CmxEarEntry>?>? earsTask;
+	private Task<IEnumerable<CmxEyeEntry>?>? eyesTask;
+	private Task<IEnumerable<CmxEyebrowEntry>?>? eyebrowsTask;
+	private Task<IEnumerable<CmxEyebrowEntry>?>? eyelashesTask;
+	private Task<IEnumerable<CmxFaceEntry>?>? facesTask;
+	private Task<IEnumerable<CmxFaceTextureEntry>?>? faceTexturesTask;
+	private Task<IEnumerable<CmxFacepaintEntry>?>? facePaintTask;
+	private Task<IEnumerable<CmxHairEntry>?>? hairTask;
+	private Task<IEnumerable<CmxHornEntry>?>? hornsTask;
+	private Task<IEnumerable<CmxBodypaintEntry>?>? innerwearTask;
+	private Task<IEnumerable<CmxBodyEntry>?>? outerwearTask;
+	private Task<IEnumerable<CmxSkinEntry>?>? skinsTask;
+	private Task<IEnumerable<CmxStickerEntry>?>? stickersTask;
+	private Task<IEnumerable<CmxTeethEntry>?>? teethTask;
 
 	public CmxDatabase(string? pso2BinPath = null)
 	{
@@ -123,127 +122,127 @@ public class CmxDatabase : ICmxDatabase
 		return (await colorsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<ACCEObject>>> GetAccessoriesAsync()
+	public async Task<IEnumerable<CmxAccessoryEntry>> GetAccessoriesAsync()
 	{
 		accessoriesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetAccessories());
 		return (await accessoriesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BODYObject>>> GetBasewearAsync()
+	public async Task<IEnumerable<CmxBodyEntry>> GetBasewearAsync()
 	{
 		basewearTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetBasewear());
 		return (await basewearTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BBLYObject>>> GetBodypaintAsync()
+	public async Task<IEnumerable<CmxBodypaintEntry>> GetBodypaintAsync()
 	{
 		bodypaintTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetBodypaint());
 		return (await bodypaintTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BODYObject>>> GetCastBodiesAsync()
+	public async Task<IEnumerable<CmxBodyEntry>> GetCastBodiesAsync()
 	{
 		castBodiesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetCastBodies());
 		return (await castBodiesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BODYObject>>> GetCastArmsAsync()
+	public async Task<IEnumerable<CmxBodyEntry>> GetCastArmsAsync()
 	{
 		castArmsTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetCastArms());
 		return (await castArmsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BODYObject>>> GetCastLegsAsync()
+	public async Task<IEnumerable<CmxBodyEntry>> GetCastLegsAsync()
 	{
 		castLegsTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetCastLegs());
 		return (await castLegsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BODYObject>>> GetCostumesAsync()
+	public async Task<IEnumerable<CmxBodyEntry>> GetCostumesAsync()
 	{
 		costumesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetCostumes());
 		return (await costumesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<NGS_EarObject>>> GetEarsAsync()
+	public async Task<IEnumerable<CmxEarEntry>> GetEarsAsync()
 	{
 		earsTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetEars());
 		return (await earsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<EYEObject>>> GetEyesAsync()
+	public async Task<IEnumerable<CmxEyeEntry>> GetEyesAsync()
 	{
 		eyesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetEyes());
 		return (await eyesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<EYEBObject>>> GetEyebrowsAsync()
+	public async Task<IEnumerable<CmxEyebrowEntry>> GetEyebrowsAsync()
 	{
 		eyebrowsTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetEyebrows());
 		return (await eyebrowsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<EYEBObject>>> GetEyelashesAsync()
+	public async Task<IEnumerable<CmxEyebrowEntry>> GetEyelashesAsync()
 	{
 		eyelashesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetEyelashes());
 		return (await eyelashesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<FACEObject>>> GetFacesAsync()
+	public async Task<IEnumerable<CmxFaceEntry>> GetFacesAsync()
 	{
 		facesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetFaces());
 		return (await facesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<FaceTextureObject>>> GetFaceTexturesAsync()
+	public async Task<IEnumerable<CmxFaceTextureEntry>> GetFaceTexturesAsync()
 	{
 		faceTexturesTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetFaceTextures());
 		return (await faceTexturesTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<FCPObject>>> GetFacepaintAsync()
+	public async Task<IEnumerable<CmxFacepaintEntry>> GetFacepaintAsync()
 	{
 		facePaintTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetFacepaint());
 		return (await facePaintTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<HAIRObject>>> GetHairAsync()
+	public async Task<IEnumerable<CmxHairEntry>> GetHairAsync()
 	{
 		hairTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetHair());
 		return (await hairTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<NGS_HornObject>>> GetHornsAsync()
+	public async Task<IEnumerable<CmxHornEntry>> GetHornsAsync()
 	{
 		hornsTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetHorns());
 		return (await hornsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BBLYObject>>> GetInnerwearAsync()
+	public async Task<IEnumerable<CmxBodypaintEntry>> GetInnerwearAsync()
 	{
 		innerwearTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetInnerwear());
 		return (await innerwearTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<BODYObject>>> GetOuterwearAsync()
+	public async Task<IEnumerable<CmxBodyEntry>> GetOuterwearAsync()
 	{
 		outerwearTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetOuterwear());
 		return (await outerwearTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<NGS_SKINObject>>> GetSkinsAsync()
+	public async Task<IEnumerable<CmxSkinEntry>> GetSkinsAsync()
 	{
 		skinsTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetSkins());
 		return (await skinsTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<StickerObject>>> GetStickersAsync()
+	public async Task<IEnumerable<CmxStickerEntry>> GetStickersAsync()
 	{
 		stickersTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetStickers());
 		return (await stickersTask) ?? [];
 	}
 
-	public async Task<IEnumerable<CmxEntry<NGS_TeethObject>>> GetTeethAsync()
+	public async Task<IEnumerable<CmxTeethEntry>> GetTeethAsync()
 	{
 		teethTask ??= Task.Run(async () => (await GetFactoryAsync())?.GetTeeth());
 		return (await teethTask) ?? [];
@@ -279,11 +278,11 @@ public class CmxDatabase : ICmxDatabase
 	}
 
 	private static async Task<IEnumerable<ICmxEntry>> GetObjectsAsync<T>(
-		Func<Task<IEnumerable<CmxEntry<T>>>> getObjects
+		Func<Task<IEnumerable<T>>> getObjects
 	)
-		where T : BaseCMXObject
+		where T : ICmxEntry
 	{
-		return await getObjects();
+		return (await getObjects()).Cast<ICmxEntry>();
 	}
 
 	private async Task<CmxEntryFactory?> GetFactoryAsync()

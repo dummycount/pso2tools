@@ -14,8 +14,19 @@ public interface ICmxMember
 	public string? Bytes { get; }
 }
 
+public class IceFileModel(IceFileInfo file, string? path)
+{
+	public IceFileInfo File { get; } = file;
+	public string? Path { get; } = path ?? file.Hash;
+
+	public string? Description => File.Description;
+	public string Name => File.Name;
+}
+
 public partial class CmxEntryModel : ObservableObject
 {
+	private string pso2BinPath;
+
 	[ObservableProperty]
 	public partial CmxObjectType ObjectType { get; set; }
 
@@ -25,15 +36,46 @@ public partial class CmxEntryModel : ObservableObject
 	[ObservableProperty]
 	public partial IEnumerable<ICmxMember> Members { get; private set; } = [];
 
+	[ObservableProperty]
+	public partial IEnumerable<IceFileModel> Files { get; private set; } = [];
+
+	public CmxEntryModel(ISettingsService settings)
+	{
+		pso2BinPath = settings.Pso2BinPath ?? "";
+	}
+
 	partial void OnObjectChanged(ICmxEntry? value)
 	{
 		if (value is null)
 		{
 			Members = [];
+			Files = [];
 		}
 		else
 		{
 			Members = MemberHelper.GetMembers(value.Data);
+			Files = value.IceFiles.SelectMany(file =>
+			{
+				List<IceFileModel> results = [];
+
+				if (file.FindFileRelative(pso2BinPath) is string path)
+				{
+					results.Add(new IceFileModel(file, path));
+				}
+
+				var ex = file.Ex;
+				if (ex.FindFileRelative(pso2BinPath) is string exPath)
+				{
+					ex.Description = file.Description is null
+						? "High quality"
+						: $"HQ {file.Description}";
+					results.Add(new IceFileModel(ex, exPath));
+				}
+
+				// TODO: there are other file variants than just _ex
+
+				return results;
+			});
 		}
 	}
 }

@@ -10,6 +10,7 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
 	xmlns:viewmodels="using:Pso2Tools.CmxViewer.ViewModels"
+	xmlns:pso="using:Pso2Tools"
 	mc:Ignorable="d"
 >
 	<Grid>
@@ -38,6 +39,7 @@
 
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
@@ -47,9 +49,53 @@
 			Style="{StaticResource BreadcrumbBarTitleStyle}"
 		/>
 
+		<Expander
+			IsExpanded="True"
+			Grid.Row="1"
+			Header="Files"
+			Margin="24,0,24,16"
+			HorizontalAlignment="Stretch"
+		>
+			<controls:HeaderedItemsControl
+				x:Name="FileList"
+				Grid.Row="1"
+				ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
+			>
+				<controls:HeaderedItemsControl.Header>
+					<controls:DataTable ColumnSpacing="24">
+						<controls:DataColumn />
+						<controls:DataColumn />
+						<controls:DataColumn />
+					</controls:DataTable>
+				</controls:HeaderedItemsControl.Header>
+
+				<controls:HeaderedItemsControl.ItemsPanel>
+					<ItemsPanelTemplate>
+						<StackPanel Spacing="16" />
+					</ItemsPanelTemplate>
+				</controls:HeaderedItemsControl.ItemsPanel>
+
+				<controls:HeaderedItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="viewmodels:IceFileModel">
+						<controls:DataRow HorizontalAlignment="Left">
+							<TextBlock
+								IsTextSelectionEnabled="True"
+								Text="{x:Bind Description, TargetNullValue='Normal quality'}"
+							/>
+
+							<TextBlock IsTextSelectionEnabled="True" Text="{x:Bind Name}" />
+
+							<!-- TODO: make this a link to the file -->
+							<TextBlock IsTextSelectionEnabled="True" Text="{x:Bind Path}" />
+						</controls:DataRow>
+					</DataTemplate>
+				</controls:HeaderedItemsControl.ItemTemplate>
+			</controls:HeaderedItemsControl>
+		</Expander>
+
 		<ListView
 			x:Name="MemberList"
-			Grid.Row="1"
+			Grid.Row="2"
 			Padding="24,0,24,24"
 			ItemsSource="{x:Bind viewModel.Members, Mode=OneWay}"
 			SelectionMode="None"

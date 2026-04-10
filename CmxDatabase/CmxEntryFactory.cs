@@ -1,5 +1,6 @@
 ﻿using AquaModelLibrary.Data.PSO2.Aqua;
 using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
+using UnluacNET;
 
 namespace Pso2Tools;
 
@@ -13,184 +14,242 @@ public class CmxEntryFactory(
 	public PSO2Text PartsText { get; } = partsText;
 	public PSO2Text AccessoryText { get; } = accessoryText;
 
-	public IEnumerable<CmxEntry<ACCEObject>> GetAccessories()
+	public IEnumerable<CmxAccessoryEntry> GetAccessories()
 	{
 		var names = CmxNameDictionary.GetItemNames(AccessoryText, "decoy");
-		return GetEntries(cmx.accessoryDict, cmx.accessoryIdLink, names);
+		return GetEntries<CmxAccessoryEntry, ACCEObject>(
+			CmxObjectType.Accessory,
+			cmx.accessoryDict,
+			cmx.accessoryIdLink,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<BODYObject>> GetBasewear()
+	public IEnumerable<CmxBodyEntry> GetBasewear()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "basewear");
-		return GetEntries(cmx.baseWearDict, cmx.baseWearIdLink, names);
+		return GetEntries<CmxBodyEntry, BODYObject>(
+			CmxObjectType.Basewear,
+			cmx.baseWearDict,
+			cmx.baseWearIdLink,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<BBLYObject>> GetBodypaint()
+	public IEnumerable<CmxBodypaintEntry> GetBodypaint()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "bodypaint1");
-		return GetEntries(cmx.bodyPaintDict, names);
+		return GetEntries<CmxBodypaintEntry, BBLYObject>(
+			CmxObjectType.Bodypaint,
+			cmx.bodyPaintDict,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<BODYObject>> GetCastBodies()
+	public IEnumerable<CmxBodyEntry> GetCastBodies()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "body");
-		return GetEntries(
+		return GetEntries<CmxBodyEntry, BODYObject>(
+			CmxObjectType.CastBody,
 			cmx.costumeDict.Where((kv) => kv.Key >= CmxObjectIds.ClassicCastStart),
 			cmx.costumeIdLink,
 			names
 		);
 	}
 
-	public IEnumerable<CmxEntry<BODYObject>> GetCastArms()
+	public IEnumerable<CmxBodyEntry> GetCastArms()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "arm");
-		return GetEntries(cmx.carmDict, cmx.castArmIdLink, names);
+		return GetEntries<CmxBodyEntry, BODYObject>(
+			CmxObjectType.CastArms,
+			cmx.carmDict,
+			cmx.castArmIdLink,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<BODYObject>> GetCastLegs()
+	public IEnumerable<CmxBodyEntry> GetCastLegs()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "Leg");
-		return GetEntries(cmx.clegDict, cmx.clegIdLink, names);
+		return GetEntries<CmxBodyEntry, BODYObject>(
+			CmxObjectType.CastLegs,
+			cmx.clegDict,
+			cmx.clegIdLink,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<BODYObject>> GetCostumes()
+	public IEnumerable<CmxBodyEntry> GetCostumes()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "costume");
-		return GetEntries(
+		return GetEntries<CmxBodyEntry, BODYObject>(
+			CmxObjectType.Costume,
 			cmx.costumeDict.Where((kv) => kv.Key < CmxObjectIds.ClassicCastStart),
 			cmx.costumeIdLink,
 			names
 		);
 	}
 
-	public IEnumerable<CmxEntry<NGS_EarObject>> GetEars()
+	public IEnumerable<CmxEarEntry> GetEars()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "ears");
-		return GetEntries(cmx.ngsEarDict, names);
+		return GetEntries<CmxEarEntry, NGS_EarObject>(CmxObjectType.Ear, cmx.ngsEarDict, names);
 	}
 
-	public IEnumerable<CmxEntry<EYEObject>> GetEyes()
+	public IEnumerable<CmxEyeEntry> GetEyes()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "eye");
-		return GetEntries(cmx.eyeDict, names);
+		return GetEntries<CmxEyeEntry, EYEObject>(CmxObjectType.Eye, cmx.eyeDict, names);
 	}
 
-	public IEnumerable<CmxEntry<EYEBObject>> GetEyebrows()
+	public IEnumerable<CmxEyebrowEntry> GetEyebrows()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "eyebrows");
-		return GetEntries(cmx.eyebrowDict, names);
+		return GetEntries<CmxEyebrowEntry, EYEBObject>(
+			CmxObjectType.Eyebrow,
+			cmx.eyebrowDict,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<EYEBObject>> GetEyelashes()
+	public IEnumerable<CmxEyebrowEntry> GetEyelashes()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "eyelashes");
-		return GetEntries(cmx.eyelashDict, names);
+		return GetEntries<CmxEyebrowEntry, EYEBObject>(
+			CmxObjectType.Eyelash,
+			cmx.eyelashDict,
+			names
+		);
 	}
 
-	public IEnumerable<CmxEntry<FACEObject>> GetFaces()
+	public IEnumerable<CmxFaceEntry> GetFaces()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "face");
 		names.Update(CmxNameDictionary.GetItemNames(PartsText, "facevariation", faceVariationDict));
 
-		return GetEntries(cmx.faceDict, names);
+		return GetEntries<CmxFaceEntry, FACEObject>(CmxObjectType.Face, cmx.faceDict, names);
 	}
 
-	public IEnumerable<CmxEntry<FaceTextureObject>> GetFaceTextures()
+	public IEnumerable<CmxFaceTextureEntry> GetFaceTextures()
 	{
 		var names = CmxNameDictionary.GetItemNames(PartsText, "facepaint1");
-		return GetEntries(cmx.faceTextureDict, names);
-	}
-
-	public IEnumerable<CmxEntry<FCPObject>> GetFacepaint()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "facepaint2");
-		return GetEntries(cmx.fcpDict, names);
-	}
-
-	public IEnumerable<CmxEntry<HAIRObject>> GetHair()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "hair");
-		return GetEntries(cmx.hairDict, names);
-	}
-
-	public IEnumerable<CmxEntry<NGS_HornObject>> GetHorns()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "horn");
-		return GetEntries(cmx.ngsHornDict, names);
-	}
-
-	public IEnumerable<CmxEntry<BBLYObject>> GetInnerwear()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "innerwear");
-		return GetEntries(cmx.innerWearDict, cmx.innerWearIdLink, names);
-	}
-
-	public IEnumerable<CmxEntry<BODYObject>> GetOuterwear()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "costume");
-		return GetEntries(cmx.outerDict, cmx.outerWearIdLink, names);
-	}
-
-	public IEnumerable<CmxEntry<NGS_SKINObject>> GetSkins()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "skin");
-		return GetEntries(cmx.ngsSkinDict, names);
-	}
-
-	public IEnumerable<CmxEntry<StickerObject>> GetStickers()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "bodypaint2");
-		return GetEntries(cmx.stickerDict, names);
-	}
-
-	public IEnumerable<CmxEntry<NGS_TeethObject>> GetTeeth()
-	{
-		var names = CmxNameDictionary.GetItemNames(PartsText, "dental");
-		return GetEntries(cmx.ngsTeethDict, names);
-	}
-
-	private static IEnumerable<CmxEntry<T>> GetEntries<T>(
-		IEnumerable<KeyValuePair<int, T>> objects,
-		CmxNameDictionary names
-	)
-		where T : BaseCMXObject
-	{
-		return objects.Select(
-			(kv) =>
-			{
-				var id = kv.Key;
-
-				return new CmxEntry<T>
-				{
-					Id = id,
-					FileId = id,
-					Names = names[id],
-					Data = kv.Value,
-				};
-			}
+		return GetEntries<CmxFaceTextureEntry, FaceTextureObject>(
+			CmxObjectType.FaceTexture,
+			cmx.faceTextureDict,
+			names
 		);
 	}
 
-	private static IEnumerable<CmxEntry<T>> GetEntries<T>(
-		IEnumerable<KeyValuePair<int, T>> objects,
+	public IEnumerable<CmxFacepaintEntry> GetFacepaint()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "facepaint2");
+		return GetEntries<CmxFacepaintEntry, FCPObject>(
+			CmxObjectType.Facepaint,
+			cmx.fcpDict,
+			names
+		);
+	}
+
+	public IEnumerable<CmxHairEntry> GetHair()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "hair");
+		return GetEntries<CmxHairEntry, HAIRObject>(CmxObjectType.Hair, cmx.hairDict, names);
+	}
+
+	public IEnumerable<CmxHornEntry> GetHorns()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "horn");
+		return GetEntries<CmxHornEntry, NGS_HornObject>(CmxObjectType.Horn, cmx.ngsHornDict, names);
+	}
+
+	public IEnumerable<CmxBodypaintEntry> GetInnerwear()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "innerwear");
+		return GetEntries<CmxBodypaintEntry, BBLYObject>(
+			CmxObjectType.Innerwear,
+			cmx.innerWearDict,
+			cmx.innerWearIdLink,
+			names
+		);
+	}
+
+	public IEnumerable<CmxBodyEntry> GetOuterwear()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "costume");
+		return GetEntries<CmxBodyEntry, BODYObject>(
+			CmxObjectType.Outerwear,
+			cmx.outerDict,
+			cmx.outerWearIdLink,
+			names
+		);
+	}
+
+	public IEnumerable<CmxSkinEntry> GetSkins()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "skin");
+		return GetEntries<CmxSkinEntry, NGS_SKINObject>(CmxObjectType.Skin, cmx.ngsSkinDict, names);
+	}
+
+	public IEnumerable<CmxStickerEntry> GetStickers()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "bodypaint2");
+		return GetEntries<CmxStickerEntry, StickerObject>(
+			CmxObjectType.Sticker,
+			cmx.stickerDict,
+			names
+		);
+	}
+
+	public IEnumerable<CmxTeethEntry> GetTeeth()
+	{
+		var names = CmxNameDictionary.GetItemNames(PartsText, "dental");
+		return GetEntries<CmxTeethEntry, NGS_TeethObject>(
+			CmxObjectType.Teeth,
+			cmx.ngsTeethDict,
+			names
+		);
+	}
+
+	private static IEnumerable<T> GetEntries<T, O>(
+		CmxObjectType objectType,
+		IEnumerable<KeyValuePair<int, O>> objects,
 		Dictionary<int, BCLNObject> linkDict,
 		CmxNameDictionary names
 	)
-		where T : BaseCMXObject
+		where T : BaseCmxEntry<O>, new()
+		where O : BaseCMXObject, new()
 	{
 		return objects.Select(
 			(kv) =>
-			{
-				var id = kv.Key;
-
-				return new CmxEntry<T>
+				new T
 				{
-					Id = id,
-					FileId = GetFileId(id, linkDict),
-					Names = names[id],
+					ObjectType = objectType,
+					Id = kv.Key,
+					FileId = GetFileId(kv.Key, linkDict),
+					Names = names[kv.Key],
 					Data = kv.Value,
-				};
-			}
+				}
+		);
+	}
+
+	private static IEnumerable<T> GetEntries<T, O>(
+		CmxObjectType objectType,
+		IEnumerable<KeyValuePair<int, O>> objects,
+		CmxNameDictionary names
+	)
+		where T : BaseCmxEntry<O>, new()
+		where O : BaseCMXObject, new()
+	{
+		return objects.Select(
+			(kv) =>
+				new T
+				{
+					ObjectType = objectType,
+					Id = kv.Key,
+					FileId = kv.Key,
+					Names = names[kv.Key],
+					Data = kv.Value,
+				}
 		);
 	}
 

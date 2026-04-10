@@ -4,7 +4,7 @@ using AquaModelLibrary.Data.PSO2.Constants;
 
 namespace Pso2Tools;
 
-public class IceFileInfo(string name)
+public class IceFileInfo
 {
 	public static readonly IceFileInfo None = new("");
 
@@ -14,14 +14,39 @@ public class IceFileInfo(string name)
 	{
 		var source = Encoding.UTF8.GetBytes(data);
 		var hash = MD5.HashData(source);
-		return Convert.ToHexString(hash);
+		return Convert.ToHexString(hash).ToLower();
 	}
 
-	public string Name { get; } = name;
-	public string Hash { get; } = MD5Digest(name);
+	public string Start { get; }
+	public string Rest { get; }
 
-	public IceFileInfo(string start, string tag, int adjustedId)
-		: this($"{start}{tag}_{adjustedId:05d}.ice") { }
+	public string Name { get; }
+	public string Hash { get; }
+	public string? Description { get; set; }
+
+	public IceFileInfo(string start, string rest)
+	{
+		Start = start;
+		Rest = rest;
+
+		Name = start + rest;
+		Hash = MD5Digest(Name);
+	}
+
+	public IceFileInfo(string name)
+		: this("", name) { }
+
+	public IceFileInfo(string start, string tag, int id)
+		: this(start, $"{tag}_{id:D5}.ice") { }
+
+	public IceFileInfo(string tag, int id)
+		: this(GetFilePathStart(id), tag, id) { }
+
+	public IceFileInfo(string start, CmxObjectType objectType, int id)
+		: this(start, GetFileTag(objectType), id) { }
+
+	public IceFileInfo(CmxObjectType objectType, int id)
+		: this(GetFilePathStart(id), objectType, id) { }
 
 	public IceFileInfo Ex
 	{
@@ -29,15 +54,12 @@ public class IceFileInfo(string name)
 		{
 			if (!Name.StartsWith(CharacterMakingDynamic.rebootStart))
 			{
-				return IceFileInfo.None;
+				return None;
 			}
 
 			return new IceFileInfo(
-				Name.Replace(
-						CharacterMakingDynamic.rebootStart,
-						CharacterMakingDynamic.rebootExStart
-					)
-					.Replace(".ice", "_ex.ice")
+				CharacterMakingDynamic.rebootExStart,
+				Rest.Replace(".ice", "_ex.ice")
 			);
 		}
 	}
@@ -95,4 +117,45 @@ public class IceFileInfo(string name)
 
 		return null;
 	}
+
+	public string? FindFileRelative(string pso2BinPath)
+	{
+		if (FindFile(pso2BinPath) is string path)
+		{
+			return Path.GetRelativePath(pso2BinPath, path);
+		}
+		return null;
+	}
+
+	public static string GetFilePathStart(int id) =>
+		CmxObjectIds.IsNgs(id)
+			? CharacterMakingDynamic.rebootStart
+			: CharacterMakingDynamic.classicStart;
+
+	public static string GetFileTag(CmxObjectType objectType) =>
+		objectType switch
+		{
+			CmxObjectType.Accessory => "ac",
+			CmxObjectType.Basewear => "bw",
+			CmxObjectType.Bodypaint => "b1",
+			CmxObjectType.CastArms => "am",
+			CmxObjectType.CastBody => "bd",
+			CmxObjectType.CastLegs => "lg",
+			CmxObjectType.Costume => "bd",
+			CmxObjectType.Ear => "ea",
+			CmxObjectType.Eye => "ey",
+			CmxObjectType.Eyebrow => "eb",
+			CmxObjectType.Eyelash => "el",
+			CmxObjectType.Face => "fc",
+			CmxObjectType.FaceTexture => "f1",
+			CmxObjectType.Facepaint => "f2",
+			CmxObjectType.Hair => "hr",
+			CmxObjectType.Horn => "hn",
+			CmxObjectType.Innerwear => "iw",
+			CmxObjectType.Outerwear => "ow",
+			CmxObjectType.Skin => "sk",
+			CmxObjectType.Sticker => "b2",
+			CmxObjectType.Teeth => "de",
+			_ => throw new ArgumentException("Invalid object type"),
+		};
 }

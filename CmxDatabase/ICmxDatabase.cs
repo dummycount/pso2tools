@@ -1,6 +1,4 @@
-﻿using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
-
-namespace Pso2Tools;
+﻿namespace Pso2Tools;
 
 public interface ICmxDatabase
 {
@@ -12,27 +10,27 @@ public interface ICmxDatabase
 
 	public Task<IEnumerable<CmxColorSet>> GetColorsAsync();
 
-	public Task<IEnumerable<CmxEntry<ACCEObject>>> GetAccessoriesAsync();
-	public Task<IEnumerable<CmxEntry<BODYObject>>> GetBasewearAsync();
-	public Task<IEnumerable<CmxEntry<BBLYObject>>> GetBodypaintAsync();
-	public Task<IEnumerable<CmxEntry<BODYObject>>> GetCastBodiesAsync();
-	public Task<IEnumerable<CmxEntry<BODYObject>>> GetCastArmsAsync();
-	public Task<IEnumerable<CmxEntry<BODYObject>>> GetCastLegsAsync();
-	public Task<IEnumerable<CmxEntry<BODYObject>>> GetCostumesAsync();
-	public Task<IEnumerable<CmxEntry<NGS_EarObject>>> GetEarsAsync();
-	public Task<IEnumerable<CmxEntry<EYEObject>>> GetEyesAsync();
-	public Task<IEnumerable<CmxEntry<EYEBObject>>> GetEyebrowsAsync();
-	public Task<IEnumerable<CmxEntry<EYEBObject>>> GetEyelashesAsync();
-	public Task<IEnumerable<CmxEntry<FACEObject>>> GetFacesAsync();
-	public Task<IEnumerable<CmxEntry<FaceTextureObject>>> GetFaceTexturesAsync();
-	public Task<IEnumerable<CmxEntry<FCPObject>>> GetFacepaintAsync();
-	public Task<IEnumerable<CmxEntry<HAIRObject>>> GetHairAsync();
-	public Task<IEnumerable<CmxEntry<NGS_HornObject>>> GetHornsAsync();
-	public Task<IEnumerable<CmxEntry<BBLYObject>>> GetInnerwearAsync();
-	public Task<IEnumerable<CmxEntry<BODYObject>>> GetOuterwearAsync();
-	public Task<IEnumerable<CmxEntry<NGS_SKINObject>>> GetSkinsAsync();
-	public Task<IEnumerable<CmxEntry<StickerObject>>> GetStickersAsync();
-	public Task<IEnumerable<CmxEntry<NGS_TeethObject>>> GetTeethAsync();
+	public Task<IEnumerable<CmxAccessoryEntry>> GetAccessoriesAsync();
+	public Task<IEnumerable<CmxBodyEntry>> GetBasewearAsync();
+	public Task<IEnumerable<CmxBodypaintEntry>> GetBodypaintAsync();
+	public Task<IEnumerable<CmxBodyEntry>> GetCastBodiesAsync();
+	public Task<IEnumerable<CmxBodyEntry>> GetCastArmsAsync();
+	public Task<IEnumerable<CmxBodyEntry>> GetCastLegsAsync();
+	public Task<IEnumerable<CmxBodyEntry>> GetCostumesAsync();
+	public Task<IEnumerable<CmxEarEntry>> GetEarsAsync();
+	public Task<IEnumerable<CmxEyeEntry>> GetEyesAsync();
+	public Task<IEnumerable<CmxEyebrowEntry>> GetEyebrowsAsync();
+	public Task<IEnumerable<CmxEyebrowEntry>> GetEyelashesAsync();
+	public Task<IEnumerable<CmxFaceEntry>> GetFacesAsync();
+	public Task<IEnumerable<CmxFaceTextureEntry>> GetFaceTexturesAsync();
+	public Task<IEnumerable<CmxFacepaintEntry>> GetFacepaintAsync();
+	public Task<IEnumerable<CmxHairEntry>> GetHairAsync();
+	public Task<IEnumerable<CmxHornEntry>> GetHornsAsync();
+	public Task<IEnumerable<CmxBodypaintEntry>> GetInnerwearAsync();
+	public Task<IEnumerable<CmxBodyEntry>> GetOuterwearAsync();
+	public Task<IEnumerable<CmxSkinEntry>> GetSkinsAsync();
+	public Task<IEnumerable<CmxStickerEntry>> GetStickersAsync();
+	public Task<IEnumerable<CmxTeethEntry>> GetTeethAsync();
 
 	public Task<IEnumerable<ICmxEntry>> GetObjectsAsync(CmxObjectType objectType);
 }
