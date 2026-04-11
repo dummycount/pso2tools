@@ -19,6 +19,19 @@ public partial class SettingsNotificationFixer : ISettingsService, INotifyProper
 			}
 		}
 	}
+
+	public string? LastPage
+	{
+		get => Settings.LastPage;
+		set
+		{
+			if (Settings.LastPage != value)
+			{
+				Settings.LastPage = value;
+			}
+		}
+	}
+
 	public BodyType BodyTypeFilter
 	{
 		get => Settings.BodyTypeFilter;
@@ -30,6 +43,7 @@ public partial class SettingsNotificationFixer : ISettingsService, INotifyProper
 			}
 		}
 	}
+
 	public GameVersion GameVersionFilter
 	{
 		get => Settings.GameVersionFilter;
@@ -41,6 +55,7 @@ public partial class SettingsNotificationFixer : ISettingsService, INotifyProper
 			}
 		}
 	}
+
 	public SortProperty SortProperty
 	{
 		get => Settings.SortProperty;
@@ -52,6 +67,7 @@ public partial class SettingsNotificationFixer : ISettingsService, INotifyProper
 			}
 		}
 	}
+
 	public SortDirection SortDirection
 	{
 		get => Settings.SortDirection;

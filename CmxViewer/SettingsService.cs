@@ -18,6 +18,12 @@ public partial class SettingsService : ObservableObject, ISettingsService
 		set => SetString(value);
 	}
 
+	public string? LastPage
+	{
+		get => GetString();
+		set => SetString(value);
+	}
+
 	public BodyType BodyTypeFilter
 	{
 		get => GetEnum(defaultVal: BodyType.All);

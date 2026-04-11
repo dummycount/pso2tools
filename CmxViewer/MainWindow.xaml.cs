@@ -1,37 +1,33 @@
 using System;
-using System.Linq;
-using System.Reflection.Metadata;
 using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Behaviors;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Pso2Tools.CmxViewer.Views;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace Pso2Tools.CmxViewer;
 
-/// <summary>
-/// An empty window that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class MainWindow : Window
 {
 	public NavigationView NavigationView => NavView;
 
-	public MainWindow()
+	private ICmxDatabase Database { get; }
+	private ISettingsService Settings { get; }
+
+	public MainWindow(ICmxDatabase database, ISettingsService settings)
 	{
+		Database = database;
+		Settings = settings;
+
 		InitializeComponent();
 
 		ExtendsContentIntoTitleBar = true;
 		SetTitleBar(TitleBar);
 
-		var database = App.Current.Services.GetRequiredService<ICmxDatabase>();
-		database.LoadFailed += Database_LoadFailed;
+		Database.LoadFailed += Database_LoadFailed;
 
-		if (database.Pso2BinPath is null)
+		if (Database.Pso2BinPath is null)
 		{
 			Database_Pso2BinPathNotSet();
 		}
@@ -44,6 +40,27 @@ public sealed partial class MainWindow : Window
 	)
 	{
 		NavFrame.Navigate(pageType, parameter, infoOverride);
+	}
+
+	public void Navigate(string tag, NavigationTransitionInfo? infoOverride = null)
+	{
+		switch (tag)
+		{
+			case "Settings":
+				Navigate(typeof(SettingsPage), null, infoOverride);
+				break;
+
+			case "Colors":
+				Navigate(typeof(ColorSetsPage), null, infoOverride);
+				break;
+
+			case string value:
+				if (Enum.TryParse<CmxObjectType>(value, out var objectType))
+				{
+					Navigate(typeof(CmxEntryListPage), objectType, infoOverride);
+				}
+				break;
+		}
 	}
 
 	public void GoBack()
@@ -68,6 +85,11 @@ public sealed partial class MainWindow : Window
 
 		var parent = item.FindAscendant<NavigationViewItem>();
 		parent?.IsExpanded = true;
+
+		if (tag != "Settings")
+		{
+			Settings.LastPage = tag;
+		}
 	}
 
 	public void ShowNotification(Notification notification)
@@ -98,24 +120,10 @@ public sealed partial class MainWindow : Window
 		else
 		{
 			var selectedItem = (NavigationViewItem)args.SelectedItem;
-			NavView_Navigate(selectedItem);
-		}
-	}
-
-	private void NavView_Navigate(NavigationViewItem item)
-	{
-		switch (item.Tag)
-		{
-			case "Colors":
-				Navigate(typeof(ColorSetsPage));
-				break;
-
-			case string value:
-				if (Enum.TryParse<CmxObjectType>(value, out var objectType))
-				{
-					Navigate(typeof(CmxEntryListPage), objectType);
-				}
-				break;
+			if (selectedItem.Tag is string tag)
+			{
+				Navigate(tag);
+			}
 		}
 	}
 
@@ -184,6 +192,13 @@ public sealed partial class MainWindow : Window
 
 	private void NavView_Loaded(object sender, RoutedEventArgs e)
 	{
-		NavView.SelectedItem = FindNavViewItem(CmxObjectType.Basewear.ToString());
+		if (Settings.LastPage is null)
+		{
+			Navigate(typeof(CmxEntryListPage), CmxObjectType.Basewear);
+		}
+		else
+		{
+			Navigate(Settings.LastPage);
+		}
 	}
 }

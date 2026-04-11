@@ -7,6 +7,8 @@ public interface ISettingsService : INotifyPropertyChanged
 {
 	public string? Pso2BinPath { get; set; }
 
+	public string? LastPage { get; set; }
+
 	[DefaultValue(BodyType.All)]
 	public BodyType BodyTypeFilter { get; set; }
 
