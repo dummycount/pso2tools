@@ -102,6 +102,7 @@
 			Padding="24,0,24,24"
 			ItemsSource="{x:Bind viewModel.ColorSets, Mode=OneWay}"
 			SelectionMode="None"
+			ContainerContentChanging="ColorSetList_ContainerContentChanging"
 		>
 			<ListView.Header>
 				<Border

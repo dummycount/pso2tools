@@ -103,8 +103,10 @@
 			Grid.Row="2"
 			Padding="20,0,20,24"
 			ItemsSource="{x:Bind viewModel.Objects, Mode=OneWay}"
-			IsItemClickEnabled="True"
 			SelectionMode="None"
+			IsItemClickEnabled="True"
+			ItemClick="EntryList_ItemClick"
+			Loaded="EntryList_Loaded"
 		>
 			<ListView.Header>
 				<Border

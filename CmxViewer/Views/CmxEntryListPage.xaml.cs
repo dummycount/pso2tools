@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
@@ -12,16 +13,16 @@ namespace Pso2Tools.CmxViewer.Views;
 public sealed partial class CmxEntryListPage : Page
 {
 	private readonly CmxEntryListModel viewModel;
+	private readonly PagePersistenceService persistenceService;
 
 	public CmxObjectType ObjectType => viewModel.ObjectType;
 
 	public CmxEntryListPage()
 	{
 		viewModel = App.Current.Services.GetRequiredService<CmxEntryListModel>();
+		persistenceService = App.Current.Services.GetRequiredService<PagePersistenceService>();
 
 		InitializeComponent();
-
-		EntryList.ItemClick += EntryList_ItemClick;
 	}
 
 	private void EntryList_ItemClick(object sender, ItemClickEventArgs e)
@@ -39,6 +40,23 @@ public sealed partial class CmxEntryListPage : Page
 		}
 	}
 
+	private void EntryList_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+	{
+		var persistedData = persistenceService.Get(ObjectType);
+		var scrollOffset = persistedData?.ScrollOffset;
+
+		if (scrollOffset is not null)
+		{
+			FindScrollViewer()
+				.ChangeView(
+					horizontalOffset: null,
+					verticalOffset: scrollOffset,
+					zoomFactor: null,
+					disableAnimation: true
+				);
+		}
+	}
+
 	protected override async void OnNavigatedTo(NavigationEventArgs e)
 	{
 		base.OnNavigatedTo(e);
@@ -46,6 +64,9 @@ public sealed partial class CmxEntryListPage : Page
 		if (e.Parameter is CmxObjectType objectType)
 		{
 			viewModel.ObjectType = objectType;
+
+			var persistedData = persistenceService.Get(objectType);
+			viewModel.FilterText = persistedData?.FilterText ?? "";
 		}
 
 		App.MainWindow.EnsureNavigationSelection(typeof(CmxEntryListPage), viewModel.ObjectType);
@@ -53,22 +74,25 @@ public sealed partial class CmxEntryListPage : Page
 		await viewModel.LoadAsync();
 
 		Progress.IsActive = false;
-
-		if (e.NavigationMode == NavigationMode.Back)
-		{
-			// TODO: restore scroll position and filter text
-			// restore last-selected item to have keyboard focus
-		}
 	}
 
 	protected override void OnNavigatedFrom(NavigationEventArgs e)
 	{
 		base.OnNavigatedFrom(e);
 
-		var scroll = EntryList.FindDescendant<ScrollViewer>();
-		var lastScrollOffset = scroll?.VerticalOffset;
-		// TODO: save this and restore above
-		// Also save other properties like filter text
+		persistenceService.Set(
+			ObjectType.ToString(),
+			new PagePersistenceData
+			{
+				FilterText = viewModel.FilterText,
+				ScrollOffset = FindScrollViewer().VerticalOffset,
+			}
+		);
+	}
+
+	private ScrollViewer FindScrollViewer()
+	{
+		return EntryList.FindDescendant<ScrollViewer>() ?? throw new NullReferenceException();
 	}
 
 	// Can't use two-way binding with Segmented because it reports SelectedValue as null sometimes

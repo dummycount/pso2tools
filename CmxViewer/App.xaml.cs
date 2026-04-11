@@ -60,6 +60,7 @@ public partial class App : Application
 
 			return new CmxDatabase(settings.Pso2BinPath);
 		});
+		services.AddSingleton<PagePersistenceService>();
 
 		// ViewModels
 		services.AddTransient<CmxEntryListModel>();

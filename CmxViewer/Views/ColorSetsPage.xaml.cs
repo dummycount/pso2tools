@@ -1,32 +1,30 @@
+using System;
 using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.CmxViewer.ViewModels;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using UnluacNET;
 
 namespace Pso2Tools.CmxViewer.Views;
 
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class ColorSetsPage : Page
 {
 	private readonly ColorSetsModel viewModel;
+	private readonly PagePersistenceService persistenceService;
 
 	private readonly AlternatingRowColor alternatingRowColor = new();
 
 	public ColorSetsPage()
 	{
 		viewModel = App.Current.Services.GetRequiredService<ColorSetsModel>();
+		persistenceService = App.Current.Services.GetRequiredService<PagePersistenceService>();
+
+		var persistedData = persistenceService.Get("Colors");
+		viewModel.FilterText = persistedData?.FilterText ?? "";
 
 		InitializeComponent();
-
-		ColorSetList.ContainerContentChanging += ColorSetList_ContainerContentChanging;
 
 		App.MainWindow.EnsureNavigationSelection(typeof(ColorSetsPage));
 	}
@@ -43,12 +41,19 @@ public sealed partial class ColorSetsPage : Page
 	{
 		base.OnNavigatedTo(e);
 
-		if (viewModel is not null)
-		{
-			await viewModel.LoadAsync();
+		await viewModel.LoadAsync();
 
-			Progress.IsActive = false;
-		}
+		Progress.IsActive = false;
+	}
+
+	protected override void OnNavigatedFrom(NavigationEventArgs e)
+	{
+		base.OnNavigatedFrom(e);
+
+		persistenceService.Set(
+			"Colors",
+			new PagePersistenceData { FilterText = viewModel.FilterText }
+		);
 	}
 
 	// Can't use two-way binding with Segmented because it reports SelectedValue as null sometimes
