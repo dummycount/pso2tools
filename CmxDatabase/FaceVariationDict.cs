@@ -18,7 +18,7 @@ public class FaceVariationDict
 
 	public static IEnumerable<IceDataFile> GetFaceVariationLua(string pso2BinPath)
 	{
-		var icePath = new IceFileInfo("ui_character_making.ice").Win32Path(pso2BinPath);
+		var icePath = new IceFileInfo("ui_character_making.ice").GetPath(pso2BinPath);
 
 		var ice = IceWrapper.Load(icePath);
 

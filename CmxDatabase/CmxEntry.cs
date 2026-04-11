@@ -137,7 +137,19 @@ public class BaseCmxEntry<T> : ICmxEntry
 	public CmxNames Names { get; set; } = new();
 	public T Data { get; set; } = new();
 
-	public virtual IEnumerable<IceFileInfo> IceFiles => [new IceFileInfo(ObjectType, FileId)];
+	public virtual IEnumerable<IceFileInfo> IceFiles
+	{
+		get
+		{
+			var normal = new IceFileInfo(ObjectType, FileId) { Description = "Main" };
+			var hq = normal.Ex;
+			hq.Description = "High quality";
+
+			// TODO: add icon file
+
+			return [normal, hq];
+		}
+	}
 
 	BaseCMXObject ICmxEntry.Data => Data;
 }
@@ -152,13 +164,16 @@ public class CmxBodyEntry : BaseCmxEntry<BODYObject>
 	{
 		get
 		{
-			var main = new IceFileInfo(ObjectType, FileId);
+			var main = new IceFileInfo(ObjectType, FileId) { Description = "Model" };
 
 			yield return main;
+			yield return main.Ex;
+
+			// TODO: add icon file
 
 			if (Data.body2.linkedInnerId >= 0)
 			{
-				yield return new IceFileInfo(
+				var linkedInner = new IceFileInfo(
 					main.Start,
 					CmxObjectType.Innerwear,
 					Data.body2.linkedInnerId
@@ -166,11 +181,15 @@ public class CmxBodyEntry : BaseCmxEntry<BODYObject>
 				{
 					Description = "Linked inner",
 				};
+
+				yield return linkedInner;
+				yield return linkedInner.Ex;
 			}
 
-			if (Data.body2.linkedOuterId >= 0)
+			// Some objects have an ID like 30000 here which doesn't seem to match any file.
+			if (Data.body2.linkedOuterId >= CmxObjectIds.NgsStart)
 			{
-				yield return new IceFileInfo(
+				var linkedOuter = new IceFileInfo(
 					main.Start,
 					CmxObjectType.Outerwear,
 					Data.body2.linkedOuterId
@@ -178,6 +197,9 @@ public class CmxBodyEntry : BaseCmxEntry<BODYObject>
 				{
 					Description = "Linked outer",
 				};
+
+				yield return linkedOuter;
+				yield return linkedOuter.Ex;
 			}
 
 			if (Data.body2.headId >= 0)

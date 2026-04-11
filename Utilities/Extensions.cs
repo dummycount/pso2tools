@@ -1,15 +1,22 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Pso2Tools;
 
-public static class Extensions
+public static partial class Extensions
 {
 	extension(string str)
 	{
 		public string RemovePrefix(string prefix) =>
 			str.StartsWith(prefix) ? str[prefix.Length..] : str;
+
+		public string ToSentenceCaseLower() =>
+			CapitalWordStartRegex().Replace(str, m => m.Groups[0].Value.ToLower());
 	}
+
+	[GeneratedRegex(@"\b[A-Z](?=[a-z])")]
+	private static partial Regex CapitalWordStartRegex();
 
 	extension(Enum value)
 	{

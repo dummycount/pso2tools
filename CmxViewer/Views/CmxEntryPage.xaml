@@ -11,6 +11,7 @@
 	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
 	xmlns:viewmodels="using:Pso2Tools.CmxViewer.ViewModels"
 	xmlns:pso="using:Pso2Tools"
+	xmlns:cmxcontrols="using:Pso2Tools.CmxViewer.Controls"
 	mc:Ignorable="d"
 >
 	<Grid>
@@ -69,24 +70,37 @@
 					</controls:DataTable>
 				</controls:HeaderedItemsControl.Header>
 
-				<controls:HeaderedItemsControl.ItemsPanel>
-					<ItemsPanelTemplate>
-						<StackPanel Spacing="16" />
-					</ItemsPanelTemplate>
-				</controls:HeaderedItemsControl.ItemsPanel>
-
 				<controls:HeaderedItemsControl.ItemTemplate>
 					<DataTemplate x:DataType="viewmodels:IceFileModel">
 						<controls:DataRow HorizontalAlignment="Left">
 							<TextBlock
+								VerticalAlignment="Center"
 								IsTextSelectionEnabled="True"
-								Text="{x:Bind Description, TargetNullValue='Normal quality'}"
+								Text="{x:Bind Description}"
 							/>
 
-							<TextBlock IsTextSelectionEnabled="True" Text="{x:Bind Name}" />
+							<TextBlock
+								VerticalAlignment="Center"
+								IsTextSelectionEnabled="True"
+								Text="{x:Bind Name}"
+							/>
 
-							<!-- TODO: make this a link to the file -->
-							<TextBlock IsTextSelectionEnabled="True" Text="{x:Bind Path}" />
+							<StackPanel Orientation="Horizontal" Spacing="4">
+								<cmxcontrols:OpenInExplorerButton
+									x:Name="OpenInExplorer"
+									FilePath="{x:Bind FullPath}"
+									Style="{StaticResource SubtleButtonStyle}"
+									ToolTipService.ToolTip="Open in file explorer"
+								>
+									<FontIcon Glyph="&#xE8DA;" FontSize="16" />
+								</cmxcontrols:OpenInExplorerButton>
+
+								<TextBlock
+									VerticalAlignment="Center"
+									IsTextSelectionEnabled="True"
+									Text="{x:Bind DisplayPath}"
+								/>
+							</StackPanel>
 						</controls:DataRow>
 					</DataTemplate>
 				</controls:HeaderedItemsControl.ItemTemplate>

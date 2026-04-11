@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,10 +15,11 @@ public interface ICmxMember
 	public string? Bytes { get; }
 }
 
-public class IceFileModel(IceFileInfo file, string? path)
+public class IceFileModel(IceFileInfo file, string displayPath, string fullPath)
 {
 	public IceFileInfo File { get; } = file;
-	public string? Path { get; } = path ?? file.Hash;
+	public string DisplayPath { get; } = displayPath;
+	public string FullPath { get; } = fullPath;
 
 	public string? Description => File.Description;
 	public string Name => File.Name;
@@ -56,25 +58,13 @@ public partial class CmxEntryModel : ObservableObject
 			Members = MemberHelper.GetMembers(value.Data);
 			Files = value.IceFiles.SelectMany(file =>
 			{
-				List<IceFileModel> results = [];
-
-				if (file.FindFileRelative(pso2BinPath) is string path)
+				if (file.FindFile(pso2BinPath) is string fullPath)
 				{
-					results.Add(new IceFileModel(file, path));
+					var relativePath = Path.GetRelativePath(pso2BinPath, fullPath);
+
+					return new IceFileModel[] { new IceFileModel(file, relativePath, fullPath) };
 				}
-
-				var ex = file.Ex;
-				if (ex.FindFileRelative(pso2BinPath) is string exPath)
-				{
-					ex.Description = file.Description is null
-						? "High quality"
-						: $"HQ {file.Description}";
-					results.Add(new IceFileModel(ex, exPath));
-				}
-
-				// TODO: there are other file variants than just _ex
-
-				return results;
+				return [];
 			});
 		}
 	}
@@ -101,12 +91,17 @@ public static class MemberHelper
 		return string.Join(' ', value.Select(b => $"{b:X2}"));
 	}
 
-	public static IEnumerable<ICmxMember> GetMembers(object obj, string parentName = "")
+	public static IEnumerable<ICmxMember> GetMembers(object? obj, string parentName = "")
 	{
+		if (obj is null)
+		{
+			return [];
+		}
+
 		var type = obj.GetType();
 		var fields = type.GetFields();
 
-		return [.. fields.SelectMany(field => GetMembers(obj, field, parentName))];
+		return fields.SelectMany(field => GetMembers(obj, field, parentName));
 	}
 
 	private static IEnumerable<ICmxMember> GetMembers(
@@ -136,11 +131,11 @@ public static class MemberHelper
 			],
 			Type t when t == typeof(string) =>
 			[
-				new CmxStringMember(name, GetValue<string>(obj, field)),
+				new CmxStringMember(name, GetValue<string?>(obj, field)),
 			],
 			Type t when t.IsEnum => [new CmxEnumMember(name, GetValue<Enum>(obj, field))],
 			Type t when t.IsClass || IsStruct(t) => GetMembers(
-				GetValue<object>(obj, field),
+				GetValue<object?>(obj, field),
 				name + "."
 			),
 			_ => [new CmxUnknownMember(name, GetValue<object>(obj, field))],
@@ -148,14 +143,12 @@ public static class MemberHelper
 	}
 
 	private static T GetValue<T>(object obj, FieldInfo field)
-		where T : notnull
 	{
-		if (field.GetValue(obj) is T value)
-		{
-			return value;
-		}
-
-		throw new KeyNotFoundException($"Object '{obj}' is missing field '{field.Name}'");
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+#pragma warning disable CS8603 // Possible null reference return.
+		return (T)field.GetValue(obj);
+#pragma warning restore CS8603 // Possible null reference return.
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
 	}
 
 	private static bool IsStruct(Type type) =>
@@ -226,12 +219,12 @@ public class CmxDoubleMember(string name, double value) : ICmxMember
 	public string Bytes => MemberHelper.GetBytes(Value);
 }
 
-public class CmxStringMember(string name, string value) : ICmxMember
+public class CmxStringMember(string name, string? value) : ICmxMember
 {
 	public string Name { get; set; } = name;
-	public string Value { get; set; } = value;
+	public string? Value { get; set; } = value;
 
-	public string Text => Value.ToString();
+	public string Text => Value?.ToString() ?? "";
 	public string? TextHex => null;
 	public string? Bytes => null;
 }

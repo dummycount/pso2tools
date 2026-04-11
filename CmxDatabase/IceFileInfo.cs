@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
+using AquaModelLibrary.Data.PSO2.Aqua;
 using AquaModelLibrary.Data.PSO2.Constants;
 
 namespace Pso2Tools;
@@ -22,7 +23,9 @@ public class IceFileInfo
 
 	public string Name { get; }
 	public string Hash { get; }
+
 	public string? Description { get; set; }
+	public string DataDir { get; set; } = CharacterMakingIndex.dataDir;
 
 	public IceFileInfo(string start, string rest)
 	{
@@ -60,59 +63,38 @@ public class IceFileInfo
 			return new IceFileInfo(
 				CharacterMakingDynamic.rebootExStart,
 				Rest.Replace(".ice", "_ex.ice")
-			);
+			)
+			{
+				Description = Description is null
+					? null
+					: $"HQ {Description.ToSentenceCaseLower()}",
+			};
 		}
 	}
 
-	public string Win32Path(string pso2BinPath)
+	public string GetPath(string pso2BinPath)
 	{
-		return Path.Join(pso2BinPath, "data/win32", Hash);
-	}
+		var hash = Hash;
+		if (
+			DataDir == CharacterMakingIndex.dataReboot
+			|| DataDir == CharacterMakingIndex.dataRebootNA
+		)
+		{
+			hash = hash.Insert(2, "\\");
+		}
 
-	public string Win32RebootPath(string pso2BinPath)
-	{
-		return Path.Join(pso2BinPath, "data/win32reboot", Hash.Insert(2, "/"));
-	}
-
-	public string Win32NaPath(string pso2BinPath)
-	{
-		return Path.Join(pso2BinPath, "data/win32_na", Hash);
-	}
-
-	public string Win32RebootNaPath(string pso2BinPath)
-	{
-		return Path.Join(pso2BinPath, "data/win32reboot_na", Hash.Insert(2, "/"));
+		return Path.Join(pso2BinPath, DataDir, hash);
 	}
 
 	public string? FindFile(string pso2BinPath)
 	{
-		if (!this)
+		if (this)
 		{
-			return null;
-		}
-
-		var path = Win32Path(pso2BinPath);
-		if (File.Exists(path))
-		{
-			return path;
-		}
-
-		path = Win32NaPath(pso2BinPath);
-		if (File.Exists(path))
-		{
-			return path;
-		}
-
-		path = Win32RebootPath(pso2BinPath);
-		if (File.Exists(path))
-		{
-			return path;
-		}
-
-		path = Win32RebootNaPath(pso2BinPath);
-		if (File.Exists(path))
-		{
-			return path;
+			var path = GetPath(pso2BinPath);
+			if (File.Exists(path))
+			{
+				return path;
+			}
 		}
 
 		return null;
