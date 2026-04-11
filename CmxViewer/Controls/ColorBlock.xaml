@@ -27,6 +27,7 @@
 				BorderThickness="2"
 			/>
 		</Button>
+		<!-- TODO: popup should either prevent focus from leaving or close when focus leaves (press up/down) -->
 		<Popup x:Name="DataPopup" VerticalOffset="{x:Bind Height}" IsLightDismissEnabled="True">
 			<Border
 				Padding="16"

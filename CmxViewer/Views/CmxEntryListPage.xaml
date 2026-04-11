@@ -28,6 +28,7 @@
 			Margin="36,24,36,16"
 		/>
 
+		<!-- TODO: down arrow from one of these controls should move focus to list. Up arrow at top of list should move back to controls. -->
 		<controls:WrapPanel
 			Grid.Row="1"
 			Orientation="Horizontal"

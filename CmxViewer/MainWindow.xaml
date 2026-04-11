@@ -28,6 +28,7 @@
 			Title="CMX Viewer"
 			BackRequested="TitleBar_BackRequested"
 			IsBackButtonVisible="{x:Bind NavFrame.CanGoBack, Mode=OneWay}"
+			IsTabStop="False"
 		>
 			<TitleBar.IconSource>
 				<FontIconSource Glyph="&#xF158;" />

@@ -44,7 +44,12 @@
 				</ic:SymbolIcon>
 			</DataTemplate>
 
+			<Style TargetType="controls:DataColumn">
+				<Setter Property="IsTabStop" Value="False" />
+			</Style>
+
 			<Style x:Name="HeaderedFieldStyle" TargetType="controls:HeaderedContentControl">
+				<Setter Property="IsTabStop" Value="False" />
 				<Setter Property="HeaderTemplate">
 					<Setter.Value>
 						<DataTemplate>

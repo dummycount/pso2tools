@@ -28,6 +28,7 @@
 			Margin="36,24,36,16"
 		/>
 
+		<!-- TODO: down arrow from one of these controls should move focus to list. Up arrow at top of list should move back to controls. -->
 		<controls:WrapPanel
 			Grid.Row="1"
 			Orientation="Horizontal"
@@ -141,6 +142,7 @@
 								Text="{x:Bind NamesJp, TargetNullValue='Unnamed'}"
 								Opacity="{x:Bind NamesJp, Converter={StaticResource DimIfNullConverter}}"
 							/>
+							<!-- TODO would be nice if left/right arrow keys moved focus between color blocks -->
 							<StackPanel Orientation="Horizontal" Spacing="8" Margin="0,8,24,8">
 								<cmxcontrols:ColorBlock
 									Width="32"

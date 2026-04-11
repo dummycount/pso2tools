@@ -48,6 +48,12 @@ public sealed partial class ColorBlock : UserControl, INotifyPropertyChanged
 		if (!DataPopup.IsOpen)
 		{
 			DataPopup.IsOpen = true;
+
+			var button = (Button)sender;
+			if (button.FocusState == FocusState.Keyboard)
+			{
+				CopyRgbButton.Focus(FocusState.Keyboard);
+			}
 		}
 	}
 

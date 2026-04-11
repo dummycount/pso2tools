@@ -1,3 +1,4 @@
+using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
@@ -57,6 +58,22 @@ public sealed partial class CmxEntryListPage : Page
 		await viewModel.LoadAsync();
 
 		Progress.IsActive = false;
+
+		if (e.NavigationMode == NavigationMode.Back)
+		{
+			// TODO: restore scroll position and filter text
+			// restore last-selected item to have keyboard focus
+		}
+	}
+
+	protected override void OnNavigatedFrom(NavigationEventArgs e)
+	{
+		base.OnNavigatedFrom(e);
+
+		var scroll = EntryList.FindDescendant<ScrollViewer>();
+		var lastScrollOffset = scroll?.VerticalOffset;
+		// TODO: save this and restore above
+		// Also save other properties like filter text
 	}
 
 	// Can't use two-way binding with Segmented because it reports SelectedValue as null sometimes
