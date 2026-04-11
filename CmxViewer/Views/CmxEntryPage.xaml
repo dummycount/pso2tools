@@ -137,29 +137,25 @@
 
 			<ListView.ItemTemplate>
 				<DataTemplate x:DataType="viewmodels:ICmxMember">
-					<Border Padding="16,0,12,0" CornerRadius="4">
+					<Border Padding="16,0,12,0" Height="28" CornerRadius="4">
 						<controls:DataRow HorizontalAlignment="Left">
 							<TextBlock
 								VerticalAlignment="Center"
-								Padding="0,8,0,8"
 								Text="{x:Bind Name}"
 								Style="{StaticResource CodeBlockStyle}"
 							/>
 							<TextBlock
 								VerticalAlignment="Center"
-								Padding="0,8,0,8"
 								Text="{x:Bind Text}"
 								Style="{StaticResource CodeBlockStyle}"
 							/>
 							<TextBlock
 								VerticalAlignment="Center"
-								Padding="0,8,0,8"
 								Text="{x:Bind TextHex}"
 								Style="{StaticResource CodeBlockStyle}"
 							/>
 							<TextBlock
 								VerticalAlignment="Center"
-								Padding="0,8,0,8"
 								Text="{x:Bind Bytes}"
 								Style="{StaticResource CodeBlockStyle}"
 							/>
@@ -175,6 +171,7 @@
 				>
 					<Setter Property="Padding" Value="0,0,0,0" />
 					<Setter Property="HorizontalContentAlignment" Value="Left" />
+					<Setter Property="MinHeight" Value="24" />
 				</Style>
 			</ListView.ItemContainerStyle>
 		</ListView>

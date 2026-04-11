@@ -20,6 +20,7 @@
 			<SolidColorBrush
 				x:Key="AlternateRowColorBrush"
 				Color="{ThemeResource LayerOnMicaBaseAltFillColorSecondary}"
+				Opacity="0.5"
 			/>
 
 			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
