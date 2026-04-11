@@ -27,6 +27,8 @@ public sealed partial class SettingsPage : Page
 		InitializeComponent();
 
 		settings.PropertyChanged += Settings_PropertyChanged;
+
+		App.MainWindow.EnsureNavigationSelection(typeof(SettingsPage));
 	}
 
 	private void Settings_PropertyChanged(

@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Reflection.Metadata;
 using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
@@ -50,6 +51,25 @@ public sealed partial class MainWindow : Window
 		NavFrame.GoBack();
 	}
 
+	public void EnsureNavigationSelection(Type pageType, object? parameter = null)
+	{
+		EnsureNavigationSelection(GetTagFromPageData(pageType, parameter));
+	}
+
+	public void EnsureNavigationSelection(string tag)
+	{
+		var item = FindNavViewItem(tag);
+		if (item is null)
+		{
+			return;
+		}
+
+		NavView.SelectedItem = item;
+
+		var parent = item.FindAscendant<NavigationViewItem>();
+		parent?.IsExpanded = true;
+	}
+
 	public void ShowNotification(Notification notification)
 	{
 		NotificationQueue.Clear();
@@ -97,6 +117,26 @@ public sealed partial class MainWindow : Window
 				}
 				break;
 		}
+	}
+
+	private static string GetTagFromPageData(Type type, object? parameter = null)
+	{
+		if (type == typeof(SettingsPage))
+		{
+			return "Settings";
+		}
+
+		if (type == typeof(ColorSetsPage))
+		{
+			return "Colors";
+		}
+
+		if (parameter is CmxObjectType objectType)
+		{
+			return objectType.ToString();
+		}
+
+		return "";
 	}
 
 	private Button GetSettingsButton()

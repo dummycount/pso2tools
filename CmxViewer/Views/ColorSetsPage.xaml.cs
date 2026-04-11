@@ -27,6 +27,8 @@ public sealed partial class ColorSetsPage : Page
 		InitializeComponent();
 
 		ColorSetList.ContainerContentChanging += ColorSetList_ContainerContentChanging;
+
+		App.MainWindow.EnsureNavigationSelection(typeof(ColorSetsPage));
 	}
 
 	private void ColorSetList_ContainerContentChanging(

@@ -47,6 +47,8 @@ public sealed partial class CmxEntryPage : Page
 				param.Object.Name,
 			};
 		}
+
+		App.MainWindow.EnsureNavigationSelection(typeof(CmxEntryPage), viewModel.ObjectType);
 	}
 
 	private void MemberList_ContainerContentChanging(

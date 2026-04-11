@@ -7,17 +7,13 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.CmxViewer.ViewModels;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace Pso2Tools.CmxViewer.Views;
 
-/// <summary>
-/// An empty page that can be used on its own or navigated to within a Frame.
-/// </summary>
 public sealed partial class CmxEntryListPage : Page
 {
 	private readonly CmxEntryListModel viewModel;
+
+	public CmxObjectType ObjectType => viewModel.ObjectType;
 
 	public CmxEntryListPage()
 	{
@@ -26,9 +22,6 @@ public sealed partial class CmxEntryListPage : Page
 		InitializeComponent();
 
 		EntryList.ItemClick += EntryList_ItemClick;
-
-		// TODO: persist sort property and order in settings
-		// TODO: persist filter toggles in settings, but only apply if object type uses them
 	}
 
 	private void EntryList_ItemClick(object sender, ItemClickEventArgs e)
@@ -54,6 +47,8 @@ public sealed partial class CmxEntryListPage : Page
 		{
 			viewModel.ObjectType = objectType;
 		}
+
+		App.MainWindow.EnsureNavigationSelection(typeof(CmxEntryListPage), viewModel.ObjectType);
 
 		await viewModel.LoadAsync();
 
