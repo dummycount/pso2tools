@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
@@ -99,14 +100,15 @@ public static class MemberHelper
 		}
 
 		var type = obj.GetType();
-		var fields = type.GetFields();
+		var fields = type.GetFields(BindingFlags.Instance | BindingFlags.Public);
 
-		return fields.SelectMany(field => GetMembers(obj, field, parentName));
+		return fields.SelectMany(field => GetMembers(obj, field, type, parentName));
 	}
 
 	private static IEnumerable<ICmxMember> GetMembers(
 		object obj,
 		FieldInfo field,
+		Type parentType,
 		string parentName
 	)
 	{
@@ -114,10 +116,21 @@ public static class MemberHelper
 
 		return field.FieldType switch
 		{
-			Type t when t == typeof(byte) => [new CmxByteMember(name, GetValue<byte>(obj, field))],
+			Type t when t == typeof(byte) =>
+			[
+				new CmxByteMember(
+					name,
+					GetValue<byte>(obj, field),
+					GetPackedEnumType(parentType, field)
+				),
+			],
 			Type t when t == typeof(short) =>
 			[
-				new CmxShortMember(name, GetValue<short>(obj, field)),
+				new CmxShortMember(
+					name,
+					GetValue<short>(obj, field),
+					GetPackedEnumType(parentType, field)
+				),
 			],
 			Type t when t == typeof(int) => [new CmxIntMember(name, GetValue<int>(obj, field))],
 			Type t when t == typeof(long) => [new CmxLongMember(name, GetValue<long>(obj, field))],
@@ -133,7 +146,9 @@ public static class MemberHelper
 			[
 				new CmxStringMember(name, GetValue<string?>(obj, field)),
 			],
+			// All enum types
 			Type t when t.IsEnum => [new CmxEnumMember(name, GetValue<Enum>(obj, field))],
+			// All class/struct types
 			Type t when t.IsClass || IsStruct(t) => GetMembers(
 				GetValue<object?>(obj, field),
 				name + "."
@@ -153,24 +168,57 @@ public static class MemberHelper
 
 	private static bool IsStruct(Type type) =>
 		type.IsValueType && !type.IsPrimitive && !type.IsEnum;
+
+	// Some enums are packed into smaller types. Add overrides for specific fields.
+	private static Type? GetPackedEnumType(Type parentType, FieldInfo field)
+	{
+		if (parentType == typeof(HAIRMaskColorMapping))
+		{
+			return field.Name switch
+			{
+				nameof(HAIRMaskColorMapping.redIndex)
+				or nameof(HAIRMaskColorMapping.greenIndex)
+				or nameof(HAIRMaskColorMapping.blueIndex)
+				or nameof(HAIRMaskColorMapping.alphaIndex) => typeof(CharColorMapping),
+				_ => null,
+			};
+		}
+
+		return null;
+	}
+
+	public static string IntToText<T>(T value, Type? asEnumType = null)
+		where T : struct
+	{
+		if (asEnumType is not null)
+		{
+			var enumValue = Enum.ToObject(asEnumType, value);
+			if (Enum.IsDefined(asEnumType, enumValue))
+			{
+				return $"{value} ({enumValue})";
+			}
+		}
+
+		return value.ToString() ?? "";
+	}
 }
 
-public class CmxByteMember(string name, byte value) : ICmxMember
+public class CmxByteMember(string name, byte value, Type? asEnumType = null) : ICmxMember
 {
 	public string Name { get; set; } = name;
 	public byte Value { get; set; } = value;
 
-	public string Text => Value.ToString();
+	public string Text => MemberHelper.IntToText(Value, asEnumType);
 	public string TextHex => $"0x{Value:X2}";
 	public string Bytes => MemberHelper.GetBytes(Value);
 }
 
-public class CmxShortMember(string name, short value) : ICmxMember
+public class CmxShortMember(string name, short value, Type? asEnumType = null) : ICmxMember
 {
 	public string Name { get; set; } = name;
 	public short Value { get; set; } = value;
 
-	public string Text => Value.ToString();
+	public string Text => MemberHelper.IntToText(Value, asEnumType);
 	public string TextHex => $"0x{Value:X4}";
 	public string Bytes => MemberHelper.GetBytes(Value);
 }
