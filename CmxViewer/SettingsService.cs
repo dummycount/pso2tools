@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.WinUI.Collections;
+using Microsoft.UI.Xaml;
 using Microsoft.Windows.Storage;
 
 namespace Pso2Tools.CmxViewer.ViewModels;
@@ -22,6 +23,12 @@ public partial class SettingsService : ObservableObject, ISettingsService
 	{
 		get => GetString();
 		set => SetString(value);
+	}
+
+	public ElementTheme AppTheme
+	{
+		get => GetEnum(defaultVal: ElementTheme.Default);
+		set => SetEnum(value);
 	}
 
 	public BodyType BodyTypeFilter

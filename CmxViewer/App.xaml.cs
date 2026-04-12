@@ -61,6 +61,7 @@ public partial class App : Application
 			return new CmxDatabase(settings.Pso2BinPath);
 		});
 		services.AddSingleton<PagePersistenceService>();
+		services.AddSingleton<ThemeService>();
 
 		// ViewModels
 		services.AddTransient<CmxEntryListModel>();
@@ -88,5 +89,7 @@ public partial class App : Application
 	{
 		Window = Services.GetRequiredService<MainWindow>();
 		Window.Activate();
+
+		Services.GetRequiredService<ThemeService>().Initialize();
 	}
 }

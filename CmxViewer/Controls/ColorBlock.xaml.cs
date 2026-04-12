@@ -11,8 +11,8 @@ namespace Pso2Tools.CmxViewer.Controls;
 
 public sealed partial class ColorBlock : UserControl, INotifyPropertyChanged
 {
-	private Color color;
-	public Color Color
+	private ArgbColor color;
+	public ArgbColor Color
 	{
 		get => color;
 		set

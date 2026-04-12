@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using CommunityToolkit.WinUI.Collections;
+using Microsoft.UI.Xaml;
 
 namespace Pso2Tools.CmxViewer;
 
@@ -28,6 +29,18 @@ public partial class SettingsNotificationFixer : ISettingsService, INotifyProper
 			if (Settings.LastPage != value)
 			{
 				Settings.LastPage = value;
+			}
+		}
+	}
+
+	public ElementTheme AppTheme
+	{
+		get => Settings.AppTheme;
+		set
+		{
+			if (Settings.AppTheme != value)
+			{
+				Settings.AppTheme = value;
 			}
 		}
 	}

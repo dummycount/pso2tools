@@ -4,26 +4,26 @@ using AquaModelLibrary.Helpers.Readers;
 
 namespace Pso2Tools;
 
-public struct Color
+public struct ArgbColor
 {
 	public byte B;
 	public byte G;
 	public byte R;
 	public byte A;
 
-	public static bool operator ==(Color left, Color right)
+	public static bool operator ==(ArgbColor left, ArgbColor right)
 	{
 		return left.R == right.R && left.G == right.G && left.B == right.B && left.A == right.A;
 	}
 
-	public static bool operator !=(Color left, Color right)
+	public static bool operator !=(ArgbColor left, ArgbColor right)
 	{
 		return !(left == right);
 	}
 
 	public override readonly bool Equals(object? obj)
 	{
-		return (obj is Color color) && this == color;
+		return (obj is ArgbColor color) && this == color;
 	}
 
 	public override readonly int GetHashCode()
@@ -35,20 +35,20 @@ public struct Color
 public struct ItemColors
 {
 	public int Id { get; set; }
-	public Color Outerwear1 { get; set; }
-	public Color Outerwear2 { get; set; }
-	public Color Basewear1 { get; set; }
-	public Color Basewear2 { get; set; }
-	public Color Innerwear1 { get; set; }
-	public Color Innerwear2 { get; set; }
+	public ArgbColor Outerwear1 { get; set; }
+	public ArgbColor Outerwear2 { get; set; }
+	public ArgbColor Basewear1 { get; set; }
+	public ArgbColor Basewear2 { get; set; }
+	public ArgbColor Innerwear1 { get; set; }
+	public ArgbColor Innerwear2 { get; set; }
 
-	public static (Color, Color) GetOuterwearColors(ItemColors colors) =>
+	public static (ArgbColor, ArgbColor) GetOuterwearColors(ItemColors colors) =>
 		(colors.Outerwear1, colors.Outerwear2);
 
-	public static (Color, Color) GetBasewearColors(ItemColors colors) =>
+	public static (ArgbColor, ArgbColor) GetBasewearColors(ItemColors colors) =>
 		(colors.Basewear1, colors.Basewear2);
 
-	public static (Color, Color) GetInnerwearColors(ItemColors colors) =>
+	public static (ArgbColor, ArgbColor) GetInnerwearColors(ItemColors colors) =>
 		(colors.Innerwear1, colors.Innerwear2);
 }
 

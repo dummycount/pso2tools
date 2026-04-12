@@ -31,44 +31,121 @@
 			Text="Settings"
 			Style="{StaticResource TitleTextBlockStyle}"
 			Margin="36,24,36,0"
+			MaxWidth="1064"
 		/>
 
-		<ScrollViewer
+		<ScrollView
 			Grid.Row="1"
 			IsTabStop="False"
+			Padding="36,0,36,0"
 			VerticalScrollBarVisibility="Auto"
 			VerticalScrollMode="Auto"
 		>
-			<StackPanel Spacing="4" Margin="36,0,36,0">
-				<TextBlock
-					Text="System"
-					Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-				/>
+			<Border>
+				<StackPanel MaxWidth="1064" Spacing="4">
+					<StackPanel.ChildrenTransitions>
+						<RepositionThemeTransition />
+					</StackPanel.ChildrenTransitions>
 
-				<controls:SettingsCard
-					Header="Path to pso2_bin folder"
-					Description="{x:Bind settings.Pso2BinPath, TargetNullValue='No path set', Mode=OneWay}"
-				>
-					<controls:SettingsCard.HeaderIcon>
-						<FontIcon Glyph="&#xE8B7;" />
-					</controls:SettingsCard.HeaderIcon>
+					<TextBlock
+						Text="Appearance &amp; behavior"
+						Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+					/>
 
-					<StackPanel Orientation="Horizontal" Spacing="8">
-						<Button
-							x:Name="DataPathResetButton"
-							Content="Default"
-							Click="DataPathResetButton_Click"
-							MinWidth="120"
+					<controls:SettingsCard
+						Header="Path to pso2_bin folder"
+						Description="{x:Bind settings.Pso2BinPath, TargetNullValue='No path set', Mode=OneWay}"
+					>
+						<controls:SettingsCard.HeaderIcon>
+							<FontIcon Glyph="&#xE8B7;" />
+						</controls:SettingsCard.HeaderIcon>
+
+						<StackPanel Orientation="Horizontal" Spacing="8">
+							<Button
+								x:Name="DataPathResetButton"
+								Content="Default"
+								Click="DataPathResetButton_Click"
+								MinWidth="120"
+							/>
+							<Button
+								x:Name="DataPathButton"
+								Content="Select folder"
+								Click="DataPathButton_Click"
+								MinWidth="120"
+							/>
+						</StackPanel>
+					</controls:SettingsCard>
+
+					<controls:SettingsCard Header="Theme">
+						<controls:SettingsCard.HeaderIcon>
+							<FontIcon Glyph="&#xE790;" />
+						</controls:SettingsCard.HeaderIcon>
+
+						<ComboBox x:Name="ThemeMode" SelectionChanged="ThemeMode_SelectionChanged">
+							<ComboBoxItem Content="Use system setting" Tag="Default" />
+							<ComboBoxItem Content="Light" Tag="Light" />
+							<ComboBoxItem Content="Dark" Tag="Dark" />
+						</ComboBox>
+					</controls:SettingsCard>
+
+					<TextBlock
+						Text="About"
+						Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+					/>
+
+					<controls:SettingsExpander Header="CMX Viewer">
+						<!-- TODO: find a better icon -->
+						<controls:SettingsExpander.HeaderIcon>
+							<FontIcon Glyph="&#xF158;" />
+						</controls:SettingsExpander.HeaderIcon>
+
+						<TextBlock
+							Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+							IsTextSelectionEnabled="True"
+							Text="{x:Bind Version}"
 						/>
-						<Button
-							x:Name="DataPathButton"
-							Content="Select folder"
-							Click="DataPathButton_Click"
-							MinWidth="120"
-						/>
-					</StackPanel>
-				</controls:SettingsCard>
-			</StackPanel>
-		</ScrollViewer>
+
+						<controls:SettingsExpander.Items>
+							<controls:SettingsCard
+								x:Name="OpenRepoCard"
+								Header="Open repo on GitHub"
+								IsClickEnabled="True"
+								Click="OpenRepoCard_Click"
+							>
+								<TextBlock>https://github.com/dummycount/pso2tools</TextBlock>
+								<controls:SettingsCard.ActionIcon>
+									<FontIcon Glyph="&#xE8C8;" />
+								</controls:SettingsCard.ActionIcon>
+							</controls:SettingsCard>
+
+							<controls:SettingsCard
+								Header="Portions of this software are based on code from the following projects"
+								ContentAlignment="Vertical"
+								HorizontalContentAlignment="Left"
+							>
+								<StackPanel Margin="-12,0,0,0">
+									<HyperlinkButton
+										Content="PSO2 Aqua Library"
+										NavigateUri="https://github.com/Shadowth117/PSO2-Aqua-Library"
+									/>
+									<HyperlinkButton
+										Content="WinUI 3"
+										NavigateUri="https://aka.ms/winui"
+									/>
+									<HyperlinkButton
+										Content="WinUI 3 Gallery"
+										NavigateUri="https://github.com/microsoft/WinUI-Gallery"
+									/>
+									<HyperlinkButton
+										Content="Windows Community Toolkit"
+										NavigateUri="https://aka.ms/toolkit/windows"
+									/>
+								</StackPanel>
+							</controls:SettingsCard>
+						</controls:SettingsExpander.Items>
+					</controls:SettingsExpander>
+				</StackPanel>
+			</Border>
+		</ScrollView>
 	</Grid>
 </Page>

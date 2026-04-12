@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
+using System.Reflection;
 using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
-using Pso2Tools.CmxViewer.ViewModels;
+using Windows.System;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -18,17 +20,45 @@ public sealed partial class SettingsPage : Page
 {
 	private readonly ICmxDatabase database;
 	private readonly ISettingsService settings;
+	private readonly ThemeService theme;
+
+	public string Version =>
+		FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion ?? "";
 
 	public SettingsPage()
 	{
 		database = App.Current.Services.GetRequiredService<ICmxDatabase>();
 		settings = App.Current.Services.GetRequiredService<ISettingsService>();
+		theme = App.Current.Services.GetRequiredService<ThemeService>();
 
 		InitializeComponent();
 
+		Loaded += SettingsPage_Loaded;
 		settings.PropertyChanged += Settings_PropertyChanged;
 
 		App.MainWindow.EnsureNavigationSelection(typeof(SettingsPage));
+	}
+
+	private void SettingsPage_Loaded(object sender, RoutedEventArgs e)
+	{
+		ThemeMode.SelectedIndex = theme.RootTheme switch
+		{
+			ElementTheme.Default => 0,
+			ElementTheme.Light => 1,
+			ElementTheme.Dark => 2,
+			_ => 0,
+		};
+	}
+
+	private void ThemeMode_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		theme.RootTheme = ThemeMode.SelectedIndex switch
+		{
+			0 => ElementTheme.Default,
+			1 => ElementTheme.Light,
+			2 => ElementTheme.Dark,
+			_ => ElementTheme.Default,
+		};
 	}
 
 	private void Settings_PropertyChanged(
@@ -77,5 +107,10 @@ public sealed partial class SettingsPage : Page
 		{
 			settings.Pso2BinPath = folder.Path;
 		}
+	}
+
+	private async void OpenRepoCard_Click(object sender, RoutedEventArgs e)
+	{
+		await Launcher.LaunchUriAsync(new Uri("https://github.com/dummycount/pso2tools"));
 	}
 }
