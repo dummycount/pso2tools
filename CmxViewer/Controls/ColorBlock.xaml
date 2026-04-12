@@ -10,7 +10,6 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 >
 	<Grid>
-		<!-- TODO: make border color change on hover -->
 		<Button
 			Click="Button_Click"
 			HorizontalAlignment="Stretch"
@@ -19,12 +18,14 @@
 			VerticalContentAlignment="Stretch"
 			Padding="0"
 			Background="Black"
+			Style="{StaticResource AccentButtonStyle}"
 		>
 			<Border
 				CornerRadius="2"
 				Background="{x:Bind Color, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
 				BorderBrush="Black"
-				BorderThickness="2"
+				BorderThickness="1"
+				Margin="1"
 			/>
 		</Button>
 		<!-- TODO: popup should either prevent focus from leaving or close when focus leaves (press up/down) -->
