@@ -24,6 +24,7 @@ public sealed partial class MainWindow : Window
 
 		ExtendsContentIntoTitleBar = true;
 		SetTitleBar(TitleBar);
+		AppWindow.SetIcon("Assets/Toolbox.ico");
 
 		Database.LoadFailed += Database_LoadFailed;
 

@@ -94,9 +94,8 @@
 					/>
 
 					<controls:SettingsExpander Header="CMX Viewer">
-						<!-- TODO: find a better icon -->
 						<controls:SettingsExpander.HeaderIcon>
-							<FontIcon Glyph="&#xF158;" />
+							<ImageIcon Source="/Assets/Toolbox.ico" />
 						</controls:SettingsExpander.HeaderIcon>
 
 						<TextBlock
@@ -108,7 +107,7 @@
 						<controls:SettingsExpander.Items>
 							<controls:SettingsCard
 								x:Name="OpenRepoCard"
-								Header="Open repo on GitHub"
+								Header="Open GitHub repository"
 								IsClickEnabled="True"
 								Click="OpenRepoCard_Click"
 							>

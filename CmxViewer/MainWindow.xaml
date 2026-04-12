@@ -30,9 +30,8 @@
 			IsBackButtonVisible="{x:Bind NavFrame.CanGoBack, Mode=OneWay}"
 			IsTabStop="False"
 		>
-			<!-- TODO: find a better icon -->
 			<TitleBar.IconSource>
-				<FontIconSource Glyph="&#xF158;" />
+				<ImageIconSource ImageSource="/Assets/Toolbox.ico" />
 			</TitleBar.IconSource>
 		</TitleBar>
 
