@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Pso2Tools;
 
@@ -28,24 +29,30 @@ public partial class GameFinder
 
 	private static string ProgramFiles =>
 		Environment.GetFolderPath(Environment.SpecialFolder.ProgramFilesX86);
+
 	private static string WindowsStorePath =>
 		Path.Join(ProgramFiles, "ModifiableWindowsApps/pso2_bin");
 
 	private static IEnumerable<string> GetSteamLibraries()
 	{
-		var path = PathRegex();
-		var steamLibrariesFile = Path.Join(ProgramFiles, "Steam/SteamApps/libraryfolders.vdf");
-
 		try
 		{
+			var path = PathRegex();
+			var steamLibrariesFile = Path.Join(ProgramFiles, "Steam/SteamApps/libraryfolders.vdf");
+
 			var file = File.ReadAllText(steamLibrariesFile);
 			return file.Split('\n')
 				.Select(line => path.Match(line))
 				.Where(m => m.Success)
 				.Select(m => m.Groups[1].Value.Replace(@"\\", @"\"));
+
+			// This could throw, DirectoryNotFoundException, FileNotFoundException or possibly
+			// other IO exceptions. If this throws anything that isn't caught during app load,
+			// the app just exits immediately with no error message, so catch everything.
 		}
-		catch (FileNotFoundException)
+		catch (Exception ex)
 		{
+			Debug.WriteLine(ex);
 			return [];
 		}
 	}
