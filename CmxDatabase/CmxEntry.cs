@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using AquaModelLibrary.Data.PSO2.Aqua;
 using AquaModelLibrary.Data.PSO2.Aqua.CharacterMakingIndexData;
 using AquaModelLibrary.Data.PSO2.Constants;
 using UnluacNET;
@@ -106,6 +107,10 @@ public static class CmxObjectIds
 		|| (id >= NgsCasealStart && id < NgsGenderlessStart);
 
 	public static bool IsNonGendered(int id) => !IsT1(id) && !IsT2(id);
+
+	public static bool IsCast(int id) =>
+		(id >= ClassicCastStart && id < ClassicUnknownStart)
+		|| (id >= NgsCastStart && id < NgsGenderlessStart);
 }
 
 public class CmxColorMapping
@@ -145,9 +150,15 @@ public class BaseCmxEntry<T> : ICmxEntry
 			var hq = normal.Ex;
 			hq.Description = "High quality";
 
-			// TODO: add icon file
+			var icon = new IceFileInfo(
+				CharacterMakingDynamic.icon,
+				IceFileInfo.GetIconName(ObjectType, FileId)
+			)
+			{
+				Description = "Icon",
+			};
 
-			return [normal, hq];
+			return [normal, hq, icon];
 		}
 	}
 
@@ -169,7 +180,34 @@ public class CmxBodyEntry : BaseCmxEntry<BODYObject>
 			yield return main;
 			yield return main.Ex;
 
-			// TODO: add icon file
+			var icon = new IceFileInfo(
+				CharacterMakingDynamic.icon,
+				IceFileInfo.GetIconName(ObjectType, FileId)
+			)
+			{
+				Description = "Icon",
+			};
+
+			yield return icon;
+
+			var replacement = new IceFileInfo(main.Name.Replace(".ice", "_rp.ice"))
+			{
+				Description = "Replacement",
+			};
+
+			yield return replacement;
+			yield return replacement.Ex;
+
+			var materialAnim = new IceFileInfo("bm", FileId) { Description = "Material anim" };
+
+			yield return materialAnim;
+			yield return materialAnim.Ex;
+
+			if (!CmxObjectIds.IsNgs(FileId))
+			{
+				var hand = new IceFileInfo("hn", FileId) { Description = "Hand texture" };
+				yield return hand;
+			}
 
 			if (Data.body2.linkedInnerId >= 0)
 			{
@@ -204,7 +242,16 @@ public class CmxBodyEntry : BaseCmxEntry<BODYObject>
 
 			if (Data.body2.headId >= 0)
 			{
-				// TODO
+				var isCast = CmxObjectIds.IsCast(Data.body2.headId);
+				var headType = isCast ? CmxObjectType.Face : CmxObjectType.Hair;
+
+				var head = new IceFileInfo(headType, Data.body2.headId)
+				{
+					Description = isCast ? "Face model" : "Hair model",
+				};
+
+				yield return head;
+				yield return head.Ex;
 			}
 
 			if (Data.body2.costumeSoundId >= 0)

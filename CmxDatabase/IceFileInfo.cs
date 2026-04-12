@@ -140,4 +140,67 @@ public class IceFileInfo
 			CmxObjectType.Teeth => "de",
 			_ => throw new ArgumentException("Invalid object type"),
 		};
+
+	public static string GetIconTag(CmxObjectType objectType) =>
+		objectType switch
+		{
+			CmxObjectType.Accessory => CharacterMakingDynamic.accessoryIcon,
+			CmxObjectType.Basewear => CharacterMakingDynamic.basewearIcon,
+			CmxObjectType.Bodypaint => CharacterMakingDynamic.bodyPaintIcon,
+			CmxObjectType.CastArms => CharacterMakingDynamic.castArmIcon,
+			CmxObjectType.CastBody => CharacterMakingDynamic.castPartIcon,
+			CmxObjectType.CastLegs => CharacterMakingDynamic.castLegIcon,
+			CmxObjectType.Costume => CharacterMakingDynamic.costumeIcon,
+			CmxObjectType.Ear => CharacterMakingDynamic.earIcon,
+			CmxObjectType.Eye => CharacterMakingDynamic.eyeIcon,
+			CmxObjectType.Eyebrow => CharacterMakingDynamic.eyeBrowsIcon,
+			CmxObjectType.Eyelash => CharacterMakingDynamic.eyelashesIcon,
+			CmxObjectType.Face => CharacterMakingDynamic.faceIcon,
+			CmxObjectType.FaceTexture => "facepaint01_", // ?
+			CmxObjectType.Facepaint => CharacterMakingDynamic.facePaintIcon,
+			CmxObjectType.Hair => CharacterMakingDynamic.hairIcon,
+			CmxObjectType.Horn => CharacterMakingDynamic.hornIcon,
+			CmxObjectType.Innerwear => CharacterMakingDynamic.innerwearIcon,
+			CmxObjectType.Outerwear => CharacterMakingDynamic.outerwearIcon,
+			CmxObjectType.Skin => CharacterMakingDynamic.skinIcon,
+			CmxObjectType.Sticker => CharacterMakingDynamic.stickerIcon,
+			CmxObjectType.Teeth => CharacterMakingDynamic.teethIcon,
+			_ => throw new ArgumentException("Invalid object type"),
+		};
+
+	public static string GetIconGender(int id)
+	{
+		if (CmxObjectIds.IsT1(id))
+		{
+			return CharacterMakingDynamic.iconMale;
+		}
+		if (CmxObjectIds.IsT2(id))
+		{
+			return CharacterMakingDynamic.iconFemale;
+		}
+		return "";
+	}
+
+	public static string GetIconName(CmxObjectType objectType, int id)
+	{
+		switch (objectType)
+		{
+			case CmxObjectType.CastBody:
+			case CmxObjectType.Costume:
+				return $"{GetIconTag(objectType)}{id}.ice";
+
+			case CmxObjectType.CastArms:
+			case CmxObjectType.CastLegs:
+				return $"{CharacterMakingDynamic.castPartIcon}{GetIconTag(objectType)}{id}.ice";
+
+			case CmxObjectType.Basewear:
+			case CmxObjectType.Innerwear:
+			case CmxObjectType.Outerwear:
+			case CmxObjectType.Skin:
+				return $"{GetIconTag(objectType)}{GetIconGender(id)}{id}.ice";
+
+			default:
+				return $"{GetIconTag(objectType)}{id}.ice";
+		}
+	}
 }

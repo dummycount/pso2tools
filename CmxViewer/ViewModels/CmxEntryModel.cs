@@ -28,7 +28,7 @@ public class IceFileModel(IceFileInfo file, string displayPath, string fullPath)
 
 public partial class CmxEntryModel : ObservableObject
 {
-	private string pso2BinPath;
+	private readonly string pso2BinPath;
 
 	[ObservableProperty]
 	public partial CmxObjectType ObjectType { get; set; }
