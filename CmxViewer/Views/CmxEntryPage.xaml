@@ -73,19 +73,7 @@
 				<controls:HeaderedItemsControl.ItemTemplate>
 					<DataTemplate x:DataType="viewmodels:IceFileModel">
 						<controls:DataRow HorizontalAlignment="Left">
-							<TextBlock
-								VerticalAlignment="Center"
-								IsTextSelectionEnabled="True"
-								Text="{x:Bind Description}"
-							/>
-
-							<TextBlock
-								VerticalAlignment="Center"
-								IsTextSelectionEnabled="True"
-								Text="{x:Bind Name}"
-							/>
-
-							<StackPanel Orientation="Horizontal" Spacing="4">
+							<StackPanel Orientation="Horizontal" Spacing="16">
 								<cmxcontrols:OpenInExplorerButton
 									x:Name="OpenInExplorer"
 									FilePath="{x:Bind FullPath}"
@@ -98,9 +86,21 @@
 								<TextBlock
 									VerticalAlignment="Center"
 									IsTextSelectionEnabled="True"
-									Text="{x:Bind DisplayPath}"
+									Text="{x:Bind Description}"
 								/>
 							</StackPanel>
+
+							<TextBlock
+								VerticalAlignment="Center"
+								IsTextSelectionEnabled="True"
+								Text="{x:Bind Name}"
+							/>
+
+							<TextBlock
+								VerticalAlignment="Center"
+								IsTextSelectionEnabled="True"
+								Text="{x:Bind DisplayPath}"
+							/>
 						</controls:DataRow>
 					</DataTemplate>
 				</controls:HeaderedItemsControl.ItemTemplate>
