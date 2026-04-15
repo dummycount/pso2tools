@@ -21,6 +21,12 @@
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="Defrost/Defrost.csproj" Id="02b6494d-8aaf-49c2-80f5-5ccefb02c501">
+    <Platform Solution="*|ARM64" Project="ARM64" />
+    <Platform Solution="*|x64" Project="x64" />
+    <Platform Solution="*|x86" Project="x86" />
+    <Deploy />
+  </Project>
   <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Core/AquaModelLibrary.Core.csproj" />
   <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Data/AquaModelLibrary.Data.csproj" />
   <Project Path="PSO2-Aqua-Library/AquaModelLibrary.Helpers/AquaModelLibrary.Helpers.csproj" />

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "Defrost (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "Defrost (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

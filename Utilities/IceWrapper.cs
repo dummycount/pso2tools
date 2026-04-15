@@ -4,7 +4,9 @@ namespace Pso2Tools;
 
 public class IceDataFile(byte[] data)
 {
-	public string Name => IceFile.getFileName(data);
+	private readonly Lazy<string> name = new(() => IceFile.getFileName(data));
+
+	public string Name => name.Value;
 	public ReadOnlySpan<byte> Data => GetData(data);
 
 	private static ReadOnlySpan<byte> GetData(ReadOnlySpan<byte> data)
@@ -37,5 +39,10 @@ public class IceWrapper(IceFile file)
 		using var stream = new FileStream(path, FileMode.Open);
 
 		return new IceWrapper(IceFile.LoadIceFile(stream));
+	}
+
+	public static Task<IceWrapper> LoadAsync(string path)
+	{
+		return Task.Run(() => Load(path));
 	}
 }
