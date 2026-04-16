@@ -33,7 +33,7 @@
 								Background="{TemplateBinding Background}"
 								BorderBrush="{TemplateBinding BorderBrush}"
 								BorderThickness="{TemplateBinding BorderThickness}"
-								Padding="11,0,0,0"
+								Padding="10,0,0,0"
 							>
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition x:Name="cornerButtonColumn" Width="Auto" />

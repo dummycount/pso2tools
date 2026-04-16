@@ -27,6 +27,8 @@ public partial class IceArchiveModel : ObservableObject
 	[ObservableProperty]
 	public partial string? FilePath { get; set; }
 
+	public string FileName => Path.GetFileName(FilePath) ?? "";
+
 	public IceWrapper? Archive { get; set; }
 
 	[ObservableProperty]
@@ -103,6 +105,11 @@ public partial class IceArchiveModel : ObservableObject
 		}
 
 		await LoadAsync(result.Path);
+	}
+
+	partial void OnFilePathChanged(string? value)
+	{
+		OnPropertyChanged(nameof(FileName));
 	}
 
 	partial void OnFilterTextChanged(string value)

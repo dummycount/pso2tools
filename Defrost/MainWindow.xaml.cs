@@ -1,9 +1,7 @@
-using CommunityToolkit.WinUI;
-using CommunityToolkit.WinUI.Behaviors;
-using Microsoft.Extensions.DependencyInjection;
+using System;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
 using Pso2Tools.Defrost.ViewModels;
+using Windows.Graphics;
 using Windows.Win32;
 using WinRT.Interop;
 
@@ -11,6 +9,7 @@ namespace Pso2Tools.Defrost;
 
 // TODO: drag and drop from list to explorer should copy selected files
 // TODO: drag and drop from explorer to window should open ice file
+// TODO: add previews for image files in a right side panel, summary data for other file types?
 
 public sealed partial class MainWindow : Window
 {
@@ -25,40 +24,37 @@ public sealed partial class MainWindow : Window
 		InitializeComponent();
 		SetInitialSize();
 
-		ExtendsContentIntoTitleBar = true;
 		SetTitleBar(TitleBar);
+		ExtendsContentIntoTitleBar = true;
 
 		this.notificationService.NotificationQueue = NotificationQueue;
 	}
 
 	private void SetInitialSize()
 	{
-		Resize(800, 640);
+		Resize(800, 600);
 	}
 
-	private void Resize(int width, int height)
+	private double GetDisplayScale()
 	{
 		var hwnd = WindowNative.GetWindowHandle(this);
 		var dpi = PInvoke.GetDpiForWindow(new Windows.Win32.Foundation.HWND(hwnd));
 
-		var scalingFactor = dpi / 96.0;
-
-		width = (int)(width * scalingFactor);
-		height = (int)(height * scalingFactor);
-
-		AppWindow.Resize(new Windows.Graphics.SizeInt32(width, height));
+		return dpi / 96.0;
 	}
 
-	private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+	private void Resize(int width, int height)
 	{
-		System.ArgumentNullException.ThrowIfNull(e);
-		var textbox = (TextBox)sender;
-		var scrollViewer = textbox.FindDescendant<ScrollViewer>();
-		scrollViewer?.ChangeView(
-			horizontalOffset: scrollViewer.ExtentWidth,
-			verticalOffset: null,
-			zoomFactor: null,
-			disableAnimation: true
+		var scale = GetDisplayScale();
+
+		AppWindow.Resize(GetSize(width, height, scale));
+	}
+
+	private static SizeInt32 GetSize(int width, int height, double scale)
+	{
+		return new SizeInt32(
+			_Width: (int)Math.Round(width * scale),
+			_Height: (int)Math.Round(height * scale)
 		);
 	}
 
