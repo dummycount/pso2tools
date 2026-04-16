@@ -38,11 +38,21 @@ public class IceWrapper(IceFile file)
 	{
 		using var stream = new FileStream(path, FileMode.Open);
 
+		return Load(stream);
+	}
+
+	public static IceWrapper Load(Stream stream)
+	{
 		return new IceWrapper(IceFile.LoadIceFile(stream));
 	}
 
 	public static Task<IceWrapper> LoadAsync(string path)
 	{
 		return Task.Run(() => Load(path));
+	}
+
+	public static Task<IceWrapper> LoadAsync(Stream stream)
+	{
+		return Task.Run(() => Load(stream));
 	}
 }

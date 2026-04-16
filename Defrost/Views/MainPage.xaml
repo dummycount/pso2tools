@@ -12,6 +12,9 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:converters="using:CommunityToolkit.WinUI.Converters"
 	mc:Ignorable="d"
+	AllowDrop="True"
+	Drop="Page_Drop"
+	DragEnter="Page_DragEnter"
 >
 	<Page.Resources>
 		<converters:SwitchConverter x:Key="CountToItemsConverter" TargetType="sys:Int32">

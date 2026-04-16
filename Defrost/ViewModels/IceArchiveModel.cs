@@ -7,7 +7,9 @@ using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Behaviors;
 using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Shapes;
 using Microsoft.Windows.Storage.Pickers;
+using Windows.Storage;
 
 namespace Pso2Tools.Defrost.ViewModels;
 
@@ -27,7 +29,8 @@ public partial class IceArchiveModel : ObservableObject
 	[ObservableProperty]
 	public partial string? FilePath { get; set; }
 
-	public string FileName => Path.GetFileName(FilePath) ?? "";
+	[ObservableProperty]
+	public partial string FileName { get; set; } = "";
 
 	public IceWrapper? Archive { get; set; }
 
@@ -61,24 +64,50 @@ public partial class IceArchiveModel : ObservableObject
 
 	public async Task LoadAsync(string path)
 	{
+		var file = await StorageFile.GetFileFromPathAsync(path);
+		if (file is not null)
+		{
+			await LoadAsync(file);
+		}
+		else
+		{
+			NotificationService.ShowNotification(
+				new Notification
+				{
+					Title = $"Failed to open {path}",
+					Message = "File does not exist",
+					Severity = InfoBarSeverity.Error,
+					Duration = TimeSpan.FromSeconds(10),
+				}
+			);
+		}
+	}
+
+	public async Task LoadAsync(IStorageFile file)
+	{
 		try
 		{
 			NotificationService.Clear();
 			Files.Clear();
 			IsLoading = true;
 
-			Archive = await IceWrapper.LoadAsync(path);
-			FilePath = path;
+			using (var stream = await file.OpenStreamForReadAsync())
+			{
+				Archive = await IceWrapper.LoadAsync(stream);
+			}
+
+			FilePath = file.Path;
+			FileName = file.Name;
 
 			using (Files.DeferRefresh())
 			{
-				foreach (var file in Archive.GroupOne)
+				foreach (var f in Archive.GroupOne)
 				{
-					Files.Add(new IceFileModel(file, 1));
+					Files.Add(new IceFileModel(f, 1));
 				}
-				foreach (var file in Archive.GroupTwo)
+				foreach (var f in Archive.GroupTwo)
 				{
-					Files.Add(new IceFileModel(file, 2));
+					Files.Add(new IceFileModel(f, 2));
 				}
 			}
 		}
@@ -87,7 +116,7 @@ public partial class IceArchiveModel : ObservableObject
 			NotificationService.ShowNotification(
 				new Notification
 				{
-					Title = $"Failed to open {Path.GetFileName(path)}",
+					Title = $"Failed to open {file.Name}",
 					Message = ex.Message,
 					Severity = InfoBarSeverity.Error,
 					Duration = TimeSpan.FromSeconds(10),
@@ -115,11 +144,6 @@ public partial class IceArchiveModel : ObservableObject
 		}
 
 		await LoadAsync(result.Path);
-	}
-
-	partial void OnFilePathChanged(string? value)
-	{
-		OnPropertyChanged(nameof(FileName));
 	}
 
 	partial void OnSelectedCountChanged(int value)
