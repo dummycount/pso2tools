@@ -42,6 +42,14 @@ public partial class IceArchiveModel : ObservableObject
 	[ObservableProperty]
 	public partial bool IsLoading { get; private set; }
 
+	[ObservableProperty]
+	public partial int SelectedCount { get; set; }
+
+	public bool HasSelection => SelectedCount > 0;
+
+	[ObservableProperty]
+	public partial long SelectedTotalFileSize { get; set; }
+
 	private NotificationService NotificationService { get; }
 
 	public IceArchiveModel(NotificationService notificationService)
@@ -55,6 +63,8 @@ public partial class IceArchiveModel : ObservableObject
 	{
 		try
 		{
+			NotificationService.Clear();
+			Files.Clear();
 			IsLoading = true;
 
 			Archive = await IceWrapper.LoadAsync(path);
@@ -62,7 +72,6 @@ public partial class IceArchiveModel : ObservableObject
 
 			using (Files.DeferRefresh())
 			{
-				Files.Clear();
 				foreach (var file in Archive.GroupOne)
 				{
 					Files.Add(new IceFileModel(file, 1));
@@ -81,6 +90,7 @@ public partial class IceArchiveModel : ObservableObject
 					Title = $"Failed to open {Path.GetFileName(path)}",
 					Message = ex.Message,
 					Severity = InfoBarSeverity.Error,
+					Duration = TimeSpan.FromSeconds(10),
 				}
 			);
 		}
@@ -110,6 +120,11 @@ public partial class IceArchiveModel : ObservableObject
 	partial void OnFilePathChanged(string? value)
 	{
 		OnPropertyChanged(nameof(FileName));
+	}
+
+	partial void OnSelectedCountChanged(int value)
+	{
+		OnPropertyChanged(nameof(HasSelection));
 	}
 
 	partial void OnFilterTextChanged(string value)

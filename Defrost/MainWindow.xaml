@@ -6,11 +6,9 @@
 	xmlns:local="using:Pso2Tools.Defrost"
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:views="using:Pso2Tools.Defrost.Views"
 	xmlns:behaviors="using:CommunityToolkit.WinUI.Behaviors"
 	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
-	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
-	xmlns:viewmodels="using:Pso2Tools.Defrost.ViewModels"
-	xmlns:tv="using:WinUI.TableView"
 	mc:Ignorable="d"
 	Title="Defrost"
 >
@@ -22,12 +20,8 @@
 		<Grid.RowDefinitions>
 			<!--  TitleBar  -->
 			<RowDefinition Height="Auto" />
-			<!--  CommandBar  -->
-			<RowDefinition Height="Auto" />
 			<!-- Content -->
 			<RowDefinition Height="*" />
-			<!-- Status bar -->
-			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
 		<TitleBar x:Name="TitleBar" Title="Defrost" IsTabStop="False">
@@ -50,121 +44,12 @@
 			/>
 		</Grid>
 
-		<Grid
-			Grid.Row="1"
-			Background="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
-			BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
-			BorderThickness="0,0,0,1"
-			Padding="8,0,0,0"
-		>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
-				<ColumnDefinition Width="Auto" />
-			</Grid.ColumnDefinitions>
+		<views:MainPage Grid.Row="1" />
 
-			<CommandBar DefaultLabelPosition="Right" HorizontalAlignment="Left">
-				<AppBarButton
-					Icon="OpenLocal"
-					Label="Open"
-					Command="{x:Bind viewModel.OpenCommand}"
-				>
-					<Button.KeyboardAccelerators>
-						<KeyboardAccelerator Modifiers="Control" Key="O" />
-					</Button.KeyboardAccelerators>
-				</AppBarButton>
-
-				<AppBarButton Icon="MoveToFolder" Label="Extract">
-					<Button.KeyboardAccelerators>
-						<KeyboardAccelerator Modifiers="Control" Key="E" />
-					</Button.KeyboardAccelerators>
-				</AppBarButton>
-
-				<AppBarButton Icon="Copy" Label="Copy">
-					<Button.KeyboardAccelerators>
-						<KeyboardAccelerator Modifiers="Control" Key="C" />
-					</Button.KeyboardAccelerators>
-				</AppBarButton>
-			</CommandBar>
-
-			<CommandBar Grid.Column="1" DefaultLabelPosition="Collapsed">
-				<AppBarButton Icon="Setting" Label="Settings"></AppBarButton>
-			</CommandBar>
-		</Grid>
-
-		<!-- TODO: add right click menu on items -->
-
-		<!--
-		TODO: there's some element that shows up on the left of the header and then
-		disappears once data is loaded, shifting everything over to the left.
-		-->
-		<tv:TableView
-			Grid.Row="2"
-			ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
-			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
-			AutoGenerateColumns="False"
-			IsReadOnly="True"
-			CornerButtonMode="None"
-			GridLinesVisibility="None"
-			HeaderGridLinesVisibility="Vertical"
-			HeadersVisibility="Columns"
-			SelectionUnit="Row"
-			CanSortColumns="False"
-			CanFilterColumns="False"
-			CanReorderColumns="False"
-			CanResizeColumns="False"
-			BorderThickness="0"
-			CornerRadius="0"
-			Padding="9,2,4,0"
-			RowMinHeight="36"
-			HeaderRowHeight="26"
-			HeaderRowMinHeight="26"
-		>
-			<tv:TableView.Columns>
-				<tv:TableViewTextColumn Header="Name" Binding="{Binding Name}" MinWidth="200" />
-				<tv:TableViewNumberColumn
-					Header="Size"
-					Binding="{Binding Size, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0:#,0}'}"
-					MinWidth="90"
-				/>
-				<tv:TableViewNumberColumn Header="Group" Binding="{Binding Group}" />
-			</tv:TableView.Columns>
-
-			<tv:TableView.ColumnHeaderStyle>
-				<Style TargetType="tv:TableViewColumnHeader">
-					<Setter Property="FontWeight" Value="Normal" />
-				</Style>
-			</tv:TableView.ColumnHeaderStyle>
-
-			<tv:TableView.ItemContainerStyle>
-				<Style
-					BasedOn="{StaticResource DefaultListViewItemStyle}"
-					TargetType="ListViewItem"
-				>
-					<Setter Property="Padding" Value="0,0,12,0" />
-					<Setter Property="MinHeight" Value="36" />
-					<Setter Property="Height" Value="36" />
-				</Style>
-			</tv:TableView.ItemContainerStyle>
-
-			<tv:TableView.CellStyle>
-				<Style TargetType="tv:TableViewCell">
-					<Setter Property="Padding" Value="0" />
-				</Style>
-			</tv:TableView.CellStyle>
-		</tv:TableView>
-
-		<InfoBar Grid.Row="2" HorizontalAlignment="Center">
+		<InfoBar Grid.Row="1" HorizontalAlignment="Center">
 			<interactivity:Interaction.Behaviors>
 				<behaviors:StackedNotificationsBehavior x:Name="NotificationQueue" />
 			</interactivity:Interaction.Behaviors>
 		</InfoBar>
-
-		<!-- TODO: display info about the selection here -->
-		<Border
-			Grid.Row="3"
-			Height="32"
-			BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
-			BorderThickness="0,1,0,0"
-		></Border>
 	</Grid>
 </Window>

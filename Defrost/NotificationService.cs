@@ -11,4 +11,9 @@ public class NotificationService
 		NotificationQueue?.Clear();
 		NotificationQueue?.Show(notification);
 	}
+
+	public void Clear()
+	{
+		NotificationQueue?.Clear();
+	}
 }

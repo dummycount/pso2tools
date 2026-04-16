@@ -13,7 +13,9 @@
 				<XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
 			</ResourceDictionary.MergedDictionaries>
 
+			<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" />
 			<converters:StringFormatConverter x:Key="StringFormatConverter" />
+			<converters:FileSizeToFriendlyStringConverter x:Key="FileSizeConverter" />
 
 			<Style TargetType="tv:TableViewHeaderRow">
 				<Setter

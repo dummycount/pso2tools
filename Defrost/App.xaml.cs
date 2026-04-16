@@ -27,13 +27,11 @@ public partial class App : Application
 	{
 		var services = new ServiceCollection();
 
-		services.AddSingleton<MainWindow>();
-
 		// Services
 		services.AddSingleton<NotificationService>();
 
 		// ViewModels
-		services.AddTransient<IceArchiveModel>();
+		services.AddSingleton<IceArchiveModel>(); // shared between MainWindow and MainPage
 
 		return services.BuildServiceProvider();
 	}
@@ -54,7 +52,7 @@ public partial class App : Application
 	/// <param name="args">Details about the launch request and process.</param>
 	protected override void OnLaunched(LaunchActivatedEventArgs args)
 	{
-		Window = Services.GetRequiredService<MainWindow>();
+		Window = new MainWindow();
 		Window.Activate();
 	}
 }

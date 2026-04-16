@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Pso2Tools.Defrost.ViewModels;
 using Windows.Graphics;
@@ -7,19 +9,15 @@ using WinRT.Interop;
 
 namespace Pso2Tools.Defrost;
 
-// TODO: drag and drop from list to explorer should copy selected files
-// TODO: drag and drop from explorer to window should open ice file
-// TODO: add previews for image files in a right side panel, summary data for other file types?
-
 public sealed partial class MainWindow : Window
 {
 	private readonly IceArchiveModel viewModel;
 	private readonly NotificationService notificationService;
 
-	public MainWindow(IceArchiveModel viewModel, NotificationService notificationService)
+	public MainWindow()
 	{
-		this.viewModel = viewModel;
-		this.notificationService = notificationService;
+		viewModel = App.Current.Services.GetRequiredService<IceArchiveModel>();
+		notificationService = App.Current.Services.GetRequiredService<NotificationService>();
 
 		InitializeComponent();
 		SetInitialSize();
@@ -27,7 +25,7 @@ public sealed partial class MainWindow : Window
 		SetTitleBar(TitleBar);
 		ExtendsContentIntoTitleBar = true;
 
-		this.notificationService.NotificationQueue = NotificationQueue;
+		notificationService.NotificationQueue = NotificationQueue;
 	}
 
 	private void SetInitialSize()
