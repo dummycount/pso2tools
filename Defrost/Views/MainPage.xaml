@@ -61,7 +61,13 @@
 					</Button.KeyboardAccelerators>
 				</AppBarButton>
 
-				<AppBarButton Icon="Copy" Label="Copy">
+				<AppBarButton
+					x:Name="Copy"
+					Icon="Copy"
+					Label="Copy"
+					Click="Copy_Click"
+					IsEnabled="{x:Bind viewModel.HasSelection, Mode=OneWay}"
+				>
 					<Button.KeyboardAccelerators>
 						<KeyboardAccelerator Modifiers="Control" Key="C" />
 					</Button.KeyboardAccelerators>
@@ -80,26 +86,29 @@
 		disappears once data is loaded, shifting everything over to the left.
 		-->
 		<tv:TableView
-			x:Name="FileList"
 			Grid.Row="1"
+			x:Name="FileList"
+			AutoGenerateColumns="False"
 			ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
 			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
-			AutoGenerateColumns="False"
-			IsReadOnly="True"
-			CornerButtonMode="None"
-			GridLinesVisibility="None"
-			HeaderGridLinesVisibility="Vertical"
-			HeadersVisibility="Columns"
-			SelectionUnit="Row"
-			CanReorderColumns="False"
-			CanResizeColumns="False"
 			BorderThickness="0"
 			CornerRadius="0"
 			Padding="9,2,4,0"
 			RowMinHeight="36"
 			HeaderRowHeight="32"
 			HeaderRowMinHeight="32"
+			GridLinesVisibility="None"
+			HeaderGridLinesVisibility="Vertical"
+			HeadersVisibility="Columns"
+			IsReadOnly="True"
+			CanDragItems="True"
+			CanReorderColumns="False"
+			CanResizeColumns="False"
+			CornerButtonMode="None"
+			SelectionMode="Extended"
+			SelectionUnit="Row"
 			SelectionChanged="FileList_SelectionChanged"
+			DragItemsStarting="FileList_DragItemsStarting"
 		>
 			<tv:TableView.Columns>
 				<tv:TableViewTextColumn Header="Name" Binding="{Binding Name}" MinWidth="220" />

@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml.Controls;
 using Pso2Tools.Defrost.ViewModels;
@@ -8,7 +11,6 @@ using Windows.Storage;
 
 namespace Pso2Tools.Defrost.Views;
 
-// TODO: drag and drop from list to explorer should copy selected files
 // TODO: add previews for image files in a right side panel, summary data for other file types?
 // TODO: click in blank space below items should deselect items
 
@@ -55,6 +57,58 @@ public sealed partial class MainPage : Page
 		{
 			e.AcceptedOperation = DataPackageOperation.Copy;
 			e.DragUIOverride.Caption = "Open";
+		}
+	}
+
+	// TODO: this is only triggered when dragging on the right side of items for some reason
+	private async void FileList_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+	{
+		var files = await CreateStreamedFilesForItemsAsync(e.Items.Cast<IceFileModel>());
+
+		e.Data.SetStorageItems(files);
+	}
+
+	private async void Copy_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+	{
+		var files = await CreateStreamedFilesForItemsAsync(
+			FileList.SelectedItems.Cast<IceFileModel>()
+		);
+
+		var package = new DataPackage();
+		package.SetStorageItems(files);
+		Clipboard.SetContent(package);
+	}
+
+	private static async Task<StorageFile[]> CreateStreamedFilesForItemsAsync(
+		IEnumerable<IceFileModel> items
+	)
+	{
+		return await Task.WhenAll(items.Select(CreateStreamedFileASync));
+	}
+
+	private static async Task<StorageFile> CreateStreamedFileASync(IceFileModel file)
+	{
+		return await StorageFile.CreateStreamedFileAsync(
+			file.Name,
+			(request) => OnStreamedDataRequested(request, file),
+			null
+		);
+	}
+
+	private static async void OnStreamedDataRequested(
+		StreamedFileDataRequest request,
+		IceFileModel file
+	)
+	{
+		try
+		{
+			using var outputStream = request.AsStreamForWrite();
+			await outputStream.WriteAsync(file.Data.ToArray());
+			await outputStream.FlushAsync();
+		}
+		catch (Exception)
+		{
+			request.FailAndClose(StreamedFileFailureMode.Failed);
 		}
 	}
 }
