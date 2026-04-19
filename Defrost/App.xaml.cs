@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Pso2Tools.Defrost.ViewModels;
@@ -31,7 +32,8 @@ public partial class App : Application
 		services.AddSingleton<NotificationService>();
 
 		// ViewModels
-		services.AddSingleton<IceArchiveModel>(); // shared between MainWindow and MainPage
+		services.AddSingleton<IceArchiveModel>(); // shared state between all windows
+		services.AddTransient<ExtractModel>();
 
 		return services.BuildServiceProvider();
 	}
@@ -54,5 +56,26 @@ public partial class App : Application
 	{
 		Window = new MainWindow();
 		Window.Activate();
+
+		// Close all remaining active windows when the main window is closed
+		Window.Closed += (s, e) =>
+		{
+			var activeWindows = new List<Window>(WindowHelper.ActiveWindows);
+			foreach (var window in activeWindows)
+			{
+				// Don't try to close the window that's already closing
+				if (!window.Equals(s))
+				{
+					try
+					{
+						window.Close();
+					}
+					catch
+					{
+						// Ignore any exceptions during cleanup
+					}
+				}
+			}
+		};
 	}
 }

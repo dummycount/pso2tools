@@ -55,7 +55,13 @@
 					</Button.KeyboardAccelerators>
 				</AppBarButton>
 
-				<AppBarButton Icon="MoveToFolder" Label="Extract">
+				<AppBarButton
+					x:Name="Extract"
+					Icon="MoveToFolder"
+					Label="Extract all"
+					Click="Extract_Click"
+					IsEnabled="{x:Bind viewModel.Archive, Mode=OneWay, Converter={StaticResource NotNullToBoolConverter}}"
+				>
 					<Button.KeyboardAccelerators>
 						<KeyboardAccelerator Modifiers="Control" Key="E" />
 					</Button.KeyboardAccelerators>

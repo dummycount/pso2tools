@@ -30,13 +30,7 @@ public sealed partial class OpenInExplorerButton : Button
 
 	private void OpenInExplorerButton_Click(object sender, RoutedEventArgs e)
 	{
-		var process = new ProcessStartInfo
-		{
-			FileName = "explorer",
-			Arguments = $"/e, /select, \"{Path.GetFullPath(FilePath)}\"",
-		};
-
-		Process.Start(process);
+		Explorer.OpenAndSelect(FilePath);
 	}
 
 	protected override void OnApplyTemplate()

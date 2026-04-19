@@ -1,27 +1,30 @@
 ﻿using System;
-using System.Globalization;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Behaviors;
-using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Shapes;
 using Microsoft.Windows.Storage.Pickers;
 using Windows.Storage;
 
 namespace Pso2Tools.Defrost.ViewModels;
 
-public partial class IceFileModel(IceDataFile file, int group) : ObservableObject
+public class IceFileModel(IceDataFile file)
 {
 	public string Name => file.Name;
 	public ReadOnlySpan<byte> Data => file.Data;
 	public int Size => Data.Length;
-
-	public int Group => group;
+	public int Group => file.Group;
 
 	public string SizeText => Data.Length.ToString("#,0");
+
+	public Task<StorageFile> CreateStreamedFileAsync()
+	{
+		return FileOperations.CreateStreamedFileAsync(Name, Data.ToArray());
+	}
 }
 
 public partial class IceArchiveModel : ObservableObject
@@ -32,15 +35,11 @@ public partial class IceArchiveModel : ObservableObject
 	[ObservableProperty]
 	public partial string FileName { get; set; } = "";
 
-	public IceWrapper? Archive { get; set; }
+	[ObservableProperty]
+	public partial IceWrapper? Archive { get; set; }
 
 	[ObservableProperty]
-	public partial AdvancedCollectionView Files { get; private set; } = [];
-
-	[ObservableProperty]
-	public partial string FilterText { get; set; } = "";
-
-	private string trimmedFilterText = "";
+	public partial List<IceFileModel> Files { get; private set; } = [];
 
 	[ObservableProperty]
 	public partial bool IsLoading { get; private set; }
@@ -58,8 +57,6 @@ public partial class IceArchiveModel : ObservableObject
 	public IceArchiveModel(NotificationService notificationService)
 	{
 		NotificationService = notificationService;
-
-		Files.Filter = x => FilterItem((IceFileModel)x);
 	}
 
 	public async Task LoadAsync(string path)
@@ -99,17 +96,7 @@ public partial class IceArchiveModel : ObservableObject
 			FilePath = file.Path;
 			FileName = file.Name;
 
-			using (Files.DeferRefresh())
-			{
-				foreach (var f in Archive.GroupOne)
-				{
-					Files.Add(new IceFileModel(f, 1));
-				}
-				foreach (var f in Archive.GroupTwo)
-				{
-					Files.Add(new IceFileModel(f, 2));
-				}
-			}
+			Files = [.. Archive.Files.Select(f => new IceFileModel(f))];
 		}
 		catch (Exception ex)
 		{
@@ -149,21 +136,5 @@ public partial class IceArchiveModel : ObservableObject
 	partial void OnSelectedCountChanged(int value)
 	{
 		OnPropertyChanged(nameof(HasSelection));
-	}
-
-	partial void OnFilterTextChanged(string value)
-	{
-		trimmedFilterText = value.Trim();
-		Files.RefreshFilter();
-	}
-
-	private bool FilterItem(IceFileModel file)
-	{
-		if (trimmedFilterText == string.Empty)
-		{
-			return true;
-		}
-
-		return file.Name.Contains(FilterText, StringComparison.InvariantCultureIgnoreCase);
 	}
 }

@@ -4,10 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Windowing;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Pso2Tools.Defrost.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using WinUIEx;
 
 namespace Pso2Tools.Defrost.Views;
 
@@ -17,12 +21,28 @@ namespace Pso2Tools.Defrost.Views;
 public sealed partial class MainPage : Page
 {
 	private readonly IceArchiveModel viewModel;
+	private Window? extractWindow;
 
 	public MainPage()
 	{
 		viewModel = App.Current.Services.GetRequiredService<IceArchiveModel>();
+		viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
 		InitializeComponent();
+	}
+
+	private void ViewModel_PropertyChanged(
+		object? sender,
+		System.ComponentModel.PropertyChangedEventArgs e
+	)
+	{
+		switch (e.PropertyName)
+		{
+			case nameof(viewModel.Archive):
+				// Close any open windows if the user loads a new archive.
+				extractWindow?.Close();
+				break;
+		}
 	}
 
 	private void FileList_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -34,7 +54,7 @@ public sealed partial class MainPage : Page
 			.Aggregate(0, (total, file) => total + file.Size);
 	}
 
-	private async void Page_Drop(object sender, Microsoft.UI.Xaml.DragEventArgs e)
+	private async void Page_Drop(object sender, DragEventArgs e)
 	{
 		var item = (await e.DataView.GetStorageItemsAsync()).FirstOrDefault(item =>
 			item.IsOfType(StorageItemTypes.File)
@@ -45,7 +65,7 @@ public sealed partial class MainPage : Page
 		}
 	}
 
-	private void Page_DragEnter(object sender, Microsoft.UI.Xaml.DragEventArgs e)
+	private void Page_DragEnter(object sender, DragEventArgs e)
 	{
 		if (
 			e.DataView.Contains(StandardDataFormats.StorageItems)
@@ -66,9 +86,10 @@ public sealed partial class MainPage : Page
 		var files = await CreateStreamedFilesForItemsAsync(e.Items.Cast<IceFileModel>());
 
 		e.Data.SetStorageItems(files);
+		e.Data.RequestedOperation = DataPackageOperation.Copy;
 	}
 
-	private async void Copy_Click(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
+	private async void Copy_Click(object sender, RoutedEventArgs e)
 	{
 		var files = await CreateStreamedFilesForItemsAsync(
 			FileList.SelectedItems.Cast<IceFileModel>()
@@ -83,32 +104,42 @@ public sealed partial class MainPage : Page
 		IEnumerable<IceFileModel> items
 	)
 	{
-		return await Task.WhenAll(items.Select(CreateStreamedFileASync));
+		return await Task.WhenAll(items.Select(item => item.CreateStreamedFileAsync()));
 	}
 
-	private static async Task<StorageFile> CreateStreamedFileASync(IceFileModel file)
+	private void Extract_Click(object sender, RoutedEventArgs e)
 	{
-		return await StorageFile.CreateStreamedFileAsync(
-			file.Name,
-			(request) => OnStreamedDataRequested(request, file),
-			null
-		);
+		if (extractWindow is null)
+		{
+			extractWindow = CreateExtractWindow();
+			extractWindow.Closed += (s, e) =>
+			{
+				extractWindow = null;
+			};
+		}
+
+		extractWindow.Activate();
 	}
 
-	private static async void OnStreamedDataRequested(
-		StreamedFileDataRequest request,
-		IceFileModel file
-	)
+	private Window CreateExtractWindow()
 	{
-		try
+		var page = new ExtractPage();
+		var window = new Window()
 		{
-			using var outputStream = request.AsStreamForWrite();
-			await outputStream.WriteAsync(file.Data.ToArray());
-			await outputStream.FlushAsync();
-		}
-		catch (Exception)
-		{
-			request.FailAndClose(StreamedFileFailureMode.Failed);
-		}
+			SystemBackdrop = new MicaBackdrop(),
+			Content = page,
+			Title = $"Extract {viewModel.FileName}",
+			ExtendsContentIntoTitleBar = true,
+		};
+
+		page.Window = window;
+
+		var presenter = OverlappedPresenter.CreateForDialog();
+		window.AppWindow.SetPresenter(presenter);
+
+		window.SetWindowSize(600, 382);
+		WindowHelper.TrackWindow(window);
+
+		return window;
 	}
 }

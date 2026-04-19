@@ -2,12 +2,13 @@
 
 namespace Pso2Tools;
 
-public class IceDataFile(byte[] data)
+public class IceDataFile(byte[] data, int group)
 {
 	private readonly Lazy<string> name = new(() => IceFile.getFileName(data));
 
 	public string Name => name.Value;
 	public ReadOnlySpan<byte> Data => GetData(data);
+	public int Group => group;
 
 	private static ReadOnlySpan<byte> GetData(ReadOnlySpan<byte> data)
 	{
@@ -22,12 +23,12 @@ public class IceWrapper(IceFile file)
 	public IceFile WrappedFile { get; } = file;
 
 	public IEnumerable<IceDataFile> GroupOne =>
-		WrappedFile.groupOneFiles.Select(data => new IceDataFile(data));
+		WrappedFile.groupOneFiles.Select(data => new IceDataFile(data, 1));
 
 	public IEnumerable<IceDataFile> GroupTwo =>
-		WrappedFile.groupTwoFiles.Select(data => new IceDataFile(data));
+		WrappedFile.groupTwoFiles.Select(data => new IceDataFile(data, 2));
 
-	public IEnumerable<IceDataFile> Files => GroupOne.Concat(GroupTwo);
+	public IEnumerable<IceDataFile> Files => [.. GroupOne, .. GroupTwo];
 
 	public IEnumerable<IceDataFile> FindByName(string name)
 	{
