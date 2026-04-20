@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.UI;
+﻿using System.Collections.Generic;
 using Microsoft.UI.Xaml;
-using Windows.Win32;
-using Windows.Win32.Foundation;
-using Windows.Win32.UI.WindowsAndMessaging;
-using WinRT.Interop;
 
 namespace Pso2Tools.Defrost;
 
