@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.WinUI.Behaviors;
+using CommunityToolkit.WinUI.Collections;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
 using Windows.Storage;
@@ -39,12 +41,13 @@ public partial class IceArchiveModel : ObservableObject
 	public partial IceWrapper? Archive { get; set; }
 
 	[ObservableProperty]
-	public partial List<IceFileModel> Files { get; private set; } = [];
+	public partial AdvancedCollectionView Files { get; private set; } = [];
 
 	[ObservableProperty]
 	public partial bool IsLoading { get; private set; }
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(SelectedCount))]
 	public partial int SelectedCount { get; set; }
 
 	public bool HasSelection => SelectedCount > 0;
@@ -96,7 +99,15 @@ public partial class IceArchiveModel : ObservableObject
 			FilePath = file.Path;
 			FileName = file.Name;
 
-			Files = [.. Archive.Files.Select(f => new IceFileModel(f))];
+			using (Files.DeferRefresh())
+			{
+				foreach (var f in Archive.Files)
+				{
+					Files.Add(new IceFileModel(f));
+				}
+			}
+
+			//Files = [.. Archive.Files.Select(f => new IceFileModel(f))];
 		}
 		catch (Exception ex)
 		{
@@ -131,10 +142,5 @@ public partial class IceArchiveModel : ObservableObject
 		}
 
 		await LoadAsync(result.Path);
-	}
-
-	partial void OnSelectedCountChanged(int value)
-	{
-		OnPropertyChanged(nameof(HasSelection));
 	}
 }

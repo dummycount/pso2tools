@@ -6,11 +6,13 @@ namespace Pso2Tools.Defrost.ViewModels;
 public partial class ExtractModel : ObservableObject
 {
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(Title))]
 	public partial bool IsExtracting { get; set; }
 
 	// Extract options
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(Title))]
 	public partial string FileName { get; set; }
 
 	public string Title =>
@@ -20,6 +22,7 @@ public partial class ExtractModel : ObservableObject
 	public partial IceWrapper? Archive { get; set; }
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(IsDestinationValid))]
 	public partial string DestinationPath { get; set; }
 
 	public bool IsDestinationValid => !string.IsNullOrWhiteSpace(DestinationPath);
@@ -40,6 +43,7 @@ public partial class ExtractModel : ObservableObject
 
 	// Progress state
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(Title))]
 	public partial double ProgressPercent { get; set; }
 
 	[ObservableProperty]
@@ -65,28 +69,5 @@ public partial class ExtractModel : ObservableObject
 		IsGroupFoldersEnabled = value.GroupOne.All(file1 =>
 			!value.GroupTwo.Any(file2 => file1.Name == file2.Name)
 		);
-	}
-
-	partial void OnDestinationPathChanged(string value)
-	{
-		OnPropertyChanged(nameof(IsDestinationValid));
-	}
-
-	partial void OnFileNameChanged(string value)
-	{
-		OnPropertyChanged(nameof(Title));
-	}
-
-	partial void OnIsExtractingChanged(bool oldValue, bool newValue)
-	{
-		OnPropertyChanged(nameof(Title));
-	}
-
-	partial void OnProgressPercentChanged(double value)
-	{
-		if (IsExtracting)
-		{
-			OnPropertyChanged(nameof(Title));
-		}
 	}
 }

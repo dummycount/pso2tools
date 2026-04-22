@@ -44,7 +44,7 @@ public sealed partial class MainPage : Page
 		}
 	}
 
-	private void FileList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	private void FileList_SelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
 	{
 		viewModel.SelectedCount = FileList.SelectedItems.Count;
 
@@ -79,13 +79,20 @@ public sealed partial class MainPage : Page
 		}
 	}
 
-	// TODO: this is only triggered when dragging on the right side of items for some reason
-	private async void FileList_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+	private async void Item_DragStarting(UIElement sender, DragStartingEventArgs e)
 	{
-		var files = await CreateStreamedFilesForItemsAsync(e.Items.Cast<IceFileModel>());
+		var items = FileList.SelectedItems;
+		if (items.Count == 0)
+		{
+			return;
+		}
+
+		var files = await CreateStreamedFilesForItemsAsync(items.Cast<IceFileModel>());
 
 		e.Data.SetStorageItems(files);
 		e.Data.RequestedOperation = DataPackageOperation.Copy;
+
+		e.DragUI.SetContentFromDataPackage();
 	}
 
 	private async void Copy_Click(object sender, RoutedEventArgs e)
@@ -105,6 +112,8 @@ public sealed partial class MainPage : Page
 	{
 		return await Task.WhenAll(items.Select(item => item.CreateStreamedFileAsync()));
 	}
+
+	private void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args) { }
 
 	private void Extract_Click(object sender, RoutedEventArgs e)
 	{

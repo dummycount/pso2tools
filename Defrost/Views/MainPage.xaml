@@ -7,10 +7,10 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:sys="using:System"
+	xmlns:controls="using:Pso2Tools.Defrost.Controls"
 	xmlns:viewmodels="using:Pso2Tools.Defrost.ViewModels"
-	xmlns:tv="using:WinUI.TableView"
-	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+	xmlns:toolkit="using:CommunityToolkit.WinUI.Controls"
 	mc:Ignorable="d"
 	AllowDrop="True"
 	Drop="Page_Drop"
@@ -18,8 +18,8 @@
 >
 	<Page.Resources>
 		<converters:SwitchConverter x:Key="CountToItemsConverter" TargetType="sys:Int32">
-			<controls:Case Value="1" Content="item" />
-			<controls:Case IsDefault="True" Content="items" />
+			<toolkit:Case Value="1" Content="item" />
+			<toolkit:Case IsDefault="True" Content="items" />
 		</converters:SwitchConverter>
 	</Page.Resources>
 
@@ -87,68 +87,54 @@
 
 		<!-- TODO: add right click menu on items -->
 
-		<!--
-		TODO: there's some element that shows up on the left of the header and then
-		disappears once data is loaded, shifting everything over to the left.
-		-->
-		<tv:TableView
+		<controls:DataTable
 			Grid.Row="1"
-			x:Name="FileList"
-			AutoGenerateColumns="False"
-			ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
 			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
-			BorderThickness="0"
-			CornerRadius="0"
-			Padding="9,2,4,0"
-			RowMinHeight="36"
-			HeaderRowHeight="32"
-			HeaderRowMinHeight="32"
-			GridLinesVisibility="None"
-			HeaderGridLinesVisibility="Vertical"
-			HeadersVisibility="Columns"
-			IsReadOnly="True"
-			CanDragItems="True"
-			CanReorderColumns="False"
-			CanResizeColumns="False"
-			CornerButtonMode="None"
-			SelectionMode="Extended"
-			SelectionUnit="Row"
-			SelectionChanged="FileList_SelectionChanged"
-			DragItemsStarting="FileList_DragItemsStarting"
+			CellPadding="12,0,20,0"
+			Padding="0,4,0,0"
 		>
-			<tv:TableView.Columns>
-				<tv:TableViewTextColumn Header="Name" Binding="{Binding Name}" MinWidth="220" />
-				<tv:TableViewNumberColumn
-					Header="Size"
-					Binding="{Binding Size, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0:#,0}'}"
-					MinWidth="90"
-				/>
-				<tv:TableViewNumberColumn Header="Group" Binding="{Binding Group}" />
-			</tv:TableView.Columns>
+			<controls:DataTable.Header>
+				<controls:DataTableHeader Margin="12,0">
+					<controls:DataColumn Content="Name" MinWidth="220" />
+					<controls:DataColumn Content="Size" MinWidth="90" />
+					<controls:DataColumn Content="Group" />
+				</controls:DataTableHeader>
+			</controls:DataTable.Header>
 
-			<tv:TableView.ColumnHeaderStyle>
-				<Style TargetType="tv:TableViewColumnHeader">
-					<Setter Property="FontWeight" Value="Normal" />
-				</Style>
-			</tv:TableView.ColumnHeaderStyle>
+			<ItemsView
+				x:Name="FileList"
+				ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
+				Padding="12,0"
+				SelectionMode="Extended"
+				SelectionChanged="FileList_SelectionChanged"
+				IsItemInvokedEnabled="True"
+				ItemInvoked="FileList_ItemInvoked"
+			>
+				<ItemsView.Layout>
+					<StackLayout Spacing="4" />
+				</ItemsView.Layout>
 
-			<tv:TableView.ItemContainerStyle>
-				<Style
-					BasedOn="{StaticResource DefaultListViewItemStyle}"
-					TargetType="ListViewItem"
-				>
-					<Setter Property="Padding" Value="0,0,12,0" />
-					<Setter Property="MinHeight" Value="36" />
-					<Setter Property="Height" Value="36" />
-				</Style>
-			</tv:TableView.ItemContainerStyle>
-
-			<tv:TableView.CellStyle>
-				<Style TargetType="tv:TableViewCell">
-					<Setter Property="Padding" Value="0" />
-				</Style>
-			</tv:TableView.CellStyle>
-		</tv:TableView>
+				<ItemsView.ItemTemplate>
+					<DataTemplate x:DataType="viewmodels:IceFileModel">
+						<ItemContainer
+							AutomationProperties.Name="{x:Bind Name}"
+							CanDrag="True"
+							DragStarting="Item_DragStarting"
+						>
+							<controls:DataRow Margin="0" Height="28">
+								<TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
+								<TextBlock
+									Text="{x:Bind SizeText}"
+									VerticalAlignment="Center"
+									HorizontalAlignment="Right"
+								/>
+								<TextBlock Text="{x:Bind Group}" VerticalAlignment="Center" />
+							</controls:DataRow>
+						</ItemContainer>
+					</DataTemplate>
+				</ItemsView.ItemTemplate>
+			</ItemsView>
+		</controls:DataTable>
 
 		<ProgressRing Grid.Row="1" IsActive="{x:Bind viewModel.IsLoading, Mode=OneWay}" />
 
@@ -157,7 +143,7 @@
 			Height="32"
 			BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
 			BorderThickness="0,1,0,0"
-			Padding="16,6"
+			Padding="24,6"
 		>
 			<StackPanel Orientation="Horizontal" VerticalAlignment="Center" Spacing="12">
 				<TextBlock>
