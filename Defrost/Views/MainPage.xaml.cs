@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommunityToolkit.WinUI;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -15,10 +17,11 @@ using WinUIEx;
 namespace Pso2Tools.Defrost.Views;
 
 // TODO: add previews for image files in a right side panel, summary data for other file types?
-// TODO: click in blank space below items should deselect items
 
 public sealed partial class MainPage : Page
 {
+	private const string WindowIdProperty = "SourceWindowId";
+
 	private readonly IceArchiveModel viewModel;
 	private Window? extractWindow;
 
@@ -66,6 +69,17 @@ public sealed partial class MainPage : Page
 
 	private void Page_DragEnter(object sender, DragEventArgs e)
 	{
+		// Don't accept drops from this window
+		if (
+			e.DataView.Properties.TryGetValue(WindowIdProperty, out var value)
+			&& value is WindowId id
+			&& id == App.MainWindow.AppWindow.Id
+		)
+		{
+			return;
+		}
+
+		// Accept file drops from other windows
 		if (
 			e.DataView.Contains(StandardDataFormats.StorageItems)
 			&& e.DataView.GetStorageItemsAsync()
@@ -79,20 +93,77 @@ public sealed partial class MainPage : Page
 		}
 	}
 
+	private void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args)
+	{
+		// TODO: open the file somehow
+	}
+
+	private void FileList_PointerPressed(
+		object sender,
+		Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e
+	)
+	{
+		// Clicking blank space in the list deselects everything.
+		// TODO: delay the deselect until pointer release and cancel if pointer moved?
+		if (
+			e.OriginalSource is UIElement element
+			&& element.FindAscendantOrSelf<ItemContainer>() is null
+		)
+		{
+			FileList.DeselectAll();
+		}
+	}
+
+	private void Item_PointerPressed(
+		object sender,
+		Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e
+	)
+	{
+		// Workaround for issue where clicking a selected item doesn't reset the selection
+		// to just that item.
+		if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.None)
+		{
+			if (sender is ItemContainer container && container.Tag is IceFileModel item)
+			{
+				if (FileList.SelectedItems.Contains(item))
+				{
+					FileList.DeselectAll();
+					FileList.Select(viewModel.Files.IndexOf(item));
+				}
+			}
+		}
+	}
+
 	private async void Item_DragStarting(UIElement sender, DragStartingEventArgs e)
 	{
 		var items = FileList.SelectedItems;
+
+		// If the item being dragged isn't part of the selection, select it.
+		if (sender is ItemContainer container && container.Tag is IceFileModel dragItem)
+		{
+			if (!items.Contains(dragItem))
+			{
+				FileList.DeselectAll();
+				FileList.Select(viewModel.Files.IndexOf(dragItem));
+				items = [dragItem];
+			}
+		}
+
 		if (items.Count == 0)
 		{
 			return;
 		}
 
+		e.AllowedOperations = DataPackageOperation.Copy;
+		e.Data.RequestedOperation = DataPackageOperation.Copy;
+		e.Data.Properties[WindowIdProperty] = App.MainWindow.AppWindow.Id;
+
+		// Drag UI must be set before awaiting anything or it won't work.
+		e.DragUI.SetContentFromDataPackage();
+
 		var files = await CreateStreamedFilesForItemsAsync(items.Cast<IceFileModel>());
 
 		e.Data.SetStorageItems(files);
-		e.Data.RequestedOperation = DataPackageOperation.Copy;
-
-		e.DragUI.SetContentFromDataPackage();
 	}
 
 	private async void Copy_Click(object sender, RoutedEventArgs e)
@@ -112,8 +183,6 @@ public sealed partial class MainPage : Page
 	{
 		return await Task.WhenAll(items.Select(item => item.CreateStreamedFileAsync()));
 	}
-
-	private void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args) { }
 
 	private void Extract_Click(object sender, RoutedEventArgs e)
 	{

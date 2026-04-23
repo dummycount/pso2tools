@@ -16,6 +16,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Controls\DataTable.xaml" />
+    <None Remove="Controls\ItemContainer.xaml" />
     <None Remove="Views\ExtractConfirmDialog.xaml" />
     <None Remove="Views\ExtractPage.xaml" />
     <None Remove="Views\MainPage.xaml" />
@@ -72,6 +73,11 @@
   <ItemGroup>
     <ProjectReference Include="..\PSO2-Aqua-Library\ZamboniLib\ZamboniLib\ZamboniLib.csproj" />
     <ProjectReference Include="..\Utilities\Utilities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\ItemContainer.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Controls\DataTable.xaml">

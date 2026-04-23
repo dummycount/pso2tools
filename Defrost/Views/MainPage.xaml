@@ -91,7 +91,6 @@
 			Grid.Row="1"
 			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
 			CellPadding="12,0,20,0"
-			Padding="0,4,0,0"
 		>
 			<controls:DataTable.Header>
 				<controls:DataTableHeader Margin="12,0">
@@ -104,11 +103,12 @@
 			<ItemsView
 				x:Name="FileList"
 				ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
-				Padding="12,0"
+				Padding="12,4,12,20"
 				SelectionMode="Extended"
 				SelectionChanged="FileList_SelectionChanged"
 				IsItemInvokedEnabled="True"
 				ItemInvoked="FileList_ItemInvoked"
+				PointerPressed="FileList_PointerPressed"
 			>
 				<ItemsView.Layout>
 					<StackLayout Spacing="4" />
@@ -117,9 +117,13 @@
 				<ItemsView.ItemTemplate>
 					<DataTemplate x:DataType="viewmodels:IceFileModel">
 						<ItemContainer
+							Tag="{x:Bind}"
+							Style="{StaticResource FileListItemContainer}"
+							Background="{StaticResource SolidBackgroundFillColorSecondaryBrush}"
 							AutomationProperties.Name="{x:Bind Name}"
 							CanDrag="True"
 							DragStarting="Item_DragStarting"
+							PointerPressed="Item_PointerPressed"
 						>
 							<controls:DataRow Margin="0" Height="28">
 								<TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
