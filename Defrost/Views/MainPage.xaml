@@ -81,7 +81,13 @@
 			</CommandBar>
 
 			<CommandBar Grid.Column="1" DefaultLabelPosition="Collapsed">
-				<AppBarButton Icon="Setting" Label="Settings" />
+				<AppBarButton
+					x:Name="Settings"
+					Icon="Setting"
+					Label="Settings"
+					Click="Settings_Click"
+					ToolTipService.ToolTip="Settings"
+				/>
 			</CommandBar>
 		</Grid>
 
@@ -119,7 +125,7 @@
 						<ItemContainer
 							Tag="{x:Bind}"
 							Style="{StaticResource FileListItemContainer}"
-							Background="{StaticResource SolidBackgroundFillColorSecondaryBrush}"
+							Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
 							AutomationProperties.Name="{x:Bind Name}"
 							CanDrag="True"
 							DragStarting="Item_DragStarting"

@@ -6,6 +6,10 @@
     <RootNamespace>Pso2Tools</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="5.2.1" />
+    <PackageReference Include="Config.Net" Version="5.2.1" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\PSO2-Aqua-Library\ZamboniLib\ZamboniLib\ZamboniLib.csproj" />
   </ItemGroup>
 </Project>

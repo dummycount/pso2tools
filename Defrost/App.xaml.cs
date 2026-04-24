@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using Config.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Pso2Tools.Defrost.ViewModels;
@@ -29,11 +31,24 @@ public partial class App : Application
 		var services = new ServiceCollection();
 
 		// Services
+		services.AddSingleton(x =>
+		{
+			var settingsFilePath = Path.Join(
+				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+				"PSO2Defrost",
+				"settings.ini"
+			);
+
+			return SettingsServiceBuilder.Build<ISettingsService>(settingsFilePath);
+		});
+
 		services.AddSingleton<NotificationService>();
+		services.AddSingleton<ThemeService>();
 
 		// ViewModels
 		services.AddSingleton<IceArchiveModel>(); // shared state between all windows
 		services.AddTransient<ExtractModel>();
+		services.AddTransient<SettingsModel>();
 
 		return services.BuildServiceProvider();
 	}
@@ -56,6 +71,10 @@ public partial class App : Application
 	{
 		Window = new MainWindow();
 		Window.Activate();
+
+		WindowHelper.TrackWindow(Window);
+
+		Services.GetRequiredService<ThemeService>().Initialize();
 
 		// Close all remaining active windows when the main window is closed
 		Window.Closed += (s, e) =>

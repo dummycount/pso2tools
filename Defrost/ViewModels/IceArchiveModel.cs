@@ -47,7 +47,7 @@ public partial class IceArchiveModel : ObservableObject
 	public partial bool IsLoading { get; private set; }
 
 	[ObservableProperty]
-	[NotifyPropertyChangedFor(nameof(SelectedCount))]
+	[NotifyPropertyChangedFor(nameof(HasSelection))]
 	public partial int SelectedCount { get; set; }
 
 	public bool HasSelection => SelectedCount > 0;

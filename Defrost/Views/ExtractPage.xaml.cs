@@ -26,17 +26,28 @@ public sealed partial class ExtractPage : Page
 	}
 
 	private readonly ExtractModel viewModel;
+	private readonly ISettingsService settings;
 
 	private CancellationTokenSource? cancellationTokenSource;
 
 	public ExtractPage()
 	{
 		viewModel = App.Current.Services.GetRequiredService<ExtractModel>();
+		settings = App.Current.Services.GetRequiredService<ISettingsService>();
 
 		InitializeViewModel();
 		InitializeComponent();
 
 		viewModel.PropertyChanged += ViewModel_PropertyChanged;
+		RootGrid.ActualThemeChanged += RootGrid_ActualThemeChanged;
+	}
+
+	private void RootGrid_ActualThemeChanged(FrameworkElement sender, object args)
+	{
+		if (Window is not null)
+		{
+			ThemeService.ApplySystemThemeToCaptionButtons(Window, RootGrid.ActualTheme);
+		}
 	}
 
 	private void InitializeViewModel()
@@ -59,9 +70,14 @@ public sealed partial class ExtractPage : Page
 		window?.AppWindow?.Title = viewModel.Title;
 	}
 
-	private static string GetDestinationDirectory(string? archivePath)
+	private string GetDestinationDirectory(string? archivePath)
 	{
-		var result = Path.GetDirectoryName(archivePath);
+		var result = settings.DefaultExtractLocation switch
+		{
+			DefaultExtractLocation.SameFolder => Path.GetDirectoryName(archivePath),
+			DefaultExtractLocation.CustomFolder => settings.CustomExtractFolder,
+			_ => "",
+		};
 
 		if (string.IsNullOrEmpty(result))
 		{
@@ -122,7 +138,7 @@ public sealed partial class ExtractPage : Page
 
 		await ExtractAsync();
 
-		if (viewModel.OpenFolderWhenDone)
+		if (settings.OpenFolderWhenDone)
 		{
 			Explorer.OpenFolder(viewModel.DestinationPath);
 		}
@@ -154,7 +170,7 @@ public sealed partial class ExtractPage : Page
 			destFolder,
 			items,
 			progress,
-			viewModel.CollisionOption,
+			settings.CollisionOption,
 			ShowCollisionPrompt,
 			cancellationTokenSource.Token
 		);

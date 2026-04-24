@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Pso2Tools.Defrost.ViewModels;
 
-public partial class ExtractModel : ObservableObject
+public partial class ExtractModel(ISettingsService settings) : ObservableObject
 {
 	[ObservableProperty]
 	[NotifyPropertyChangedFor(nameof(Title))]
@@ -27,19 +27,11 @@ public partial class ExtractModel : ObservableObject
 
 	public bool IsDestinationValid => !string.IsNullOrWhiteSpace(DestinationPath);
 
-	// TODO: persist this?
 	[ObservableProperty]
 	public partial bool UseGroupFolders { get; set; } = true;
 
 	[ObservableProperty]
 	public partial bool IsGroupFoldersEnabled { get; private set; } = true;
-
-	// TODO: persist this
-	[ObservableProperty]
-	public partial bool OpenFolderWhenDone { get; set; } = false;
-
-	[ObservableProperty]
-	public partial CollisionOption CollisionOption { get; set; } = CollisionOption.Ask;
 
 	// Progress state
 	[ObservableProperty]
@@ -62,12 +54,35 @@ public partial class ExtractModel : ObservableObject
 			return;
 		}
 
-		UseGroupFolders = value.GroupOne.Any() && value.GroupTwo.Any();
-
 		// Force use group folders if there are files in both groups with the same name
 		// (probably not a thing that can happen?)
-		IsGroupFoldersEnabled = value.GroupOne.All(file1 =>
-			!value.GroupTwo.Any(file2 => file1.Name == file2.Name)
+		if (HaveFilesWithSameName())
+		{
+			IsGroupFoldersEnabled = false;
+			UseGroupFolders = true;
+		}
+		else
+		{
+			IsGroupFoldersEnabled = true;
+			UseGroupFolders = settings.ExtractGroupMode switch
+			{
+				ExtractGroupMode.Auto => value.GroupOne.Any() && value.GroupTwo.Any(),
+				ExtractGroupMode.Always => true,
+				ExtractGroupMode.Never => false,
+				_ => false,
+			};
+		}
+	}
+
+	private bool HaveFilesWithSameName()
+	{
+		if (Archive is null)
+		{
+			return false;
+		}
+
+		return Archive.GroupOne.Any(file1 =>
+			Archive.GroupTwo.Any(file2 => file1.Name == file2.Name)
 		);
 	}
 }

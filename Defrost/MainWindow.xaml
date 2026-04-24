@@ -16,7 +16,7 @@
 		<MicaBackdrop Kind="BaseAlt" />
 	</Window.SystemBackdrop>
 
-	<Grid>
+	<Grid x:Name="RootGrid">
 		<Grid.RowDefinitions>
 			<!--  TitleBar  -->
 			<RowDefinition Height="Auto" />
@@ -44,7 +44,7 @@
 			/>
 		</Grid>
 
-		<views:MainPage Grid.Row="1" />
+		<Frame Grid.Row="1" x:Name="NavFrame" />
 
 		<InfoBar Grid.Row="1" HorizontalAlignment="Center">
 			<interactivity:Interaction.Behaviors>

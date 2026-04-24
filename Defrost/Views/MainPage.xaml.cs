@@ -47,7 +47,7 @@ public sealed partial class MainPage : Page
 		}
 	}
 
-	private void FileList_SelectionChanged(object sender, ItemsViewSelectionChangedEventArgs e)
+	private void FileList_SelectionChanged(ItemsView sender, ItemsViewSelectionChangedEventArgs e)
 	{
 		viewModel.SelectedCount = FileList.SelectedItems.Count;
 
@@ -93,7 +93,7 @@ public sealed partial class MainPage : Page
 		}
 	}
 
-	private void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs args)
+	private void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs e)
 	{
 		// TODO: open the file somehow
 	}
@@ -119,19 +119,21 @@ public sealed partial class MainPage : Page
 		Microsoft.UI.Xaml.Input.PointerRoutedEventArgs e
 	)
 	{
+		// TODO: only do this on release if not starting a drag.
+
 		// Workaround for issue where clicking a selected item doesn't reset the selection
 		// to just that item.
-		if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.None)
-		{
-			if (sender is ItemContainer container && container.Tag is IceFileModel item)
-			{
-				if (FileList.SelectedItems.Contains(item))
-				{
-					FileList.DeselectAll();
-					FileList.Select(viewModel.Files.IndexOf(item));
-				}
-			}
-		}
+		//if (e.KeyModifiers == Windows.System.VirtualKeyModifiers.None)
+		//{
+		//	if (sender is ItemContainer container && container.Tag is IceFileModel item)
+		//	{
+		//		if (FileList.SelectedItems.Contains(item))
+		//		{
+		//			FileList.DeselectAll();
+		//			FileList.Select(viewModel.Files.IndexOf(item));
+		//		}
+		//	}
+		//}
 	}
 
 	private async void Item_DragStarting(UIElement sender, DragStartingEventArgs e)
@@ -200,12 +202,11 @@ public sealed partial class MainPage : Page
 
 	private Window CreateExtractWindow()
 	{
-		var page = new ExtractPage();
+		var page = new ExtractPage() { RequestedTheme = ActualTheme };
 		var window = new Window()
 		{
 			SystemBackdrop = new MicaBackdrop(),
 			Content = page,
-			Title = $"Extract {viewModel.FileName}",
 			ExtendsContentIntoTitleBar = true,
 		};
 
@@ -215,8 +216,15 @@ public sealed partial class MainPage : Page
 		window.AppWindow.SetPresenter(presenter);
 
 		window.SetWindowSize(600, 382);
+
+		WindowHelper.CenterWindow(window, App.MainWindow);
 		WindowHelper.TrackWindow(window);
 
 		return window;
+	}
+
+	private void Settings_Click(object sender, RoutedEventArgs e)
+	{
+		App.MainWindow.OpenSettings();
 	}
 }

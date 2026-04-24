@@ -11,7 +11,7 @@
 	xmlns:ui="using:CommunityToolkit.WinUI"
 	mc:Ignorable="d"
 >
-	<Grid Background="{ThemeResource LayerFillColorAltBrush}">
+	<Grid x:Name="RootGrid" Background="{ThemeResource LayerFillColorAltBrush}">
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup x:Name="DialogStates">
 				<VisualState x:Name="Normal" />
@@ -79,7 +79,7 @@
 				<ComboBox
 					ItemsSource="{ui:EnumValues Type=defrost:CollisionOption}"
 					ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
-					SelectedItem="{x:Bind viewModel.CollisionOption, Mode=TwoWay}"
+					SelectedItem="{x:Bind settings.CollisionOption, Mode=TwoWay}"
 				/>
 			</controls:HeaderedContentControl>
 
@@ -92,7 +92,7 @@
 			<CheckBox
 				Grid.Row="2"
 				Content="Open folder after extracting"
-				IsChecked="{x:Bind viewModel.OpenFolderWhenDone, Mode=TwoWay}"
+				IsChecked="{x:Bind settings.OpenFolderWhenDone, Mode=TwoWay}"
 			/>
 		</StackPanel>
 
