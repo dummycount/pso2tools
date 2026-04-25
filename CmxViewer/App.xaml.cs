@@ -38,7 +38,7 @@ public partial class App : Application
 		services.AddSingleton<MainWindow>();
 
 		// Services
-		services.AddSingleton<ISettingsService>(x =>
+		services.AddSingleton(x =>
 		{
 			var settingsFilePath = Path.Join(
 				Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -46,13 +46,11 @@ public partial class App : Application
 				"settings.ini"
 			);
 
-			var settings = new ConfigurationBuilder<ISettingsService>()
-				.UseIniFile(settingsFilePath)
-				.Build();
+			var settings = SettingsServiceBuilder.Build<ISettingsService>(settingsFilePath);
 
 			settings.Pso2BinPath ??= GameFinder.FindPso2BinPath();
 
-			return new SettingsNotificationFixer(settings);
+			return settings;
 		});
 		services.AddSingleton<ICmxDatabase>(x =>
 		{
