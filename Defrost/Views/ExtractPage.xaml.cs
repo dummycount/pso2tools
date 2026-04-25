@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
 using Pso2Tools.Defrost.ViewModels;
+using Windows.System;
 
 namespace Pso2Tools.Defrost.Views;
 
@@ -140,7 +141,7 @@ public sealed partial class ExtractPage : Page
 
 		if (settings.OpenFolderWhenDone)
 		{
-			Explorer.OpenFolder(viewModel.DestinationPath);
+			await Launcher.LaunchFolderPathAsync(viewModel.DestinationPath);
 		}
 
 		Window?.Close();
