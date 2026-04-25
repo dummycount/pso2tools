@@ -1,10 +1,8 @@
-using System.Diagnostics;
-using System.IO;
+using System;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Windows.Storage;
+using Windows.System;
 
 namespace Pso2Tools.CmxViewer.Controls;
 
@@ -28,9 +26,24 @@ public sealed partial class OpenInExplorerButton : Button
 		DefaultStyleKey = typeof(OpenInExplorerButton);
 	}
 
-	private void OpenInExplorerButton_Click(object sender, RoutedEventArgs e)
+	private async void OpenInExplorerButton_Click(object sender, RoutedEventArgs e)
 	{
-		Explorer.OpenAndSelect(FilePath);
+		var file = await StorageFile.GetFileFromPathAsync(FilePath);
+		if (file is null)
+		{
+			return;
+		}
+
+		var folder = await file?.GetParentAsync();
+		if (folder is null)
+		{
+			return;
+		}
+
+		var options = new FolderLauncherOptions();
+		options.ItemsToSelect.Add(file);
+
+		await Launcher.LaunchFolderAsync(folder, options);
 	}
 
 	protected override void OnApplyTemplate()
