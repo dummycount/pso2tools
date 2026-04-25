@@ -38,6 +38,9 @@ public partial class IceArchiveModel : ObservableObject
 	public partial string FileName { get; set; } = "";
 
 	[ObservableProperty]
+	public partial string? ExtractSuffix { get; set; }
+
+	[ObservableProperty]
 	public partial IceWrapper? Archive { get; set; }
 
 	[ObservableProperty]
@@ -62,12 +65,12 @@ public partial class IceArchiveModel : ObservableObject
 		NotificationService = notificationService;
 	}
 
-	public async Task LoadAsync(string path)
+	public async Task LoadAsync(string path, string? suffix = null)
 	{
 		var file = await StorageFile.GetFileFromPathAsync(path);
 		if (file is not null)
 		{
-			await LoadAsync(file);
+			await LoadAsync(file, suffix);
 		}
 		else
 		{
@@ -83,7 +86,7 @@ public partial class IceArchiveModel : ObservableObject
 		}
 	}
 
-	public async Task LoadAsync(IStorageFile file)
+	public async Task LoadAsync(IStorageFile file, string? suffix = null)
 	{
 		try
 		{
@@ -98,6 +101,7 @@ public partial class IceArchiveModel : ObservableObject
 
 			FilePath = file.Path;
 			FileName = file.Name;
+			ExtractSuffix = suffix;
 
 			using (Files.DeferRefresh())
 			{
@@ -106,8 +110,6 @@ public partial class IceArchiveModel : ObservableObject
 					Files.Add(new IceFileModel(f));
 				}
 			}
-
-			//Files = [.. Archive.Files.Select(f => new IceFileModel(f))];
 		}
 		catch (Exception ex)
 		{

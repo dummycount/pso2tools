@@ -59,6 +59,13 @@
 				<Setter Property="Padding" Value="7" />
 			</Style>
 
+			<Style
+				TargetType="cmxcontrols:OpenInDefrostButton"
+				BasedOn="{StaticResource SubtleButtonStyle}"
+			>
+				<Setter Property="Padding" Value="7" />
+			</Style>
+
 			<x:Double x:Key="BreadcrumbBarChevronFontSize">20</x:Double>
 		</Grid.Resources>
 
@@ -98,7 +105,7 @@
 				<controls:HeaderedItemsControl.ItemTemplate>
 					<DataTemplate x:DataType="viewmodels:IceFileModel">
 						<controls:DataRow HorizontalAlignment="Left">
-							<StackPanel Orientation="Horizontal" Spacing="8">
+							<StackPanel Orientation="Horizontal">
 								<cmxcontrols:OpenInExplorerButton
 									x:Name="OpenInExplorer"
 									FilePath="{x:Bind FullPath}"
@@ -107,7 +114,17 @@
 									<FontIcon Glyph="&#xE8DA;" FontSize="16" />
 								</cmxcontrols:OpenInExplorerButton>
 
+								<cmxcontrols:OpenInDefrostButton
+									x:Name="OpenInDefrost"
+									FilePath="{x:Bind FullPath}"
+									ExtractSuffix="{x:Bind Description}"
+									ToolTipService.ToolTip="Open in Defrost"
+								>
+									<FontIcon Glyph="&#xF158;" FontSize="16" />
+								</cmxcontrols:OpenInDefrostButton>
+
 								<TextBlock
+									Margin="8,0,0,0"
 									VerticalAlignment="Center"
 									IsTextSelectionEnabled="True"
 									Text="{x:Bind Description}"

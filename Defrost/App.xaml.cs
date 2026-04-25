@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Config.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Pso2Tools.Defrost.ViewModels;
@@ -70,31 +69,32 @@ public partial class App : Application
 	protected override void OnLaunched(LaunchActivatedEventArgs args)
 	{
 		Window = new MainWindow();
+		Window.Closed += Window_Closed;
 		Window.Activate();
 
 		WindowHelper.TrackWindow(Window);
 
 		Services.GetRequiredService<ThemeService>().Initialize();
+	}
 
+	private void Window_Closed(object sender, WindowEventArgs args)
+	{
 		// Close all remaining active windows when the main window is closed
-		Window.Closed += (s, e) =>
+		var activeWindows = new List<Window>(WindowHelper.ActiveWindows);
+		foreach (var window in activeWindows)
 		{
-			var activeWindows = new List<Window>(WindowHelper.ActiveWindows);
-			foreach (var window in activeWindows)
+			// Don't try to close the window that's already closing
+			if (!window.Equals(sender))
 			{
-				// Don't try to close the window that's already closing
-				if (!window.Equals(s))
+				try
 				{
-					try
-					{
-						window.Close();
-					}
-					catch
-					{
-						// Ignore any exceptions during cleanup
-					}
+					window.Close();
+				}
+				catch
+				{
+					// Ignore any exceptions during cleanup
 				}
 			}
-		};
+		}
 	}
 }

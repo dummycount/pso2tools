@@ -68,4 +68,18 @@ public sealed partial class SettingsPage : Page
 	{
 		await Launcher.LaunchUriAsync(new Uri("https://github.com/dummycount/pso2tools"));
 	}
+
+	private void RegisterProtocolButton_Click(object sender, RoutedEventArgs e)
+	{
+		if (viewModel.IsProtocolRegistered)
+		{
+			ProtocolActivationHelper.Unregister();
+		}
+		else
+		{
+			ProtocolActivationHelper.Register();
+		}
+
+		viewModel.IsProtocolRegistered = ProtocolActivationHelper.IsRegistered();
+	}
 }

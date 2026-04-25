@@ -42,8 +42,8 @@
 				<Border>
 					<StackPanel MaxWidth="1064" Spacing="4" Margin="0,0,0,36">
 						<!--<StackPanel.ChildrenTransitions>
-						<RepositionThemeTransition />
-					</StackPanel.ChildrenTransitions>-->
+							<RepositionThemeTransition />
+						</StackPanel.ChildrenTransitions>-->
 
 						<TextBlock
 							Text="Appearance &amp; behavior"
@@ -103,6 +103,25 @@
 								ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
 								SelectedItem="{x:Bind settings.ExtractGroupMode, Mode=TwoWay}"
 							/>
+						</controls:SettingsCard>
+
+						<TextBlock
+							Text="File associations"
+							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+						/>
+
+						<controls:SettingsCard
+							x:Name="RegisterProtocolButton"
+							Header="Open Defrost with pso2defrost:// links"
+							Description="{x:Bind viewModel.ProtocolRegisterStatus, Mode=OneWay}"
+							IsClickEnabled="True"
+							Click="RegisterProtocolButton_Click"
+						>
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE71B;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<TextBlock Text="{x:Bind viewModel.ProtocolRegisterAction, Mode=OneWay}" />
 						</controls:SettingsCard>
 
 						<TextBlock

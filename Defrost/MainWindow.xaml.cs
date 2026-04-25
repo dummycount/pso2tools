@@ -1,6 +1,7 @@
+using System;
+using System.IO;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Media.Animation;
 using Pso2Tools.Defrost.ViewModels;
 using Pso2Tools.Defrost.Views;
 using WinUIEx;
@@ -29,6 +30,8 @@ public sealed partial class MainWindow : Window
 		viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
 		NavFrame.Navigate(typeof(MainPage));
+
+		DispatcherQueue.TryEnqueue(HandleCommandLineArgsAsync);
 	}
 
 	public void OpenSettings()
@@ -39,6 +42,16 @@ public sealed partial class MainWindow : Window
 	public void CloseSettings()
 	{
 		NavFrame.GoBack();
+	}
+
+	public async void HandleCommandLineArgsAsync()
+	{
+		var args = ProtocolActivationHelper.ParseCommandLine();
+
+		if (args.FilePath is not null)
+		{
+			await viewModel.LoadAsync(Path.GetFullPath(args.FilePath), args.ExtractSuffix);
+		}
 	}
 
 	private void SetWindowProperties()

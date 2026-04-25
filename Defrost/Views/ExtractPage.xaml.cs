@@ -54,13 +54,11 @@ public sealed partial class ExtractPage : Page
 	private void InitializeViewModel()
 	{
 		var archiveModel = App.Current.Services.GetRequiredService<IceArchiveModel>();
+		var suffix = archiveModel.ExtractSuffix ?? ".ice";
 		viewModel.FileName = archiveModel.FileName;
 		viewModel.Archive = archiveModel.Archive;
 
-		// TODO: add a way on launch to set the extraction suffix, e.g. " Model (HQ)"
-		// so opening an ICE file from CMX Viewer and then extracting it gives it a
-		// more identifiable name.
-		var destName = archiveModel.FileName + ".ice";
+		var destName = archiveModel.FileName + suffix;
 		var destDir = GetDestinationDirectory(archiveModel.FilePath);
 
 		viewModel.DestinationPath = Path.Join(destDir, destName);

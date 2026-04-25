@@ -42,6 +42,6 @@ public interface ISettingsService : INotifyPropertyChanged
 	[DefaultValue(ExtractGroupMode.Auto)]
 	ExtractGroupMode ExtractGroupMode { get; set; }
 
-	[DefaultValue(false)]
+	[DefaultValue(true)]
 	bool OpenFolderWhenDone { get; set; }
 }

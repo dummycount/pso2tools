@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Reflection;
 using CommunityToolkit.Mvvm.ComponentModel;
 
@@ -17,10 +18,22 @@ public partial class SettingsModel : ObservableObject
 	public string Version =>
 		FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).FileVersion ?? "";
 
+	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(ProtocolRegisterStatus))]
+	[NotifyPropertyChangedFor(nameof(ProtocolRegisterAction))]
+	public partial bool IsProtocolRegistered { get; set; }
+
+	public string ProtocolRegisterStatus => IsProtocolRegistered ? "Registered" : "Unregistered";
+
+	public string ProtocolRegisterAction =>
+		IsProtocolRegistered ? "Unregister link handler" : "Register link handler";
+
 	public SettingsModel(ISettingsService settings)
 	{
 		this.settings = settings;
 		settings.PropertyChanged += Settings_PropertyChanged;
+
+		IsProtocolRegistered = ProtocolHandler.IsRegistered(ProtocolActivationHelper.Scheme);
 	}
 
 	private void Settings_PropertyChanged(
