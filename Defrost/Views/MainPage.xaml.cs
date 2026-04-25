@@ -12,6 +12,7 @@ using Microsoft.UI.Xaml.Media;
 using Pso2Tools.Defrost.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.System;
 using WinUIEx;
 
 namespace Pso2Tools.Defrost.Views;
@@ -93,9 +94,14 @@ public sealed partial class MainPage : Page
 		}
 	}
 
-	private void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs e)
+	private async void FileList_ItemInvoked(ItemsView sender, ItemsViewItemInvokedEventArgs e)
 	{
-		// TODO: open the file somehow
+		if (e.InvokedItem is IceFileModel file)
+		{
+			var stream = await file.CreateStreamedFileAsync();
+
+			await Launcher.LaunchFileAsync(stream);
+		}
 	}
 
 	private void FileList_PointerPressed(
