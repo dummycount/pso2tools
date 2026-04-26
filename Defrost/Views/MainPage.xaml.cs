@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.WinUI;
@@ -9,6 +10,8 @@ using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
+using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.Defrost.ViewModels;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
@@ -23,15 +26,57 @@ public sealed partial class MainPage : Page
 {
 	private const string WindowIdProperty = "SourceWindowId";
 
+	private readonly ISettingsService settings;
 	private readonly IceArchiveModel viewModel;
 	private Window? extractWindow;
 
 	public MainPage()
 	{
+		settings = App.Current.Services.GetRequiredService<ISettingsService>();
+		settings.PropertyChanged += Settings_PropertyChanged;
+
 		viewModel = App.Current.Services.GetRequiredService<IceArchiveModel>();
 		viewModel.PropertyChanged += ViewModel_PropertyChanged;
 
 		InitializeComponent();
+
+		PreviewFrame.Navigate(
+			typeof(PreviewPageUnavailable),
+			null,
+			new SuppressNavigationTransitionInfo()
+		);
+
+		UpdatePanelState();
+	}
+
+	protected override void OnNavigatedFrom(NavigationEventArgs e)
+	{
+		base.OnNavigatedFrom(e);
+
+		settings.PropertyChanged -= Settings_PropertyChanged;
+		viewModel.PropertyChanged -= ViewModel_PropertyChanged;
+	}
+
+	void UpdatePanelState()
+	{
+		VisualStateManager.GoToState(
+			this,
+			settings.ShowPreviewPanel ? "PanelOpen" : "PanelClosed",
+			true
+		);
+	}
+
+	private void Settings_PropertyChanged(
+		object? sender,
+		System.ComponentModel.PropertyChangedEventArgs e
+	)
+	{
+		switch (e.PropertyName)
+		{
+			case nameof(settings.ShowPreviewPanel):
+				UpdatePanelState();
+				break;
+		}
 	}
 
 	private void ViewModel_PropertyChanged(
@@ -55,6 +100,17 @@ public sealed partial class MainPage : Page
 		viewModel.SelectedTotalFileSize = FileList
 			.SelectedItems.Cast<IceFileModel>()
 			.Aggregate(0, (total, file) => total + file.Size);
+
+		var transition = new SuppressNavigationTransitionInfo();
+
+		if (FileList.SelectedItems.Count == 1 && FileList.SelectedItem is IceFileModel file)
+		{
+			PreviewFrame.Navigate(GetPreviewPaneType(file), file, transition);
+		}
+		else
+		{
+			PreviewFrame.Navigate(typeof(PreviewPageUnavailable), null, transition);
+		}
 	}
 
 	private async void Page_Drop(object sender, DragEventArgs e)
@@ -233,4 +289,29 @@ public sealed partial class MainPage : Page
 	{
 		App.MainWindow.OpenSettings();
 	}
+
+	private void ShowPreviewPanel_Click(object sender, RoutedEventArgs e)
+	{
+		settings.ShowPreviewPanel = !settings.ShowPreviewPanel;
+	}
+
+	private static Type GetPreviewPaneType(IceFileModel file)
+	{
+		return Path.GetExtension(file.Name) switch
+		{
+			".dds" => typeof(PreviewPageDds),
+			_ => typeof(PreviewPageUnavailable),
+		};
+	}
+
+	//private void PreviewFrame_Navigating(
+	//	object sender,
+	//	Microsoft.UI.Xaml.Navigation.NavigatingCancelEventArgs e
+	//)
+	//{
+	//	if (PreviewFrame.Content is IDisposable disposable)
+	//	{
+	//		disposable.Dispose();
+	//	}
+	//}
 }

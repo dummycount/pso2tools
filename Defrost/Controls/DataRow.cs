@@ -69,7 +69,15 @@ public sealed partial class DataRow : Panel
 			parentTable?.CellColumnResized();
 		}
 
-		return new(parentTable?.DesiredSize.Width ?? availableSize.Width, maxHeight);
+		double rowWidth = availableSize.Width;
+
+		if (parentTable?.Header is not null)
+		{
+			var header = parentTable.Header;
+			rowWidth = header.DesiredSize.Width - header.Margin.Left - header.Margin.Right;
+		}
+
+		return new(rowWidth, maxHeight);
 	}
 
 	protected override Size ArrangeOverride(Size finalSize)

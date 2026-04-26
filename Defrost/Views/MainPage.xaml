@@ -24,6 +24,37 @@
 	</Page.Resources>
 
 	<Grid>
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup>
+				<VisualState>
+					<VisualState.StateTriggers>
+						<AdaptiveTrigger MinWindowWidth="600" />
+					</VisualState.StateTriggers>
+					<VisualState.Setters>
+						<Setter Target="ShowPreviewPanel.Visibility" Value="Visible" />
+						<Setter Target="PreviewPanelWrap.Visibility" Value="Visible" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+
+			<VisualStateGroup x:Name="PanelStates">
+				<VisualState x:Name="PanelClosed">
+					<VisualState.Setters>
+						<Setter Target="FileListColumn.Width" Value="*" />
+						<Setter Target="PreviewPanelColumn.Width" Value="Auto" />
+						<Setter Target="PreviewPanel.Visibility" Value="Collapsed" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="PanelOpen">
+					<VisualState.Setters>
+						<Setter Target="FileListColumn.Width" Value="Auto" />
+						<Setter Target="PreviewPanelColumn.Width" Value="*" />
+						<Setter Target="PreviewPanel.Visibility" Value="Visible" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+
 		<Grid.RowDefinitions>
 			<!--  CommandBar  -->
 			<RowDefinition Height="Auto" />
@@ -40,7 +71,7 @@
 			Padding="8,0,0,0"
 		>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*" />
+				<ColumnDefinition />
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
@@ -82,6 +113,15 @@
 
 			<CommandBar Grid.Column="1" DefaultLabelPosition="Collapsed">
 				<AppBarButton
+					x:Name="ShowPreviewPanel"
+					Visibility="Collapsed"
+					Icon="DockRight"
+					Label="Show/hide preview panel"
+					ToolTipService.ToolTip="Show/hide preview panel"
+					Click="ShowPreviewPanel_Click"
+				/>
+
+				<AppBarButton
 					x:Name="Settings"
 					Icon="Setting"
 					Label="Settings"
@@ -93,58 +133,72 @@
 
 		<!-- TODO: add right click menu on items -->
 
-		<controls:DataTable
-			Grid.Row="1"
-			Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
-			CellPadding="12,0,20,0"
-		>
-			<controls:DataTable.Header>
-				<controls:DataTableHeader Margin="12,0">
-					<controls:DataColumn Content="Name" MinWidth="220" />
-					<controls:DataColumn Content="Size" MinWidth="90" />
-					<controls:DataColumn Content="Group" />
-				</controls:DataTableHeader>
-			</controls:DataTable.Header>
+		<Grid Grid.Row="1" Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition x:Name="FileListColumn" />
+				<ColumnDefinition x:Name="PreviewPanelColumn" Width="Auto" />
+			</Grid.ColumnDefinitions>
 
-			<ItemsView
-				x:Name="FileList"
-				ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
-				Padding="12,4,12,20"
-				SelectionMode="Extended"
-				SelectionChanged="FileList_SelectionChanged"
-				IsItemInvokedEnabled="True"
-				ItemInvoked="FileList_ItemInvoked"
-				PointerPressed="FileList_PointerPressed"
-			>
-				<ItemsView.Layout>
-					<StackLayout Spacing="4" />
-				</ItemsView.Layout>
+			<controls:DataTable CellPadding="12,0,20,0">
+				<controls:DataTable.Header>
+					<controls:DataTableHeader Margin="12,0">
+						<controls:DataColumn Content="Name" MinWidth="220" />
+						<controls:DataColumn Content="Size" MinWidth="90" />
+						<controls:DataColumn Content="Group" BorderThickness="0" />
+					</controls:DataTableHeader>
+				</controls:DataTable.Header>
 
-				<ItemsView.ItemTemplate>
-					<DataTemplate x:DataType="viewmodels:IceFileModel">
-						<ItemContainer
-							Tag="{x:Bind}"
-							Style="{StaticResource FileListItemContainer}"
-							Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
-							AutomationProperties.Name="{x:Bind Name}"
-							CanDrag="True"
-							DragStarting="Item_DragStarting"
-							PointerPressed="Item_PointerPressed"
-						>
-							<controls:DataRow Margin="0" Height="28">
-								<TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
-								<TextBlock
-									Text="{x:Bind SizeText}"
-									VerticalAlignment="Center"
-									HorizontalAlignment="Right"
-								/>
-								<TextBlock Text="{x:Bind Group}" VerticalAlignment="Center" />
-							</controls:DataRow>
-						</ItemContainer>
-					</DataTemplate>
-				</ItemsView.ItemTemplate>
-			</ItemsView>
-		</controls:DataTable>
+				<ItemsView
+					x:Name="FileList"
+					ItemsSource="{x:Bind viewModel.Files, Mode=OneWay}"
+					Padding="12,4,12,20"
+					SelectionMode="Extended"
+					SelectionChanged="FileList_SelectionChanged"
+					IsItemInvokedEnabled="True"
+					ItemInvoked="FileList_ItemInvoked"
+					PointerPressed="FileList_PointerPressed"
+				>
+					<ItemsView.Layout>
+						<StackLayout Spacing="4" />
+					</ItemsView.Layout>
+
+					<ItemsView.ItemTemplate>
+						<DataTemplate x:DataType="viewmodels:IceFileModel">
+							<ItemContainer
+								Tag="{x:Bind}"
+								Style="{StaticResource FileListItemContainer}"
+								Background="{ThemeResource SolidBackgroundFillColorSecondaryBrush}"
+								AutomationProperties.Name="{x:Bind Name}"
+								CanDrag="True"
+								DragStarting="Item_DragStarting"
+								PointerPressed="Item_PointerPressed"
+							>
+								<controls:DataRow Margin="0" Height="28">
+									<TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />
+									<TextBlock
+										Text="{x:Bind SizeText}"
+										VerticalAlignment="Center"
+										HorizontalAlignment="Right"
+									/>
+									<TextBlock Text="{x:Bind Group}" VerticalAlignment="Center" />
+								</controls:DataRow>
+							</ItemContainer>
+						</DataTemplate>
+					</ItemsView.ItemTemplate>
+				</ItemsView>
+			</controls:DataTable>
+
+			<Grid Grid.Column="1" x:Name="PreviewPanelWrap" Visibility="Collapsed">
+				<Border
+					x:Name="PreviewPanel"
+					Visibility="Collapsed"
+					BorderThickness="1,0,0,0"
+					BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
+				>
+					<Frame x:Name="PreviewFrame" />
+				</Border>
+			</Grid>
+		</Grid>
 
 		<ProgressRing Grid.Row="1" IsActive="{x:Bind viewModel.IsLoading, Mode=OneWay}" />
 

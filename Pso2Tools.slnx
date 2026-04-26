@@ -13,6 +13,7 @@
     <File Path="dotnet-tools.json" />
     <File Path="LICENSE" />
     <File Path="setup_fbx_sdk.py" />
+    <File Path="THIRD-PARTY-LICENSES.md" />
   </Folder>
   <Project Path="CmxDatabase/CmxDatabase.csproj" Id="021e5587-9fc7-4d79-9f30-3a71b6a7e879" />
   <Project Path="CmxViewer/CmxViewer.csproj" Id="70593afb-be33-4aaa-bb09-c355454e1db7">

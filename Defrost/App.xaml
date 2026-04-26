@@ -11,6 +11,7 @@
 		<ResourceDictionary>
 			<ResourceDictionary.MergedDictionaries>
 				<XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+				<ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
 				<ResourceDictionary Source="/Controls/DataTable.xaml" />
 				<ResourceDictionary Source="/Controls/ItemContainer.xaml" />
 			</ResourceDictionary.MergedDictionaries>

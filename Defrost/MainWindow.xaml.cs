@@ -56,7 +56,7 @@ public sealed partial class MainWindow : Window
 
 	private void SetWindowProperties()
 	{
-		this.SetWindowSize(800, 600);
+		this.SetWindowSize(840, 600);
 
 		manager.PersistenceId = "MainWindow";
 		manager.MinWidth = 500;

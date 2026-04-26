@@ -25,6 +25,27 @@ public enum ExtractGroupMode
 	Never,
 }
 
+public enum ImagePreviewMode
+{
+	[Display(Name = "RGBA")]
+	ColorAndAlpha,
+
+	[Display(Name = "RGB")]
+	Color,
+
+	[Display(Name = "R")]
+	Red,
+
+	[Display(Name = "G")]
+	Green,
+
+	[Display(Name = "B")]
+	Blue,
+
+	[Display(Name = "A")]
+	Alpha,
+}
+
 public interface ISettingsService : INotifyPropertyChanged
 {
 	[DefaultValue(ElementTheme.Default)]
@@ -44,4 +65,10 @@ public interface ISettingsService : INotifyPropertyChanged
 
 	[DefaultValue(true)]
 	bool OpenFolderWhenDone { get; set; }
+
+	[DefaultValue(true)]
+	bool ShowPreviewPanel { get; set; }
+
+	[DefaultValue(ImagePreviewMode.ColorAndAlpha)]
+	ImagePreviewMode ImagePreviewMode { get; set; }
 }

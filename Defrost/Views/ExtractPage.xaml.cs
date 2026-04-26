@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.Storage.Pickers;
 using Pso2Tools.Defrost.ViewModels;
 using Windows.System;
@@ -41,6 +42,13 @@ public sealed partial class ExtractPage : Page
 
 		viewModel.PropertyChanged += ViewModel_PropertyChanged;
 		RootGrid.ActualThemeChanged += RootGrid_ActualThemeChanged;
+	}
+
+	protected override void OnNavigatedFrom(NavigationEventArgs e)
+	{
+		base.OnNavigatedFrom(e);
+
+		viewModel.PropertyChanged -= ViewModel_PropertyChanged;
 	}
 
 	private void RootGrid_ActualThemeChanged(FrameworkElement sender, object args)

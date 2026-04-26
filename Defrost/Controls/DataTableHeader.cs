@@ -75,7 +75,7 @@ public sealed partial class DataTableHeader : Panel
 			}
 		}
 
-		return new Size(availableSize.Width, maxHeight);
+		return new Size(widthUsed, maxHeight);
 	}
 
 	protected override Size ArrangeOverride(Size finalSize)
