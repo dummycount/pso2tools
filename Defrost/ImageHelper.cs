@@ -21,17 +21,17 @@ namespace Pso2Tools.Defrost;
 
 public static class ImageHelper
 {
-	public static Image<Bgra32> DdsBufferToBgra32(byte[] fileBytes)
+	public static Image DdsBufferToImage(byte[] fileBytes)
 	{
 		using var stream = new MemoryStream(fileBytes);
 		using var dds = Pfimage.FromStream(stream);
 
-		return ImageToBgra32(dds);
+		return PfimageToImage(dds);
 	}
 
 	// Based on https://github.com/nickbabcock/Pfim/tree/master/src/Pfim.ImageSharp
 	// MIT License
-	public static Image<Bgra32> ImageToBgra32(IImage image)
+	public static Image PfimageToImage(IImage image)
 	{
 		byte[] data = image.Data;
 
@@ -53,14 +53,10 @@ public static class ImageHelper
 				return Image.LoadPixelData<Bgra32>(data, image.Width, image.Height);
 
 			case ImageFormat.Rgb24:
-				return Image
-					.LoadPixelData<Bgr24>(data, image.Width, image.Height)
-					.CloneAs<Bgra32>();
+				return Image.LoadPixelData<Bgr24>(data, image.Width, image.Height);
 
 			case ImageFormat.Rgba16:
-				return Image
-					.LoadPixelData<Bgra4444>(data, image.Width, image.Height)
-					.CloneAs<Bgra32>();
+				return Image.LoadPixelData<Bgra4444>(data, image.Width, image.Height);
 
 			case ImageFormat.R5g5b5:
 			{
@@ -68,23 +64,17 @@ public static class ImageHelper
 				{
 					data[i] |= 128;
 				}
-				return Image
-					.LoadPixelData<Bgra5551>(data, image.Width, image.Height)
-					.CloneAs<Bgra32>();
+				return Image.LoadPixelData<Bgra5551>(data, image.Width, image.Height);
 			}
 
 			case ImageFormat.R5g5b5a1:
-				return Image
-					.LoadPixelData<Bgra5551>(data, image.Width, image.Height)
-					.CloneAs<Bgra32>();
+				return Image.LoadPixelData<Bgra5551>(data, image.Width, image.Height);
 
 			case ImageFormat.R5g6b5:
-				return Image
-					.LoadPixelData<Bgr565>(data, image.Width, image.Height)
-					.CloneAs<Bgra32>();
+				return Image.LoadPixelData<Bgr565>(data, image.Width, image.Height);
 
 			case ImageFormat.Rgb8:
-				return Image.LoadPixelData<L8>(data, image.Width, image.Height).CloneAs<Bgra32>();
+				return Image.LoadPixelData<L8>(data, image.Width, image.Height);
 
 			default:
 				throw new NotImplementedException($"Unsupported format {image.Format}");
@@ -107,9 +97,9 @@ public static class ImageHelper
 		return bitmap;
 	}
 
-	public static Image<Bgra32> ApplyImagePreviewMode(Image<Bgra32> image, ImagePreviewMode mode)
+	public static Image<Bgra32> ApplyImagePreviewMode(Image image, ImagePreviewMode mode)
 	{
-		var clone = image.Clone<Bgra32>();
+		var clone = image.CloneAs<Bgra32>();
 
 		clone.Mutate(x =>
 			x.ApplyProcessor(

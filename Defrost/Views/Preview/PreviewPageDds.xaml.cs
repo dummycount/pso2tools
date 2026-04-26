@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using CommunityToolkit.WinUI.Animations;
 using CommunityToolkit.WinUI.Behaviors;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,9 +12,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.Defrost.ViewModels;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
 using Windows.Graphics.Imaging;
+using Image = SixLabors.ImageSharp.Image;
 
 namespace Pso2Tools.Defrost.Views;
 
@@ -26,7 +24,7 @@ public sealed partial class PreviewPageDds : Page
 	private readonly PreviewDdsModel viewModel;
 
 	private IceFileModel? file;
-	private Image<Bgra32>? baseImage;
+	private Image? baseImage;
 	private readonly Dictionary<ImagePreviewMode, SoftwareBitmap> cachedBitmaps = [];
 
 	public PreviewPageDds()
@@ -90,11 +88,11 @@ public sealed partial class PreviewPageDds : Page
 		}
 	}
 
-	private async Task<Image<Bgra32>?> LoadBaseImageAsync(byte[] data)
+	private async Task<Image?> LoadBaseImageAsync(byte[] data)
 	{
 		try
 		{
-			return await Task.Run(() => ImageHelper.DdsBufferToBgra32(data));
+			return await Task.Run(() => ImageHelper.DdsBufferToImage(data));
 		}
 		catch (Exception ex)
 		{
