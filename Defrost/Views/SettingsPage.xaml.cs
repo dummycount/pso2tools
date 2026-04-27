@@ -34,6 +34,8 @@ public sealed partial class SettingsPage : Page
 			ElementTheme.Dark => 2,
 			_ => 0,
 		};
+
+		SkinColor.ColorPicker.CustomPalette = new SkinToneColorPalette();
 	}
 
 	private void Close_Click(object sender, RoutedEventArgs e)

@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,10 +16,12 @@ namespace Pso2Tools.Defrost.ViewModels;
 
 public class IceFileModel(IceDataFile file)
 {
-	public string Name => file.Name;
-	public ReadOnlySpan<byte> Data => file.Data;
+	public readonly IceDataFile File = file;
+
+	public string Name => File.Name;
+	public ReadOnlySpan<byte> Data => File.Data;
 	public int Size => Data.Length;
-	public int Group => file.Group;
+	public int Group => File.Group;
 
 	public string SizeText => Data.Length.ToString("#,0");
 
@@ -45,6 +47,8 @@ public partial class IceArchiveModel : ObservableObject
 
 	[ObservableProperty]
 	public partial AdvancedCollectionView Files { get; private set; } = [];
+
+	public IEnumerable<IceFileModel> FilesTyped => Files.Cast<IceFileModel>();
 
 	[ObservableProperty]
 	public partial bool IsLoading { get; private set; }

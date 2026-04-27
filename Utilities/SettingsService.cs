@@ -6,11 +6,11 @@ namespace Pso2Tools;
 
 public static class SettingsServiceBuilder
 {
-	public static T Build<T>(string settingsFilePath)
+	public static T BuildWithFixedNotifications<T>(this ConfigurationBuilder<T> builder)
 		where T : class
 	{
 		var generator = new ProxyGenerator();
-		var settings = new ConfigurationBuilder<T>().UseIniFile(settingsFilePath).Build();
+		var settings = builder.Build();
 
 		if (settings is not INotifyPropertyChanged notifier)
 		{
@@ -21,6 +21,14 @@ public static class SettingsServiceBuilder
 			settings,
 			new InterfaceInterceptor(notifier)
 		);
+	}
+
+	public static T Build<T>(string settingsFilePath)
+		where T : class
+	{
+		return new ConfigurationBuilder<T>()
+			.UseIniFile(settingsFilePath)
+			.BuildWithFixedNotifications();
 	}
 }
 

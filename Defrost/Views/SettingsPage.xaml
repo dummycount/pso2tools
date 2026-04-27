@@ -10,6 +10,7 @@
 	xmlns:ui="using:CommunityToolkit.WinUI"
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:converters="using:CommunityToolkit.WinUI.Converters"
+	xmlns:viewmodels="using:Pso2Tools.Defrost.ViewModels"
 	mc:Ignorable="d"
 >
 	<Page.Resources>
@@ -22,6 +23,8 @@
 				<Setter Property="Margin" Value="1,30,0,6" />
 			</Style.Setters>
 		</Style>
+
+		<viewmodels:SkinToneColorPalette x:Key="SkinToneColorPalette" />
 	</Page.Resources>
 
 	<Grid x:Name="RootGrid">
@@ -125,6 +128,33 @@
 						</controls:SettingsCard>
 
 						<TextBlock
+							Text="Model preview"
+							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+						/>
+
+						<controls:SettingsCard
+							Header="Skin color"
+							Description="Skin will use this color instead of loading textures"
+						>
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE790;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<controls:ColorPickerButton
+								x:Name="SkinColor"
+								SelectedColor="{x:Bind settings.SkinColor, Mode=TwoWay}"
+							>
+								<controls:ColorPickerButton.ColorPickerStyle>
+									<Style TargetType="controls:ColorPicker">
+										<Setter Property="IsAlphaEnabled" Value="False" />
+										<Setter Property="ShowAccentColors" Value="False" />
+										<Setter Property="ColorSpectrumShape" Value="Ring" />
+									</Style>
+								</controls:ColorPickerButton.ColorPickerStyle>
+							</controls:ColorPickerButton>
+						</controls:SettingsCard>
+
+						<TextBlock
 							Text="About"
 							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
 						/>
@@ -180,8 +210,8 @@
 											NavigateUri="https://github.com/SixLabors/ImageSharp"
 										/>
 										<HyperlinkButton
-											Content="Pfim"
-											NavigateUri="https://github.com/nickbabcock/Pfim"
+											Content="BCnEncoder.NET"
+											NavigateUri="https://github.com/Nominom/BCnEncoder.NET"
 										/>
 									</StackPanel>
 								</controls:SettingsCard>

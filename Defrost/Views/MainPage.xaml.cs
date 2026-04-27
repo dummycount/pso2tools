@@ -13,14 +13,13 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.Defrost.ViewModels;
+using Pso2Tools.Defrost.Views.Preview;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.System;
 using WinUIEx;
 
 namespace Pso2Tools.Defrost.Views;
-
-// TODO: add previews for image files in a right side panel, summary data for other file types?
 
 public sealed partial class MainPage : Page
 {
@@ -299,19 +298,9 @@ public sealed partial class MainPage : Page
 	{
 		return Path.GetExtension(file.Name) switch
 		{
+			".aqp" => typeof(PreviewPageAqp),
 			".dds" => typeof(PreviewPageDds),
 			_ => typeof(PreviewPageUnavailable),
 		};
 	}
-
-	//private void PreviewFrame_Navigating(
-	//	object sender,
-	//	Microsoft.UI.Xaml.Navigation.NavigatingCancelEventArgs e
-	//)
-	//{
-	//	if (PreviewFrame.Content is IDisposable disposable)
-	//	{
-	//		disposable.Dispose();
-	//	}
-	//}
 }

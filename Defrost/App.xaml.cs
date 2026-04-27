@@ -1,9 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using Config.Net;
+using HelixToolkit.SharpDX;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Pso2Tools.Defrost.ViewModels;
+using Pso2Tools.Defrost.ViewModels.Preview;
 
 namespace Pso2Tools.Defrost;
 
@@ -38,17 +43,22 @@ public partial class App : Application
 				"settings.ini"
 			);
 
-			return SettingsServiceBuilder.Build<ISettingsService>(settingsFilePath);
+			return new ConfigurationBuilder<ISettingsService>()
+				.UseIniFile(settingsFilePath)
+				.UseTypeParser(new ColorParser())
+				.BuildWithFixedNotifications();
 		});
 
 		services.AddSingleton<NotificationService>();
 		services.AddSingleton<ThemeService>();
+		services.AddSingleton<EffectsManagerService>();
 
 		// ViewModels
 		services.AddSingleton<IceArchiveModel>(); // shared state between all windows
 		services.AddTransient<ExtractModel>();
 		services.AddTransient<SettingsModel>();
-		services.AddTransient<PreviewDdsModel>();
+		services.AddTransient<PreviewModelAqp>();
+		services.AddTransient<PreviewModelDds>();
 
 		return services.BuildServiceProvider();
 	}
@@ -78,7 +88,7 @@ public partial class App : Application
 		Services.GetRequiredService<ThemeService>().Initialize();
 	}
 
-	private void Window_Closed(object sender, WindowEventArgs args)
+	private async void Window_Closed(object sender, WindowEventArgs args)
 	{
 		// Close all remaining active windows when the main window is closed
 		var activeWindows = new List<Window>(WindowHelper.ActiveWindows);
@@ -97,5 +107,7 @@ public partial class App : Application
 				}
 			}
 		}
+
+		await Services.GetRequiredService<EffectsManagerService>().DisposeAsync();
 	}
 }

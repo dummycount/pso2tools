@@ -4,7 +4,10 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Pfim;
+using System.Threading.Tasks;
+using BCnEncoder.Decoder;
+using BCnEncoder.Encoder;
+using BCnEncoder.ImageSharp;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.Memory;
@@ -16,69 +19,32 @@ using Windows.Graphics.Imaging;
 
 namespace Pso2Tools.Defrost;
 
-// TODO: remove Pfim once https://github.com/SixLabors/ImageSharp.Textures has a release
-// and ImageSharp supports DDS natively.
+public enum CastTextureShift
+{
+	Arms,
+	Body,
+	Legs,
+}
 
 public static class ImageHelper
 {
-	public static Image DdsBufferToImage(byte[] fileBytes)
+	public static async Task<Image<Rgba32>> DdsBufferToImageAsync(byte[] fileBytes)
 	{
 		using var stream = new MemoryStream(fileBytes);
-		using var dds = Pfimage.FromStream(stream);
+		var decoder = new BcDecoder();
 
-		return PfimageToImage(dds);
+		return await decoder.DecodeToImageRgba32Async(stream);
 	}
 
-	// Based on https://github.com/nickbabcock/Pfim/tree/master/src/Pfim.ImageSharp
-	// MIT License
-	public static Image PfimageToImage(IImage image)
+	public static async Task<byte[]> ImageToDdsBufferAsync(Image<Rgba32> image)
 	{
-		byte[] data = image.Data;
+		var encoder = new BcEncoder(BCnEncoder.Shared.CompressionFormat.Rgba);
+		encoder.OutputOptions.FileFormat = BCnEncoder.Shared.OutputFileFormat.Dds;
 
-		// Remove padding if needed
-		var tightStride = image.Width * image.BitsPerPixel / 8;
-		if (image.Stride != tightStride)
-		{
-			data = new byte[image.Height * tightStride];
+		using var stream = new MemoryStream();
+		await encoder.EncodeToStreamAsync(image, stream);
 
-			for (int i = 0; i < image.Height; i++)
-			{
-				Buffer.BlockCopy(image.Data, i * image.Stride, data, i * tightStride, tightStride);
-			}
-		}
-
-		switch (image.Format)
-		{
-			case ImageFormat.Rgba32:
-				return Image.LoadPixelData<Bgra32>(data, image.Width, image.Height);
-
-			case ImageFormat.Rgb24:
-				return Image.LoadPixelData<Bgr24>(data, image.Width, image.Height);
-
-			case ImageFormat.Rgba16:
-				return Image.LoadPixelData<Bgra4444>(data, image.Width, image.Height);
-
-			case ImageFormat.R5g5b5:
-			{
-				for (int i = 1; i < data.Length; i += 2)
-				{
-					data[i] |= 128;
-				}
-				return Image.LoadPixelData<Bgra5551>(data, image.Width, image.Height);
-			}
-
-			case ImageFormat.R5g5b5a1:
-				return Image.LoadPixelData<Bgra5551>(data, image.Width, image.Height);
-
-			case ImageFormat.R5g6b5:
-				return Image.LoadPixelData<Bgr565>(data, image.Width, image.Height);
-
-			case ImageFormat.Rgb8:
-				return Image.LoadPixelData<L8>(data, image.Width, image.Height);
-
-			default:
-				throw new NotImplementedException($"Unsupported format {image.Format}");
-		}
+		return stream.ToArray();
 	}
 
 	public static SoftwareBitmap ImageToSoftwareBitmap(Image<Bgra32> image)
@@ -118,6 +84,40 @@ public static class ImageHelper
 		);
 
 		return clone;
+	}
+
+	public static async Task<byte[]> ShiftCastPartTextureAsync(
+		byte[] fileBytes,
+		CastTextureShift shift
+	)
+	{
+		using var image = await DdsBufferToImageAsync(fileBytes).ConfigureAwait(false);
+
+		var usedWidth = (int)((double)image.Width * 2 / 3);
+		var offset = shift switch
+		{
+			CastTextureShift.Arms => 0,
+			CastTextureShift.Body => usedWidth,
+			CastTextureShift.Legs => usedWidth * 2,
+			_ => 0,
+		};
+
+		using var newImage = new Image<Rgba32>(
+			image.Width * 2,
+			image.Height,
+			new Rgba32(0, 0, 0, 0)
+		);
+
+		newImage.Mutate(x =>
+			x.DrawImage(
+				image,
+				backgroundLocation: new Point(offset, 0),
+				foregroundRectangle: new Rectangle(0, 0, usedWidth, image.Height),
+				opacity: 1
+			)
+		);
+
+		return await ImageToDdsBufferAsync(newImage);
 	}
 }
 

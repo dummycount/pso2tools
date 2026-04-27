@@ -12,16 +12,17 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Imaging;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.Defrost.ViewModels;
+using Pso2Tools.Defrost.ViewModels.Preview;
 using Windows.Graphics.Imaging;
 using Image = SixLabors.ImageSharp.Image;
 
-namespace Pso2Tools.Defrost.Views;
+namespace Pso2Tools.Defrost.Views.Preview;
 
 public sealed partial class PreviewPageDds : Page
 {
 	private readonly NotificationService notificationService;
 	private readonly ISettingsService settings;
-	private readonly PreviewDdsModel viewModel;
+	private readonly PreviewModelDds viewModel;
 
 	private IceFileModel? file;
 	private Image? baseImage;
@@ -30,7 +31,7 @@ public sealed partial class PreviewPageDds : Page
 	public PreviewPageDds()
 	{
 		notificationService = App.Current.Services.GetRequiredService<NotificationService>();
-		viewModel = App.Current.Services.GetRequiredService<PreviewDdsModel>();
+		viewModel = App.Current.Services.GetRequiredService<PreviewModelDds>();
 		settings = App.Current.Services.GetRequiredService<ISettingsService>();
 		settings.PropertyChanged += Settings_PropertyChanged;
 
@@ -92,7 +93,7 @@ public sealed partial class PreviewPageDds : Page
 	{
 		try
 		{
-			return await Task.Run(() => ImageHelper.DdsBufferToImage(data));
+			return await ImageHelper.DdsBufferToImageAsync(data);
 		}
 		catch (Exception ex)
 		{
