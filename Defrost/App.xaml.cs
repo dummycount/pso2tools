@@ -105,6 +105,11 @@ public partial class App : Application
 			}
 		}
 
+		var viewModel = Services.GetRequiredService<IceArchiveModel>();
+		var settings = Services.GetRequiredService<ISettingsService>();
+
+		settings.UpdateLastOpenedFile(viewModel.FilePath);
+
 		await Services.GetRequiredService<EffectsManagerService>().DisposeAsync();
 	}
 }

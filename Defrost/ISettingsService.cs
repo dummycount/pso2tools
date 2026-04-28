@@ -2,13 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
-using CommunityToolkit.Diagnostics;
 using CommunityToolkit.WinUI.Helpers;
 using Config.Net;
 using HelixToolkit.SharpDX;
 using Microsoft.UI.Xaml;
-using Windows.UI;
 using Color = Windows.UI.Color;
 
 namespace Pso2Tools.Defrost;
@@ -60,6 +57,12 @@ public interface ISettingsService : INotifyPropertyChanged
 	[DefaultValue(ElementTheme.Default)]
 	public ElementTheme AppTheme { get; set; }
 
+	[DefaultValue(false)]
+	bool RememberLastOpenedFile { get; set; }
+
+	[DefaultValue(null)]
+	string? LastOpenedFile { get; set; }
+
 	[DefaultValue(CollisionOption.Ask)]
 	CollisionOption CollisionOption { get; set; }
 
@@ -109,7 +112,7 @@ public interface ISettingsService : INotifyPropertyChanged
 	Color AlphaColor { get; set; }
 }
 
-class ColorParser : ITypeParser
+public class ColorParser : ITypeParser
 {
 	public IEnumerable<Type> SupportedTypes => [typeof(Color)];
 
@@ -129,6 +132,17 @@ class ColorParser : ITypeParser
 		{
 			result = Color.FromArgb(255, 0, 0, 0);
 			return false;
+		}
+	}
+}
+
+public static class SettingsExtensions
+{
+	extension(ISettingsService settings)
+	{
+		public void UpdateLastOpenedFile(string? path)
+		{
+			settings.LastOpenedFile = settings.RememberLastOpenedFile ? path : null;
 		}
 	}
 }

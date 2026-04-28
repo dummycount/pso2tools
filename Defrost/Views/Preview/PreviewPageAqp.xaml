@@ -134,7 +134,7 @@
 					IsHitTestVisible="False"
 					AutoSpacing="False"
 					GridSpacing="0.5"
-					GridThickness="0.01"
+					GridThickness="0.02"
 					GridPattern="Grid"
 					FadingFactor="0.7"
 					PlaneColor="Transparent"

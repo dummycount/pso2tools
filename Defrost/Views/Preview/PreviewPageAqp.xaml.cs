@@ -39,7 +39,7 @@ public sealed partial class PreviewPageAqp : Page
 
 	private void UpdateVisualState()
 	{
-		VisualStateManager.GoToState(this, ActualWidth < 360 ? "Collapsed" : "Expanded", true);
+		VisualStateManager.GoToState(this, ActualWidth < 600 ? "Collapsed" : "Expanded", true);
 	}
 
 	private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)

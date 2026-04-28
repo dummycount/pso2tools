@@ -31,7 +31,10 @@ public class IceFileModel(IceDataFile file)
 	}
 }
 
-public partial class IceArchiveModel : ObservableObject
+public partial class IceArchiveModel(
+	ISettingsService settings,
+	NotificationService notificationService
+) : ObservableObject
 {
 	[ObservableProperty]
 	public partial string? FilePath { get; set; }
@@ -62,13 +65,6 @@ public partial class IceArchiveModel : ObservableObject
 	[ObservableProperty]
 	public partial long SelectedTotalFileSize { get; set; }
 
-	private NotificationService NotificationService { get; }
-
-	public IceArchiveModel(NotificationService notificationService)
-	{
-		NotificationService = notificationService;
-	}
-
 	public async Task LoadAsync(string path, string? suffix = null)
 	{
 		var file = await StorageFile.GetFileFromPathAsync(path);
@@ -78,7 +74,7 @@ public partial class IceArchiveModel : ObservableObject
 		}
 		else
 		{
-			NotificationService.ShowNotification(
+			notificationService.ShowNotification(
 				new Notification
 				{
 					Title = $"Failed to open {path}",
@@ -94,7 +90,7 @@ public partial class IceArchiveModel : ObservableObject
 	{
 		try
 		{
-			NotificationService.Clear();
+			notificationService.Clear();
 			Files.Clear();
 			IsLoading = true;
 
@@ -107,6 +103,8 @@ public partial class IceArchiveModel : ObservableObject
 			FileName = file.Name;
 			ExtractSuffix = suffix;
 
+			settings.UpdateLastOpenedFile(FilePath);
+
 			using (Files.DeferRefresh())
 			{
 				foreach (var f in Archive.Files)
@@ -117,7 +115,7 @@ public partial class IceArchiveModel : ObservableObject
 		}
 		catch (Exception ex)
 		{
-			NotificationService.ShowNotification(
+			notificationService.ShowNotification(
 				new Notification
 				{
 					Title = $"Failed to open {file.Name}",

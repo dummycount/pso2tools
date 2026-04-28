@@ -11,6 +11,7 @@
 	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	xmlns:converters="using:CommunityToolkit.WinUI.Converters"
 	xmlns:viewmodels="using:Pso2Tools.Defrost.ViewModels"
+	xmlns:hx="using:HelixToolkit.SharpDX"
 	mc:Ignorable="d"
 >
 	<Page.Resources>
@@ -41,7 +42,7 @@
 				VerticalScrollMode="Auto"
 			>
 				<Border>
-					<StackPanel MaxWidth="1064" Spacing="4" Margin="0,0,0,36">
+					<StackPanel MaxWidth="960" Spacing="4" Margin="0,0,0,36">
 						<StackPanel.ChildrenTransitions>
 							<RepositionThemeTransition />
 						</StackPanel.ChildrenTransitions>
@@ -65,6 +66,14 @@
 								<ComboBoxItem Content="Light" Tag="Light" />
 								<ComboBoxItem Content="Dark" Tag="Dark" />
 							</ComboBox>
+						</controls:SettingsCard>
+
+						<controls:SettingsCard Header="Remember last opened file">
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE823;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<ToggleSwitch IsOn="{x:Bind settings.RememberLastOpenedFile, Mode=TwoWay}" />
 						</controls:SettingsCard>
 
 						<controls:SettingsCard
@@ -162,6 +171,18 @@
 									ColorPickerStyle="{StaticResource ColorPickerStyle}"
 								/>
 							</StackPanel>
+						</controls:SettingsCard>
+
+						<controls:SettingsCard Header="Anti-aliasing level">
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE91B;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<ComboBox
+								ItemsSource="{ui:EnumValues Type=hx:FXAALevel}"
+								ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
+								SelectedItem="{x:Bind settings.ModelPreviewFXAALevel, Mode=TwoWay}"
+							/>
 						</controls:SettingsCard>
 
 						<!-- File associations -->

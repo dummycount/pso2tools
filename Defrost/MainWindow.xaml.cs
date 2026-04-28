@@ -47,10 +47,15 @@ public sealed partial class MainWindow : Window
 	public async void HandleCommandLineArgsAsync()
 	{
 		var args = ProtocolActivationHelper.ParseCommandLine();
+		var settings = App.Current.Services.GetRequiredService<ISettingsService>();
 
 		if (args.FilePath is not null)
 		{
 			await viewModel.LoadAsync(Path.GetFullPath(args.FilePath), args.ExtractSuffix);
+		}
+		else if (settings.RememberLastOpenedFile && settings.LastOpenedFile is not null)
+		{
+			await viewModel.LoadAsync(settings.LastOpenedFile);
 		}
 	}
 
