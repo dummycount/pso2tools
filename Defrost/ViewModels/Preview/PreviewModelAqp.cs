@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using AquaModelLibrary.Core.General;
-using AquaModelLibrary.Data.AM2.BorderBreakPS4;
 using AquaModelLibrary.Data.PSO2.Aqua;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -15,7 +15,8 @@ using HelixToolkit.SharpDX;
 using HelixToolkit.SharpDX.Assimp;
 using HelixToolkit.SharpDX.Model.Scene;
 using HelixToolkit.WinUI.SharpDX;
-using Windows.UI;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 
 namespace Pso2Tools.Defrost.ViewModels.Preview;
 
@@ -29,7 +30,7 @@ public partial class PreviewModelAqp(
 	[ObservableProperty]
 	public partial IEffectsManager? EffectsManager { get; private set; }
 
-	public Camera Camera { get; } = new PerspectiveCamera();
+	public PerspectiveCamera Camera { get; } = new PerspectiveCamera();
 
 	public SceneNodeGroupModel3D Root { get; } = new();
 
@@ -40,24 +41,47 @@ public partial class PreviewModelAqp(
 	public partial BoundingBox BoundingBox { get; set; } = default;
 
 	[ObservableProperty]
-	public partial Geometry3D? Axis { get; private set; }
+	public partial Geometry3D? Axes { get; private set; }
 
 	[ObservableProperty]
-	public partial bool ShowAxis { get; set; } = true;
+	public partial bool ShowAxes { get; set; } = settings.ModelPreviewShowAxes;
 
 	[ObservableProperty]
-	public partial bool ShowWireframe { get; set; } = false;
+	public partial bool ShowGrid { get; set; } = settings.ModelPreviewShowGrid;
 
 	[ObservableProperty]
-	public partial bool ShowGrid { get; set; } = true;
+	public partial bool ShowWireframe { get; set; } = settings.ModelPreviewShowWireframe;
+
+	[ObservableProperty]
+	public partial Windows.UI.Color SkinColor { get; set; } = settings.SkinColor;
+
+	[ObservableProperty]
+	public partial Windows.UI.Color RedColor { get; set; } = settings.RedColor;
+
+	[ObservableProperty]
+	public partial Windows.UI.Color GreenColor { get; set; } = settings.GreenColor;
+
+	[ObservableProperty]
+	public partial Windows.UI.Color BlueColor { get; set; } = settings.BlueColor;
+
+	[ObservableProperty]
+	public partial Windows.UI.Color AlphaColor { get; set; } = settings.AlphaColor;
+
+	private IceFileModel? file = null;
 
 	private HelixToolkitScene? scene = null;
 
 	[RelayCommand]
 	public void ResetCamera()
 	{
+		// TODO: this doesn't fit models that are tall and thin fully in the camera.
+
 		var maxWidth = Math.Max(Math.Max(BoundingBox.Width, BoundingBox.Height), BoundingBox.Depth);
-		var pos = BoundingBox.Center + new Vector3(0, 0, maxWidth);
+
+		var fieldOfViewRad = (Math.PI / 180) * Camera.FieldOfView;
+		var distance = (maxWidth / 2) / Math.Tan(fieldOfViewRad / 2) * 1.25f;
+
+		var pos = BoundingBox.Center + new Vector3(0, 0, (float)distance);
 
 		Camera.Position = pos;
 		Camera.LookDirection = BoundingBox.Center - pos;
@@ -67,41 +91,65 @@ public partial class PreviewModelAqp(
 	[RelayCommand]
 	private async Task LoadModel(IceFileModel file)
 	{
-		Root.Clear();
-		scene = null;
+		this.file = file;
 
 		EffectsManager ??= await effectsManagerService.GetEffectsManagerAsync();
+
+		await UpdateSceneAsync(CancellationToken.None);
+
+		ResetCamera();
+	}
+
+	[RelayCommand]
+	private async Task ReloadModel(CancellationToken token)
+	{
+		await UpdateSceneAsync(CancellationToken.None);
+	}
+
+	private async Task UpdateSceneAsync(CancellationToken token = default)
+	{
+		if (file is null)
+		{
+			return;
+		}
 
 		var importer = new ModelImporter
 		{
 			AqpFile = file.File,
 			AqnFile = FindAqnFile(),
 			DdsFiles = FindDdsFiles(),
-			SkinColor = settings.SkinColor,
-			Configuration = new()
+			SkinColor = SkinColor.ToRgba32(),
+			MaskColors = new()
 			{
-				// TODO: set cull mode individual on meshes based on material
-				CullMode = SharpDX.Direct3D11.CullMode.Back,
-				ForceCullMode = true,
+				R = RedColor.ToRgba32(),
+				G = GreenColor.ToRgba32(),
+				B = BlueColor.ToRgba32(),
+				A = AlphaColor.ToRgba32(),
 			},
 		};
 
 		try
 		{
-			var result = await importer.LoadSceneAsync();
+			var result = await importer.LoadSceneAsync(token);
 
 			scene = result.Scene;
+			Root.Clear();
 			Root.AddNode(scene.Root);
+
+			// TODO: attach a view model to nodes and allow selecting and
+			// showing mesh names.
 
 			BoundingBox = result.BoundingBox ?? default;
 			ModelCentroid = result.ModelCentroid ?? default;
 
-			UpdateAxis();
-			UpdateWireframe();
-			ResetCamera();
+			UpdateAxes();
+			UpdateNodeProperties();
 		}
 		catch (ImportError ex)
 		{
+			scene = null;
+			Root.Clear();
+
 			notificationService.ShowNotification(
 				new()
 				{
@@ -125,7 +173,7 @@ public partial class PreviewModelAqp(
 			.Select(file => file.File);
 	}
 
-	private void UpdateAxis()
+	private void UpdateAxes()
 	{
 		var builder = new LineBuilder();
 
@@ -151,15 +199,26 @@ public partial class PreviewModelAqp(
 		axis.Colors[2] = axis.Colors[3] = HelixToolkit.Maths.Color.Green;
 		axis.Colors[4] = axis.Colors[5] = HelixToolkit.Maths.Color.Blue;
 
-		Axis = axis;
+		Axes = axis;
+	}
+
+	partial void OnShowAxesChanged(bool value)
+	{
+		settings.ModelPreviewShowAxes = value;
+	}
+
+	partial void OnShowGridChanged(bool value)
+	{
+		settings.ModelPreviewShowGrid = value;
 	}
 
 	partial void OnShowWireframeChanged(bool value)
 	{
-		UpdateWireframe();
+		settings.ModelPreviewShowWireframe = value;
+		UpdateNodeProperties();
 	}
 
-	private void UpdateWireframe()
+	private void UpdateNodeProperties()
 	{
 		if (scene is null || scene.Root is null)
 		{
@@ -171,8 +230,44 @@ public partial class PreviewModelAqp(
 			if (node is MeshNode meshNode)
 			{
 				meshNode.RenderWireframe = ShowWireframe;
+				meshNode.CullMode = SharpDX.Direct3D11.CullMode.Back;
 			}
 		}
+	}
+
+	private void UpdateTextureColors()
+	{
+		ReloadModelCommand.Execute(null);
+	}
+
+	partial void OnSkinColorChanged(Windows.UI.Color value)
+	{
+		settings.SkinColor = value;
+		UpdateTextureColors();
+	}
+
+	partial void OnRedColorChanged(Windows.UI.Color value)
+	{
+		settings.RedColor = value;
+		UpdateTextureColors();
+	}
+
+	partial void OnGreenColorChanged(Windows.UI.Color value)
+	{
+		settings.GreenColor = value;
+		UpdateTextureColors();
+	}
+
+	partial void OnBlueColorChanged(Windows.UI.Color value)
+	{
+		settings.BlueColor = value;
+		UpdateTextureColors();
+	}
+
+	partial void OnAlphaColorChanged(Windows.UI.Color value)
+	{
+		settings.AlphaColor = value;
+		UpdateTextureColors();
 	}
 }
 
@@ -196,38 +291,57 @@ public class ModelImporter
 	public IceDataFile? AqnFile { get; set; }
 	public IEnumerable<IceDataFile> DdsFiles { get; set; } = [];
 
-	public Windows.UI.Color SkinColor { get; set; }
+	public Rgba32 SkinColor { get; set; }
+	public MaskColors MaskColors { get; set; }
 
-	// TODO: colorize diffuse textures using mask texture?
-
-	public Task<Result> LoadSceneAsync()
+	public Task<Result> LoadSceneAsync(CancellationToken token = default)
 	{
-		var aqp = new AquaPackage(AqpFile.Data.ToArray());
-		var aqn = AqnFile is null
-			? AquaNode.GenerateBasicAQN()
-			: new AquaNode(AqnFile.Data.ToArray());
-
+		var aqpData = AqpFile.Data.ToArray();
+		var aqnData = AqnFile?.Data.ToArray();
 		var ddsFiles = DdsFiles.ToArray();
 		var skinColor = SkinColor;
+		var maskColors = MaskColors;
 
-		return Task.Run(async () => await LoadSceneInternal(aqp, aqn, ddsFiles, skinColor));
+		return Task.Run(
+			async () =>
+			{
+				var aqp = new AquaPackage(aqpData);
+				token.ThrowIfCancellationRequested();
+
+				var aqn = aqnData is null ? AquaNode.GenerateBasicAQN() : new AquaNode(aqnData);
+				token.ThrowIfCancellationRequested();
+
+				return await LoadSceneInternalAsync(
+					aqp,
+					aqn,
+					ddsFiles,
+					skinColor,
+					maskColors,
+					token
+				);
+			},
+			token
+		);
 	}
 
-	private static async Task<Result> LoadSceneInternal(
+	private static async Task<Result> LoadSceneInternalAsync(
 		AquaPackage aqp,
 		AquaNode aqn,
 		IEnumerable<IceDataFile> ddsFiles,
-		Windows.UI.Color skinColor
+		Rgba32 skinColor,
+		MaskColors maskColors,
+		CancellationToken token = default
 	)
 	{
 		// TODO: need to handle multiple models?
 		var obj = aqp.models.FirstOrDefault() ?? throw new ImportError(".aqp file has no models");
 
 		var scene = AssimpModelExporter.AssimpExport("", obj, aqn);
+		token.ThrowIfCancellationRequested();
 
-		await AddTexturesAsync(scene, ddsFiles);
+		await AddTexturesAsync(scene, ddsFiles, maskColors, token);
 
-		var importer = new Pso2Importer() { SkinColor = skinColor };
+		var importer = new Pso2Importer() { SkinColor = skinColor.ToScaledVector4() };
 
 		var code = importer.ToHelixToolkitScene(scene, out var helixScene);
 		if ((code & ErrorCode.Succeed) == 0)
@@ -257,7 +371,9 @@ public class ModelImporter
 
 	private static async Task AddTexturesAsync(
 		SharpAssimp.Scene scene,
-		IEnumerable<IceDataFile> ddsFiles
+		IEnumerable<IceDataFile> ddsFiles,
+		MaskColors maskColors,
+		CancellationToken token = default
 	)
 	{
 		var names = new HashSet<string>();
@@ -270,9 +386,11 @@ public class ModelImporter
 			}
 		}
 
+		token.ThrowIfCancellationRequested();
+
 		foreach (var name in names)
 		{
-			var tex = await FindTextureAsync(ddsFiles, name);
+			var tex = await GetTextureAsync(ddsFiles, name, maskColors, token);
 			if (tex is not null)
 			{
 				scene.Textures.Add(new SharpAssimp.EmbeddedTexture("DDS", tex, name));
@@ -280,9 +398,11 @@ public class ModelImporter
 		}
 	}
 
-	private static async Task<byte[]?> FindTextureAsync(
+	private static async Task<byte[]?> GetTextureAsync(
 		IEnumerable<IceDataFile> ddsFiles,
-		string name
+		string name,
+		MaskColors maskColors,
+		CancellationToken token = default
 	)
 	{
 		var pattern = name switch
@@ -320,29 +440,86 @@ public class ModelImporter
 			return null;
 		}
 
-		var data = texture.Data.ToArray();
+		return await ApplyTextureTransforms(texture, ddsFiles, maskColors, token);
+	}
 
-		// If this is a cast texture generate new 2:1 texture with the data shifted
+	private static async Task<byte[]> ApplyTextureTransforms(
+		IceDataFile texture,
+		IEnumerable<IceDataFile> ddsFiles,
+		MaskColors maskColors,
+		CancellationToken token = default
+	)
+	{
+		List<Func<Image<Rgba32>, Task<Image<Rgba32>>>> transforms = [];
+
+		// Colorize diffuse textures using multi color mask
+		// TODO: move this into a shader so colors can be changed on the fly
+		if (texture.Name.EndsWith("_d.dds"))
+		{
+			var maskName = texture.Name.Replace("_d.dds", "_m.dds");
+			var mask = ddsFiles.FirstOrDefault(x => x.Name == maskName);
+			if (mask is not null)
+			{
+				transforms.Add(
+					async (image) =>
+					{
+						var maskImage = await ImageHelper.DdsBufferToImageAsync(
+							mask.Data.ToArray(),
+							token
+						);
+
+						token.ThrowIfCancellationRequested();
+						return ImageHelper.ColorizeDiffuseTexture(
+							image,
+							maskImage,
+							maskColors,
+							token
+						);
+					}
+				);
+			}
+		}
+
+		// Expand and shift cast part textures according so the UVs line up with the texture data
 		if (texture.Name.Contains("_rm_"))
 		{
-			return await ImageHelper.ShiftCastPartTextureAsync(data, CastTextureShift.Arms);
+			transforms.Add(
+				async (image) => ImageHelper.ShiftCastPartTexture(image, CastTextureShift.Arms)
+			);
 		}
 		if (texture.Name.Contains("_bd_"))
 		{
-			return await ImageHelper.ShiftCastPartTextureAsync(data, CastTextureShift.Body);
+			transforms.Add(
+				async (image) => ImageHelper.ShiftCastPartTexture(image, CastTextureShift.Body)
+			);
 		}
 		if (texture.Name.Contains("_lg_"))
 		{
-			return await ImageHelper.ShiftCastPartTextureAsync(data, CastTextureShift.Legs);
+			transforms.Add(
+				async (image) => ImageHelper.ShiftCastPartTexture(image, CastTextureShift.Legs)
+			);
 		}
 
-		return data;
+		if (transforms.Count == 0)
+		{
+			return texture.Data.ToArray();
+		}
+
+		var image = await ImageHelper.DdsBufferToImageAsync(texture.Data.ToArray(), token);
+
+		foreach (var transform in transforms)
+		{
+			token.ThrowIfCancellationRequested();
+			image = await transform(image);
+		}
+
+		return await ImageHelper.ImageToDdsBufferAsync(image, token);
 	}
 }
 
 public partial class Pso2Importer : Importer
 {
-	public Windows.UI.Color SkinColor { get; set; } = Windows.UI.Color.FromArgb(255, 245, 196, 186);
+	public Vector4 SkinColor { get; set; }
 
 	protected override HelixToolkit.SharpDX.Model.PhongMaterialCore OnCreatePhongMaterial(
 		SharpAssimp.Material material
@@ -360,12 +537,7 @@ public partial class Pso2Importer : Importer
 			if (shader == "1102p,1102" || shader == "1101p,1101")
 			{
 				// Skin shader. Just use a flat color instead of loading textures from a different file.
-				material.ColorDiffuse = new Vector4(
-					(float)SkinColor.R / 255,
-					(float)SkinColor.G / 255,
-					(float)SkinColor.B / 255,
-					(float)SkinColor.A / 255
-				);
+				material.ColorDiffuse = SkinColor;
 			}
 
 			material.IsTwoSided = match.Groups["two_sided"]?.Value == "1";

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.Defrost.ViewModels;
@@ -17,6 +18,13 @@ public sealed partial class PreviewPageAqp : Page
 		settings = App.Current.Services.GetRequiredService<ISettingsService>();
 
 		InitializeComponent();
+
+		Loaded += PreviewPageAqp_Loaded;
+	}
+
+	private void PreviewPageAqp_Loaded(object sender, RoutedEventArgs e)
+	{
+		SkinColor.ColorPicker.CustomPalette = new SkinToneColorPalette();
 	}
 
 	protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -27,5 +35,15 @@ public sealed partial class PreviewPageAqp : Page
 		{
 			await viewModel.LoadModelCommand.ExecuteAsync(file);
 		}
+	}
+
+	private void UpdateVisualState()
+	{
+		VisualStateManager.GoToState(this, ActualWidth < 360 ? "Collapsed" : "Expanded", true);
+	}
+
+	private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
+	{
+		UpdateVisualState();
 	}
 }

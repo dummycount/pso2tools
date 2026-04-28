@@ -23,8 +23,6 @@
 				<Setter Property="Margin" Value="1,30,0,6" />
 			</Style.Setters>
 		</Style>
-
-		<viewmodels:SkinToneColorPalette x:Key="SkinToneColorPalette" />
 	</Page.Resources>
 
 	<Grid x:Name="RootGrid">
@@ -48,6 +46,7 @@
 							<RepositionThemeTransition />
 						</StackPanel.ChildrenTransitions>
 
+						<!-- General -->
 						<TextBlock
 							Text="Appearance &amp; behavior"
 							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
@@ -108,6 +107,64 @@
 							/>
 						</controls:SettingsCard>
 
+						<!-- Model preview -->
+						<TextBlock
+							Text="Model preview"
+							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
+						/>
+
+						<controls:SettingsCard
+							Header="Skin color"
+							Description="Skin will use this color instead of loading textures"
+						>
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE790;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<controls:ColorPickerButton
+								x:Name="SkinColor"
+								SelectedColor="{x:Bind settings.SkinColor, Mode=TwoWay}"
+								ColorPickerStyle="{StaticResource ColorPickerStyle}"
+							/>
+						</controls:SettingsCard>
+
+						<controls:SettingsCard
+							Header="Multi colors"
+							Description="Colors for models with custom colors"
+						>
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE790;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<controls:ColorPickerButton
+									x:Name="RedColor"
+									ToolTipService.ToolTip="Red channel color"
+									SelectedColor="{x:Bind settings.RedColor, Mode=TwoWay}"
+									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+								<controls:ColorPickerButton
+									x:Name="GreenColor"
+									ToolTipService.ToolTip="Green channel color"
+									SelectedColor="{x:Bind settings.GreenColor, Mode=TwoWay}"
+									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+								<controls:ColorPickerButton
+									x:Name="BlueColor"
+									ToolTipService.ToolTip="Blue channel color"
+									SelectedColor="{x:Bind settings.BlueColor, Mode=TwoWay}"
+									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+								<controls:ColorPickerButton
+									x:Name="AlphaColor"
+									ToolTipService.ToolTip="Alpha channel color"
+									SelectedColor="{x:Bind settings.AlphaColor, Mode=TwoWay}"
+									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+							</StackPanel>
+						</controls:SettingsCard>
+
+						<!-- File associations -->
 						<TextBlock
 							Text="File associations"
 							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
@@ -127,33 +184,7 @@
 							<TextBlock Text="{x:Bind viewModel.ProtocolRegisterAction, Mode=OneWay}" />
 						</controls:SettingsCard>
 
-						<TextBlock
-							Text="Model preview"
-							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
-						/>
-
-						<controls:SettingsCard
-							Header="Skin color"
-							Description="Skin will use this color instead of loading textures"
-						>
-							<controls:SettingsCard.HeaderIcon>
-								<FontIcon Glyph="&#xE790;" />
-							</controls:SettingsCard.HeaderIcon>
-
-							<controls:ColorPickerButton
-								x:Name="SkinColor"
-								SelectedColor="{x:Bind settings.SkinColor, Mode=TwoWay}"
-							>
-								<controls:ColorPickerButton.ColorPickerStyle>
-									<Style TargetType="controls:ColorPicker">
-										<Setter Property="IsAlphaEnabled" Value="False" />
-										<Setter Property="ShowAccentColors" Value="False" />
-										<Setter Property="ColorSpectrumShape" Value="Ring" />
-									</Style>
-								</controls:ColorPickerButton.ColorPickerStyle>
-							</controls:ColorPickerButton>
-						</controls:SettingsCard>
-
+						<!-- About -->
 						<TextBlock
 							Text="About"
 							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"

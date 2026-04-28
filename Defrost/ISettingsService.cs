@@ -84,8 +84,29 @@ public interface ISettingsService : INotifyPropertyChanged
 	[DefaultValue(FXAALevel.Medium)]
 	FXAALevel ModelPreviewFXAALevel { get; set; }
 
+	[DefaultValue(true)]
+	bool ModelPreviewShowAxes { get; set; }
+
+	[DefaultValue(true)]
+	bool ModelPreviewShowGrid { get; set; }
+
+	[DefaultValue(false)]
+	bool ModelPreviewShowWireframe { get; set; }
+
 	[DefaultValue("#f5c4bA")]
 	Color SkinColor { get; set; }
+
+	[DefaultValue("#E81123")]
+	Color RedColor { get; set; }
+
+	[DefaultValue("#00CC6A")]
+	Color GreenColor { get; set; }
+
+	[DefaultValue("#0078d4")]
+	Color BlueColor { get; set; }
+
+	[DefaultValue("#FFB900")]
+	Color AlphaColor { get; set; }
 }
 
 class ColorParser : ITypeParser

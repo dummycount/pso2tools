@@ -4,6 +4,7 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using System.Threading.Tasks;
 using BCnEncoder.Decoder;
 using BCnEncoder.Encoder;
@@ -26,23 +27,37 @@ public enum CastTextureShift
 	Legs,
 }
 
+public struct MaskColors
+{
+	public Rgba32 R;
+	public Rgba32 G;
+	public Rgba32 B;
+	public Rgba32 A;
+}
+
 public static class ImageHelper
 {
-	public static async Task<Image<Rgba32>> DdsBufferToImageAsync(byte[] fileBytes)
+	public static async Task<Image<Rgba32>> DdsBufferToImageAsync(
+		byte[] fileBytes,
+		CancellationToken token = default
+	)
 	{
 		using var stream = new MemoryStream(fileBytes);
 		var decoder = new BcDecoder();
 
-		return await decoder.DecodeToImageRgba32Async(stream);
+		return await decoder.DecodeToImageRgba32Async(stream, token);
 	}
 
-	public static async Task<byte[]> ImageToDdsBufferAsync(Image<Rgba32> image)
+	public static async Task<byte[]> ImageToDdsBufferAsync(
+		Image<Rgba32> image,
+		CancellationToken token = default
+	)
 	{
 		var encoder = new BcEncoder(BCnEncoder.Shared.CompressionFormat.Rgba);
 		encoder.OutputOptions.FileFormat = BCnEncoder.Shared.OutputFileFormat.Dds;
 
 		using var stream = new MemoryStream();
-		await encoder.EncodeToStreamAsync(image, stream);
+		await encoder.EncodeToStreamAsync(image, stream, token);
 
 		return stream.ToArray();
 	}
@@ -86,13 +101,8 @@ public static class ImageHelper
 		return clone;
 	}
 
-	public static async Task<byte[]> ShiftCastPartTextureAsync(
-		byte[] fileBytes,
-		CastTextureShift shift
-	)
+	public static Image<Rgba32> ShiftCastPartTexture(Image<Rgba32> image, CastTextureShift shift)
 	{
-		using var image = await DdsBufferToImageAsync(fileBytes).ConfigureAwait(false);
-
 		var usedWidth = (int)((double)image.Width * 2 / 3);
 		var offset = shift switch
 		{
@@ -117,7 +127,102 @@ public static class ImageHelper
 			)
 		);
 
-		return await ImageToDdsBufferAsync(newImage);
+		return newImage;
+	}
+
+	public static RgbaVector GetUsedMaskChannels(Image<Rgba32> image)
+	{
+		var mask = new Rgba32(255, 255, 255, 255);
+
+		image.ProcessPixelRows(accessor =>
+		{
+			for (int y = 0; y < accessor.Height; y++)
+			{
+				foreach (ref var pixel in accessor.GetRowSpan(y))
+				{
+					mask.PackedValue &= pixel.PackedValue;
+				}
+			}
+		});
+
+		return new RgbaVector(
+			mask.R < 255 ? 1 : 0,
+			mask.G < 255 ? 1 : 0,
+			mask.B < 255 ? 1 : 0,
+			mask.A < 255 ? 1 : 0
+		);
+	}
+
+	public static Image<Rgba32> ColorizeDiffuseTexture(
+		Image<Rgba32> diffuseImage,
+		Image<Rgba32> maskImage,
+		MaskColors colors,
+		PixelBlender<Rgba32> blender,
+		CancellationToken token = default
+	)
+	{
+		if (diffuseImage.Size != maskImage.Size)
+		{
+			throw new ArgumentException("Images must be the same size");
+		}
+
+		var used = GetUsedMaskChannels(maskImage);
+
+		// TODO: there are probably much faster ways to do this
+		diffuseImage.ProcessPixelRows(
+			maskImage,
+			(destAccessor, maskAccessor) =>
+			{
+				for (int y = 0; y < destAccessor.Height; y++)
+				{
+					token.ThrowIfCancellationRequested();
+
+					var dest = destAccessor.GetRowSpan(y);
+					var mask = maskAccessor.GetRowSpan(y);
+
+					for (int x = 0; x < dest.Length; x++)
+					{
+						dest[x] = blender.Blend(dest[x], colors.R, used.R * mask[x].R / 255f);
+						dest[x] = blender.Blend(dest[x], colors.G, used.G * mask[x].G / 255f);
+						dest[x] = blender.Blend(dest[x], colors.B, used.B * mask[x].B / 255f);
+						dest[x] = blender.Blend(dest[x], colors.A, used.A * mask[x].A / 255f);
+					}
+				}
+			}
+		);
+
+		return diffuseImage;
+	}
+
+	public static Image<Rgba32> ColorizeDiffuseTexture(
+		Image<Rgba32> diffuseImage,
+		Image<Rgba32> maskImage,
+		MaskColors colors,
+		PixelColorBlendingMode colorMode = PixelColorBlendingMode.Normal,
+		CancellationToken token = default
+	)
+	{
+		var blender = new PixelOperations<Rgba32>().GetPixelBlender(
+			colorMode,
+			PixelAlphaCompositionMode.SrcAtop
+		);
+		return ColorizeDiffuseTexture(diffuseImage, maskImage, colors, blender, token);
+	}
+
+	public static Image<Rgba32> ColorizeDiffuseTexture(
+		Image<Rgba32> diffuseImage,
+		Image<Rgba32> maskImage,
+		MaskColors colors,
+		CancellationToken token = default
+	)
+	{
+		return ColorizeDiffuseTexture(
+			diffuseImage,
+			maskImage,
+			colors,
+			PixelColorBlendingMode.Normal,
+			token
+		);
 	}
 }
 

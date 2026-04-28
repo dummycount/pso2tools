@@ -7,9 +7,33 @@
 	xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:hx="using:HelixToolkit.WinUI.SharpDX"
+	xmlns:controls="using:CommunityToolkit.WinUI.Controls"
 	mc:Ignorable="d"
 >
-	<Grid>
+	<Grid SizeChanged="Grid_SizeChanged">
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup>
+				<VisualState x:Name="Collapsed">
+					<VisualState.Setters>
+						<Setter Target="SkinColor.Visibility" Value="Collapsed" />
+						<Setter Target="RedColor.Visibility" Value="Collapsed" />
+						<Setter Target="GreenColor.Visibility" Value="Collapsed" />
+						<Setter Target="BlueColor.Visibility" Value="Collapsed" />
+						<Setter Target="AlphaColor.Visibility" Value="Collapsed" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="Expanded">
+					<VisualState.Setters>
+						<Setter Target="SkinColor.Visibility" Value="Visible" />
+						<Setter Target="RedColor.Visibility" Value="Visible" />
+						<Setter Target="GreenColor.Visibility" Value="Visible" />
+						<Setter Target="BlueColor.Visibility" Value="Visible" />
+						<Setter Target="AlphaColor.Visibility" Value="Visible" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition />
@@ -22,18 +46,61 @@
 			BorderThickness="0,0,0,1"
 			BorderBrush="{ThemeResource SurfaceStrokeColorDefaultBrush}"
 		>
+			<Button
+				Command="{x:Bind viewModel.ResetCameraCommand}"
+				ToolTipService.ToolTip="Reset camera"
+			>
+				<FontIcon Glyph="&#xE714;" />
+			</Button>
 			<ToggleButton
 				IsChecked="{x:Bind viewModel.ShowGrid, Mode=TwoWay}"
 				ToolTipService.ToolTip="Show grid"
 			>
 				<FontIcon Glyph="&#xF0E2;" />
 			</ToggleButton>
+
 			<ToggleButton
-				IsChecked="{x:Bind viewModel.ShowAxis, Mode=TwoWay}"
-				ToolTipService.ToolTip="Show axis"
+				IsChecked="{x:Bind viewModel.ShowAxes, Mode=TwoWay}"
+				ToolTipService.ToolTip="Show axes"
 			>
 				<FontIcon Glyph="&#xF158;" />
 			</ToggleButton>
+			<ToggleButton
+				IsChecked="{x:Bind viewModel.ShowWireframe, Mode=TwoWay}"
+				ToolTipService.ToolTip="Show wireframe"
+			>
+				<FontIcon Glyph="&#xE774;" />
+			</ToggleButton>
+
+			<controls:ColorPickerButton
+				x:Name="SkinColor"
+				SelectedColor="{x:Bind viewModel.SkinColor, Mode=TwoWay}"
+				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+			/>
+			<controls:ColorPickerButton
+				x:Name="RedColor"
+				ToolTipService.ToolTip="Red channel color"
+				SelectedColor="{x:Bind viewModel.RedColor, Mode=TwoWay}"
+				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+			/>
+			<controls:ColorPickerButton
+				x:Name="GreenColor"
+				ToolTipService.ToolTip="Green channel color"
+				SelectedColor="{x:Bind viewModel.GreenColor, Mode=TwoWay}"
+				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+			/>
+			<controls:ColorPickerButton
+				x:Name="BlueColor"
+				ToolTipService.ToolTip="Blue channel color"
+				SelectedColor="{x:Bind viewModel.BlueColor, Mode=TwoWay}"
+				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+			/>
+			<controls:ColorPickerButton
+				x:Name="AlphaColor"
+				ToolTipService.ToolTip="Alpha channel color"
+				SelectedColor="{x:Bind viewModel.AlphaColor, Mode=TwoWay}"
+				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+			/>
 		</StackPanel>
 
 		<Grid Grid.Row="1">
@@ -48,15 +115,15 @@
 				FixedRotationPointEnabled="True"
 				CameraRotationMode="Turntable"
 			>
-				<hx:AmbientLight3D Color="#101010" />
+				<hx:AmbientLight3D Color="#202020" />
 				<hx:DirectionalLight3D
 					Direction="{x:Bind viewModel.Camera.CameraInternal.LookDirection, Mode=OneWay}"
-					Color="#efefef"
+					Color="#dfdfdf"
 				/>
 
 				<hx:LineGeometryModel3D
-					Geometry="{x:Bind viewModel.Axis, Mode=OneWay}"
-					IsRendering="{x:Bind viewModel.ShowAxis, Mode=OneWay}"
+					Geometry="{x:Bind viewModel.Axes, Mode=OneWay}"
+					IsRendering="{x:Bind viewModel.ShowAxes, Mode=OneWay}"
 					IsHitTestVisible="False"
 					Thickness="0.5"
 					Color="White"
