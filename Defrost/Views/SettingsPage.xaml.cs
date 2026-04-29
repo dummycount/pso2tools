@@ -1,4 +1,5 @@
 using System;
+using CommunityToolkit.WinUI.Behaviors;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -10,12 +11,14 @@ namespace Pso2Tools.Defrost.Views;
 
 public sealed partial class SettingsPage : Page
 {
+	private readonly NotificationService notificationService;
 	private readonly ISettingsService settings;
 	private readonly SettingsModel viewModel;
 	private readonly ThemeService theme;
 
 	public SettingsPage()
 	{
+		notificationService = App.Current.Services.GetRequiredService<NotificationService>();
 		settings = App.Current.Services.GetRequiredService<ISettingsService>();
 		viewModel = App.Current.Services.GetRequiredService<SettingsModel>();
 		theme = App.Current.Services.GetRequiredService<ThemeService>();
@@ -54,7 +57,7 @@ public sealed partial class SettingsPage : Page
 		};
 	}
 
-	private async void CustomExtractFolderBuffon_Click(object sender, RoutedEventArgs e)
+	private async void CustomExtractFolderButton_Click(object sender, RoutedEventArgs e)
 	{
 		var picker = new FolderPicker(App.MainWindow.AppWindow.Id);
 
@@ -62,7 +65,7 @@ public sealed partial class SettingsPage : Page
 
 		if (result is not null)
 		{
-			settings.CustomExtractFolder = result.Path;
+			viewModel.CustomExtractFolder = result.Path;
 		}
 	}
 
@@ -83,5 +86,37 @@ public sealed partial class SettingsPage : Page
 		}
 
 		viewModel.IsProtocolRegistered = ProtocolActivationHelper.IsRegistered();
+	}
+
+	private void DataPathResetButton_Click(object sender, RoutedEventArgs e)
+	{
+		settings.Pso2BinPath = GameFinder.FindPso2BinPath();
+
+		if (settings.Pso2BinPath is null)
+		{
+			notificationService.ShowNotification(
+				new Notification
+				{
+					Title = "Failed to find pso2_bin folder",
+					Message = "Set the path to your PSO2 installation manually",
+					Severity = InfoBarSeverity.Error,
+					Duration = TimeSpan.FromSeconds(10),
+				}
+			);
+		}
+	}
+
+	private async void DataPathButton_Click(object sender, RoutedEventArgs e)
+	{
+		var openPicker = new FolderPicker(App.MainWindow.AppWindow.Id)
+		{
+			SuggestedStartLocation = PickerLocationId.ComputerFolder,
+		};
+
+		var folder = await openPicker.PickSingleFolderAsync();
+		if (folder != null)
+		{
+			settings.Pso2BinPath = folder.Path;
+		}
 	}
 }

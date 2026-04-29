@@ -24,6 +24,10 @@
 				<Setter Property="Margin" Value="1,30,0,6" />
 			</Style.Setters>
 		</Style>
+
+		<DataTemplate x:Name="SkinTextureTemplate" x:DataType="viewmodels:SkinTexture">
+			<TextBlock Text="{x:Bind Name}" />
+		</DataTemplate>
 	</Page.Resources>
 
 	<Grid x:Name="RootGrid">
@@ -52,6 +56,30 @@
 							Text="Appearance &amp; behavior"
 							Style="{StaticResource SettingsSectionHeaderTextBlockStyle}"
 						/>
+
+						<controls:SettingsCard
+							Header="Path to pso2_bin folder"
+							Description="{x:Bind settings.Pso2BinPath, TargetNullValue='No path set', Mode=OneWay}"
+						>
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE8B7;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<Button
+									x:Name="DataPathResetButton"
+									Content="Default"
+									Click="DataPathResetButton_Click"
+									MinWidth="120"
+								/>
+								<Button
+									x:Name="DataPathButton"
+									Content="Select folder"
+									Click="DataPathButton_Click"
+									MinWidth="120"
+								/>
+							</StackPanel>
+						</controls:SettingsCard>
 
 						<controls:SettingsCard Header="Theme">
 							<controls:SettingsCard.HeaderIcon>
@@ -86,9 +114,9 @@
 
 							<StackPanel Orientation="Horizontal" Spacing="8">
 								<Button
-									x:Name="CustomExtractFolderBuffon"
+									x:Name="CustomExtractFolderButton"
 									Content="Select folder"
-									Click="CustomExtractFolderBuffon_Click"
+									Click="CustomExtractFolderButton_Click"
 									MinWidth="120"
 									Visibility="{x:Bind viewModel.IsCustomExtractFolderVisible, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 								/>
@@ -96,7 +124,7 @@
 								<ComboBox
 									ItemsSource="{ui:EnumValues Type=defrost:DefaultExtractLocation}"
 									ItemTemplate="{StaticResource EnumDisplayNameTemplate}"
-									SelectedItem="{x:Bind settings.DefaultExtractLocation, Mode=TwoWay}"
+									SelectedItem="{x:Bind viewModel.DefaultExtractLocation, Mode=TwoWay}"
 								/>
 							</StackPanel>
 						</controls:SettingsCard>
@@ -124,21 +152,29 @@
 
 						<controls:SettingsCard
 							Header="Skin color"
-							Description="Skin will use this color instead of loading textures"
+							Description="Colors for skin materials"
 						>
 							<controls:SettingsCard.HeaderIcon>
 								<FontIcon Glyph="&#xE790;" />
 							</controls:SettingsCard.HeaderIcon>
 
-							<controls:ColorPickerButton
-								x:Name="SkinColor"
-								SelectedColor="{x:Bind settings.SkinColor, Mode=TwoWay}"
-								ColorPickerStyle="{StaticResource ColorPickerStyle}"
-							/>
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<controls:ColorPickerButton
+									x:Name="SkinColor"
+									SelectedColor="{x:Bind settings.SkinColor, Mode=TwoWay}"
+									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+
+								<controls:ColorPickerButton
+									x:Name="SubSkinColor"
+									SelectedColor="{x:Bind settings.SubSkinColor, Mode=TwoWay}"
+									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+							</StackPanel>
 						</controls:SettingsCard>
 
 						<controls:SettingsCard
-							Header="Multi colors"
+							Header="Custom colors"
 							Description="Colors for models with custom colors"
 						>
 							<controls:SettingsCard.HeaderIcon>
@@ -169,6 +205,31 @@
 									ToolTipService.ToolTip="Alpha channel color"
 									SelectedColor="{x:Bind settings.AlphaColor, Mode=TwoWay}"
 									ColorPickerStyle="{StaticResource ColorPickerStyle}"
+								/>
+							</StackPanel>
+						</controls:SettingsCard>
+
+						<controls:SettingsCard
+							Header="NGS skin textures"
+							Description="Loaded for skin materials"
+						>
+							<controls:SettingsCard.HeaderIcon>
+								<FontIcon Glyph="&#xE776;" />
+							</controls:SettingsCard.HeaderIcon>
+
+							<StackPanel Orientation="Horizontal" Spacing="8">
+								<ComboBox
+									ToolTipService.ToolTip="T1 skin texture"
+									ItemsSource="{x:Bind viewModel.SkinTextureT1Items}"
+									ItemTemplate="{StaticResource SkinTextureTemplate}"
+									SelectedItem="{x:Bind viewModel.SkinTextureT1, Mode=TwoWay}"
+								/>
+
+								<ComboBox
+									ToolTipService.ToolTip="T2 skin texture"
+									ItemsSource="{x:Bind viewModel.SkinTextureT2Items}"
+									ItemTemplate="{StaticResource SkinTextureTemplate}"
+									SelectedItem="{x:Bind viewModel.SkinTextureT2, Mode=TwoWay}"
 								/>
 							</StackPanel>
 						</controls:SettingsCard>

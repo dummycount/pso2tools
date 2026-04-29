@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using Config.Net;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Pso2Tools.CmxViewer.ViewModels;

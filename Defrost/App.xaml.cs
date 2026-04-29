@@ -40,10 +40,14 @@ public partial class App : Application
 				"settings.ini"
 			);
 
-			return new ConfigurationBuilder<ISettingsService>()
+			var settings = new ConfigurationBuilder<ISettingsService>()
 				.UseIniFile(settingsFilePath)
 				.UseTypeParser(new ColorParser())
 				.BuildWithFixedNotifications();
+
+			settings.Pso2BinPath ??= GameFinder.FindPso2BinPath();
+
+			return settings;
 		});
 
 		services.AddSingleton<NotificationService>();

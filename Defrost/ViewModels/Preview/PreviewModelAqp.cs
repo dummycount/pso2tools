@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Buffers;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -56,6 +58,9 @@ public partial class PreviewModelAqp(
 	public partial Windows.UI.Color SkinColor { get; set; } = settings.SkinColor;
 
 	[ObservableProperty]
+	public partial Windows.UI.Color SubSkinColor { get; set; } = settings.SubSkinColor;
+
+	[ObservableProperty]
 	public partial Windows.UI.Color RedColor { get; set; } = settings.RedColor;
 
 	[ObservableProperty]
@@ -68,14 +73,13 @@ public partial class PreviewModelAqp(
 	public partial Windows.UI.Color AlphaColor { get; set; } = settings.AlphaColor;
 
 	private IceFileModel? file = null;
+	private readonly List<TextureFile> textureCache = [];
 
 	private HelixToolkitScene? scene = null;
 
 	[RelayCommand]
 	public void ResetCamera()
 	{
-		// TODO: this doesn't fit models that are tall and thin fully in the camera.
-
 		var maxWidth = Math.Max(Math.Max(BoundingBox.Width, BoundingBox.Height), BoundingBox.Depth);
 
 		var fieldOfViewRad = (Math.PI / 180) * Camera.FieldOfView;
@@ -118,13 +122,18 @@ public partial class PreviewModelAqp(
 			AqpFile = file.File,
 			AqnFile = FindAqnFile(),
 			DdsFiles = FindDdsFiles(),
-			SkinColor = SkinColor.ToRgba32(),
-			MaskColors = new()
+			Options = new()
 			{
-				R = RedColor.ToRgba32(),
-				G = GreenColor.ToRgba32(),
-				B = BlueColor.ToRgba32(),
-				A = AlphaColor.ToRgba32(),
+				SkinTextureT1File = settings.GetSkinTextureT1Path(),
+				SkinTextureT2File = settings.GetSkinTextureT2Path(),
+				SkinColors = new() { R = SkinColor.ToRgba32(), G = SubSkinColor.ToRgba32() },
+				MaskColors = new()
+				{
+					R = RedColor.ToRgba32(),
+					G = GreenColor.ToRgba32(),
+					B = BlueColor.ToRgba32(),
+					A = AlphaColor.ToRgba32(),
+				},
 			},
 		};
 
@@ -141,6 +150,8 @@ public partial class PreviewModelAqp(
 
 			BoundingBox = result.BoundingBox ?? default;
 			ModelCentroid = result.ModelCentroid ?? default;
+
+			textureCache.AddRange(result.LoadedTextures);
 
 			UpdateAxes();
 			UpdateNodeProperties();
@@ -166,11 +177,11 @@ public partial class PreviewModelAqp(
 		return mainViewModel.FilesTyped.FirstOrDefault(file => file.Name.EndsWith(".aqn"))?.File;
 	}
 
-	private IEnumerable<IceDataFile> FindDdsFiles()
+	private IEnumerable<TextureFile> FindDdsFiles()
 	{
 		return mainViewModel
 			.FilesTyped.Where(file => file.Name.EndsWith(".dds"))
-			.Select(file => file.File);
+			.Select(file => TextureFile.FromIceFile(file.File));
 	}
 
 	private void UpdateAxes()
@@ -230,7 +241,13 @@ public partial class PreviewModelAqp(
 			if (node is MeshNode meshNode)
 			{
 				meshNode.RenderWireframe = ShowWireframe;
-				meshNode.CullMode = SharpDX.Direct3D11.CullMode.Back;
+
+				// TODO: this doesn't render correctly when there are two meshes in the same spot
+				// with different facing and back face culling enabled.
+				var data = new MaterialData(meshNode.Material?.Name);
+				meshNode.CullMode = data.IsTwoSided
+					? SharpDX.Direct3D11.CullMode.None
+					: SharpDX.Direct3D11.CullMode.Back;
 			}
 		}
 	}
@@ -243,6 +260,12 @@ public partial class PreviewModelAqp(
 	partial void OnSkinColorChanged(Windows.UI.Color value)
 	{
 		settings.SkinColor = value;
+		UpdateTextureColors();
+	}
+
+	partial void OnSubSkinColorChanged(Windows.UI.Color value)
+	{
+		settings.SubSkinColor = value;
 		UpdateTextureColors();
 	}
 
@@ -271,54 +294,93 @@ public partial class PreviewModelAqp(
 	}
 }
 
+public class TextureFile
+{
+	public required string FileName { get; set; }
+	public required byte[] Data { get; set; }
+	public string? ModelName { get; set; }
+
+	public static TextureFile FromIceFile(IceDataFile file)
+	{
+		return new() { FileName = file.Name, Data = file.Data.ToArray() };
+	}
+
+	public static async Task<TextureFile> FromImageAsync(
+		string fileName,
+		Image<Rgba32> image,
+		CancellationToken token = default
+	)
+	{
+		return new()
+		{
+			FileName = fileName,
+			Data = await ImageHelper.ImageToDdsBufferAsync(image, token),
+		};
+	}
+
+	public SharpAssimp.EmbeddedTexture ToEmbeddedTexture()
+	{
+		return new SharpAssimp.EmbeddedTexture("DDS", Data, ModelName ?? FileName);
+	}
+
+	public async Task<Image<Rgba32>> ToImageAsync(CancellationToken token = default)
+	{
+		return await ImageHelper.DdsBufferToImageAsync(Data, token);
+	}
+}
+
 public class ImportError(string? message = null, ErrorCode code = ErrorCode.None)
 	: Exception(message)
 {
 	public ErrorCode Code { get; } = code;
 }
 
-public class ModelImporter
+public class ModelImporterOptions
+{
+	public MaskColors SkinColors { get; set; }
+	public MaskColors MaskColors { get; set; }
+	public string? SkinTextureT1File { get; set; }
+	public string? SkinTextureT2File { get; set; }
+};
+
+public partial class ModelImporter
 {
 	public struct Result
 	{
 		public HelixToolkitScene Scene;
 		public BoundingBox? BoundingBox;
 		public Vector3? ModelCentroid;
+		public IEnumerable<TextureFile> LoadedTextures;
 	}
 
 	public ImporterConfiguration Configuration { get; set; } = new();
 	public required IceDataFile AqpFile { get; set; }
 	public IceDataFile? AqnFile { get; set; }
-	public IEnumerable<IceDataFile> DdsFiles { get; set; } = [];
+	public IEnumerable<TextureFile> DdsFiles { get; set; } = [];
 
-	public Rgba32 SkinColor { get; set; }
-	public MaskColors MaskColors { get; set; }
+	public ModelImporterOptions Options { get; set; } = new();
 
 	public Task<Result> LoadSceneAsync(CancellationToken token = default)
 	{
+		var aqpName = AqpFile.Name;
 		var aqpData = AqpFile.Data.ToArray();
 		var aqnData = AqnFile?.Data.ToArray();
 		var ddsFiles = DdsFiles.ToArray();
-		var skinColor = SkinColor;
-		var maskColors = MaskColors;
+		var options = Options;
 
 		return Task.Run(
 			async () =>
 			{
+				var sw = Stopwatch.StartNew();
 				var aqp = new AquaPackage(aqpData);
 				token.ThrowIfCancellationRequested();
 
 				var aqn = aqnData is null ? AquaNode.GenerateBasicAQN() : new AquaNode(aqnData);
 				token.ThrowIfCancellationRequested();
 
-				return await LoadSceneInternalAsync(
-					aqp,
-					aqn,
-					ddsFiles,
-					skinColor,
-					maskColors,
-					token
-				);
+				Debug.WriteLine($"Created aqp/aqn in {sw.ElapsedMilliseconds} ms");
+
+				return await LoadSceneInternalAsync(aqp, aqn, aqpName, ddsFiles, options, token);
 			},
 			token
 		);
@@ -327,21 +389,32 @@ public class ModelImporter
 	private static async Task<Result> LoadSceneInternalAsync(
 		AquaPackage aqp,
 		AquaNode aqn,
-		IEnumerable<IceDataFile> ddsFiles,
-		Rgba32 skinColor,
-		MaskColors maskColors,
+		string aqpName,
+		IEnumerable<TextureFile> ddsFiles,
+		ModelImporterOptions options,
 		CancellationToken token = default
 	)
 	{
+		var sw = Stopwatch.StartNew();
+
 		// TODO: need to handle multiple models?
 		var obj = aqp.models.FirstOrDefault() ?? throw new ImportError(".aqp file has no models");
 
 		var scene = AssimpModelExporter.AssimpExport("", obj, aqn);
 		token.ThrowIfCancellationRequested();
 
-		await AddTexturesAsync(scene, ddsFiles, maskColors, token);
+		Debug.WriteLine($"AssimpModelExporter.AssimpExport {sw.ElapsedMilliseconds} ms");
 
-		var importer = new Pso2Importer() { SkinColor = skinColor.ToScaledVector4() };
+		var loadedTextures = await AddTexturesAsync(scene, aqpName, ddsFiles, options, token);
+		ddsFiles = ddsFiles.Concat(loadedTextures);
+
+		var importer = new Pso2Importer()
+		{
+			HasSkinTexture = ddsFiles.Any(x => x.FileName.Contains("_sk_")),
+			SkinColor = options.SkinColors.R.ToScaledVector4(),
+		};
+
+		var sw2 = Stopwatch.StartNew();
 
 		var code = importer.ToHelixToolkitScene(scene, out var helixScene);
 		if ((code & ErrorCode.Succeed) == 0)
@@ -349,12 +422,14 @@ public class ModelImporter
 			throw new ImportError(code: code);
 		}
 
+		Debug.WriteLine($"importer.ToHelixToolkitScene {sw2.ElapsedMilliseconds} ms");
+
 		if (helixScene is null)
 		{
 			throw new ImportError("Scene import failed.");
 		}
 
-		var result = new Result { Scene = helixScene };
+		var result = new Result { Scene = helixScene, LoadedTextures = loadedTextures };
 
 		if (helixScene.Root.TryGetBound(out var bound))
 		{
@@ -366,16 +441,22 @@ public class ModelImporter
 			result.ModelCentroid = centroid;
 		}
 
+		Debug.WriteLine($"LoadSceneInternalAsync {sw.ElapsedMilliseconds} ms");
+
 		return result;
 	}
 
-	private static async Task AddTexturesAsync(
+	private static async Task<IEnumerable<TextureFile>> AddTexturesAsync(
 		SharpAssimp.Scene scene,
-		IEnumerable<IceDataFile> ddsFiles,
-		MaskColors maskColors,
+		string aqpName,
+		IEnumerable<TextureFile> ddsFiles,
+		ModelImporterOptions options,
 		CancellationToken token = default
 	)
 	{
+		var sw = Stopwatch.StartNew();
+
+		List<TextureFile> additionalTextures = [];
 		var names = new HashSet<string>();
 
 		foreach (var mat in scene.Materials)
@@ -390,32 +471,47 @@ public class ModelImporter
 
 		foreach (var name in names)
 		{
-			var tex = await GetTextureAsync(ddsFiles, name, maskColors, token);
+			var (tex, loaded) = await GetTextureAsync(aqpName, ddsFiles, name, options, token);
 			if (tex is not null)
 			{
-				scene.Textures.Add(new SharpAssimp.EmbeddedTexture("DDS", tex, name));
+				scene.Textures.Add(tex.ToEmbeddedTexture());
 			}
+
+			additionalTextures.AddRange(loaded);
+			ddsFiles = ddsFiles.Concat(loaded);
 		}
+
+		Debug.WriteLine($"AddTexturesAsync {sw.ElapsedMilliseconds} ms");
+
+		return additionalTextures;
 	}
 
-	private static async Task<byte[]?> GetTextureAsync(
-		IEnumerable<IceDataFile> ddsFiles,
-		string name,
-		MaskColors maskColors,
+	private static async Task<(
+		TextureFile? Texture,
+		IEnumerable<TextureFile> AdditionalTextures
+	)> GetTextureAsync(
+		string aqpName,
+		IEnumerable<TextureFile> ddsFiles,
+		string textureName,
+		ModelImporterOptions options,
 		CancellationToken token = default
 	)
 	{
-		var pattern = name switch
+		var pattern = textureName switch
 		{
 			// Classic
 			"pl_body_diffuse.dds" => @"pl_bd_.+_d_.+_bw",
-			"pl_body_multi.dds" => @"pl_bd_.+_m_.+_bw",
 			"pl_body_normal.dds" => @"pl_bd_.+_n_.+_bw",
+			"pl_body_multi.dds" => @"pl_bd_.+_s_.+_bw",
 
 			// NGS
-			"pl_body_base_diffuse.dds" => @"pl_rbd_.+_.+_d",
-			"pl_body_base_multi.dds" => @"pl_rbd_.+_.+_m",
-			"pl_body_base_normal.dds" => @"pl_rbd_.+_.+_n",
+			"pl_body_base_diffuse.dds" => @"pl_rbd_.+_(rm|lg|bd|bw|ow)_d",
+			"pl_body_base_normal.dds" => @"pl_rbd_.+_(rm|lg|bd|bw|ow)_n",
+			"pl_body_base_multi.dds" => @"pl_rbd_.+_(rm|lg|bd|bw|ow)_s",
+
+			"pl_body_skin_diffuse.dds" => "pl_rbd_.+_sk_d",
+			"pl_body_skin_normal.dds" => "pl_rbd_.+_sk_n",
+			"pl_body_skin_multi.dds" => "pl_rbd_.+_sk_n",
 
 			_ => null,
 		};
@@ -423,30 +519,83 @@ public class ModelImporter
 		// TODO: add a setting to pick which skin is loaded and pso2_data path, then load textures
 		// if there is a skin material.
 
-		IceDataFile? texture;
+		TextureFile? texture;
+		IEnumerable<TextureFile> loaded = [];
 
 		if (pattern is null)
 		{
-			texture = ddsFiles.FirstOrDefault(text => text.Name == name);
+			texture = ddsFiles.FirstOrDefault(text => text.FileName == textureName);
 		}
 		else
 		{
 			var regex = new Regex(pattern + @"\.dds", RegexOptions.IgnoreCase);
-			texture = ddsFiles.FirstOrDefault(tex => regex.IsMatch(tex.Name));
+			texture = ddsFiles.FirstOrDefault(tex => regex.IsMatch(tex.FileName));
+
+			if (texture is null && textureName.Contains("_skin_"))
+			{
+				loaded = await LoadSkinTexturesAsync(aqpName, options);
+
+				texture = loaded.FirstOrDefault(tex => regex.IsMatch(tex.FileName));
+				ddsFiles = ddsFiles.Concat(loaded);
+			}
 		}
 
 		if (texture is null)
 		{
-			return null;
+			return (null, loaded);
 		}
 
-		return await ApplyTextureTransforms(texture, ddsFiles, maskColors, token);
+		var data = await ApplyTextureTransforms(texture, ddsFiles, options, token);
+
+		data.ModelName = textureName;
+
+		return (data, loaded);
 	}
 
-	private static async Task<byte[]> ApplyTextureTransforms(
-		IceDataFile texture,
-		IEnumerable<IceDataFile> ddsFiles,
-		MaskColors maskColors,
+	private static async Task<IEnumerable<TextureFile>> LoadSkinTexturesAsync(
+		string aqpName,
+		ModelImporterOptions options
+	)
+	{
+		var filePath = IsAqpT2(aqpName) ? options.SkinTextureT2File : options.SkinTextureT1File;
+		if (filePath is null)
+		{
+			return [];
+		}
+
+		try
+		{
+			var sw = Stopwatch.StartNew();
+			var ice = await IceWrapper.LoadAsync(filePath);
+			Debug.WriteLine($"Load skin textures {sw.ElapsedMilliseconds} ms");
+
+			return ice.Files.Where(f => f.Name.EndsWith(".dds")).Select(TextureFile.FromIceFile);
+		}
+		catch (Exception ex)
+		{
+			Debug.WriteLine($"Failed to load skin textures. {ex.Message}");
+			return [];
+		}
+	}
+
+	[GeneratedRegex(@"\d+")]
+	private static partial Regex NumberRegex { get; }
+
+	private static bool IsAqpT2(string aqpName)
+	{
+		var match = NumberRegex.Match(aqpName);
+		if (match.Success && int.TryParse(match.Value, out int objectId))
+		{
+			return CmxObjectIds.IsT2(objectId);
+		}
+
+		return false;
+	}
+
+	private static async Task<TextureFile> ApplyTextureTransforms(
+		TextureFile texture,
+		IEnumerable<TextureFile> ddsFiles,
+		ModelImporterOptions options,
 		CancellationToken token = default
 	)
 	{
@@ -454,25 +603,32 @@ public class ModelImporter
 
 		// Colorize diffuse textures using multi color mask
 		// TODO: move this into a shader so colors can be changed on the fly
-		if (texture.Name.EndsWith("_d.dds"))
+		if (texture.FileName.EndsWith("_d.dds"))
 		{
-			var maskName = texture.Name.Replace("_d.dds", "_m.dds");
-			var mask = ddsFiles.FirstOrDefault(x => x.Name == maskName);
+			var maskName = texture.FileName.Replace("_d.dds", "_m.dds");
+			var mask = ddsFiles.FirstOrDefault(x => x.FileName == maskName);
 			if (mask is not null)
 			{
 				transforms.Add(
 					async (image) =>
 					{
-						var maskImage = await ImageHelper.DdsBufferToImageAsync(
-							mask.Data.ToArray(),
-							token
-						);
+						var maskImage = await mask.ToImageAsync(token);
 
 						token.ThrowIfCancellationRequested();
+
+						// TODO: check this
+						var isSkin = texture.FileName.Contains("_sk_");
+
+						var maskColors = isSkin ? options.SkinColors : options.MaskColors;
+						var blendMode = isSkin
+							? PixelColorBlendingMode.Multiply
+							: PixelColorBlendingMode.Normal;
+
 						return ImageHelper.ColorizeDiffuseTexture(
 							image,
 							maskImage,
 							maskColors,
+							blendMode,
 							token
 						);
 					}
@@ -481,19 +637,19 @@ public class ModelImporter
 		}
 
 		// Expand and shift cast part textures according so the UVs line up with the texture data
-		if (texture.Name.Contains("_rm_"))
+		if (texture.FileName.Contains("_rm_"))
 		{
 			transforms.Add(
 				async (image) => ImageHelper.ShiftCastPartTexture(image, CastTextureShift.Arms)
 			);
 		}
-		if (texture.Name.Contains("_bd_"))
+		if (texture.FileName.Contains("_bd_"))
 		{
 			transforms.Add(
 				async (image) => ImageHelper.ShiftCastPartTexture(image, CastTextureShift.Body)
 			);
 		}
-		if (texture.Name.Contains("_lg_"))
+		if (texture.FileName.Contains("_lg_"))
 		{
 			transforms.Add(
 				async (image) => ImageHelper.ShiftCastPartTexture(image, CastTextureShift.Legs)
@@ -502,10 +658,17 @@ public class ModelImporter
 
 		if (transforms.Count == 0)
 		{
-			return texture.Data.ToArray();
+			return texture;
 		}
 
-		var image = await ImageHelper.DdsBufferToImageAsync(texture.Data.ToArray(), token);
+		// TODO: speed this up or make an option to skip it
+		var sw = Stopwatch.StartNew();
+
+		var image = await texture.ToImageAsync(token);
+
+		Debug.WriteLine($"DdsBufferToImageAsync {sw.ElapsedMilliseconds} ms");
+
+		sw = Stopwatch.StartNew();
 
 		foreach (var transform in transforms)
 		{
@@ -513,36 +676,33 @@ public class ModelImporter
 			image = await transform(image);
 		}
 
-		return await ImageHelper.ImageToDdsBufferAsync(image, token);
+		Debug.WriteLine($"Apply transforms {sw.ElapsedMilliseconds} ms");
+
+		return await TextureFile.FromImageAsync(texture.FileName, image, token);
 	}
 }
 
 public partial class Pso2Importer : Importer
 {
+	public bool HasSkinTexture { get; set; }
 	public Vector4 SkinColor { get; set; }
 
 	protected override HelixToolkit.SharpDX.Model.PhongMaterialCore OnCreatePhongMaterial(
 		SharpAssimp.Material material
 	)
 	{
+		// TODO: need to write a custom shader to support alpha threshold
+
 		// Some materials have black for a diffuse color, which makes them solid black
 		// in the preview. We aren't trying to accurately render things, so undo that.
 		material.ColorDiffuse = new Vector4(1, 1, 1, 1);
 
-		var match = MaterialNameRegex.Match(material.Name);
-		if (match.Success)
+		var data = new MaterialData(material.Name);
+
+		// If we couldn't find a texture, just colorize skin meshes
+		if (!HasSkinTexture && data.IsSkinShader)
 		{
-			var shader = match.Groups["shaders"].Value;
-
-			if (shader == "1102p,1102" || shader == "1101p,1101")
-			{
-				// Skin shader. Just use a flat color instead of loading textures from a different file.
-				material.ColorDiffuse = SkinColor;
-			}
-
-			material.IsTwoSided = match.Groups["two_sided"]?.Value == "1";
-
-			// TODO: need to write a custom shader to support alpha threshold
+			material.ColorDiffuse = SkinColor;
 		}
 
 		material.ColorAmbient = material.ColorDiffuse;
@@ -557,6 +717,29 @@ public partial class Pso2Importer : Importer
 		material.TextureSpecular = default;
 
 		return base.OnCreatePhongMaterial(material);
+	}
+}
+
+public partial class MaterialData
+{
+	public string Shaders { get; set; } = "";
+	public bool IsTwoSided { get; set; } = false;
+
+	public bool IsSkinShader => Shaders == "1102p,1102" || Shaders == "1101p,1101";
+
+	public MaterialData(string? name)
+	{
+		if (name is null)
+		{
+			return;
+		}
+
+		var match = MaterialNameRegex.Match(name);
+		if (match.Success)
+		{
+			Shaders = match.Groups["shaders"].Value;
+			IsTwoSided = match.Groups["two_sided"]?.Value == "1";
+		}
 	}
 
 	[GeneratedRegex(

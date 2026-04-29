@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using CommunityToolkit.WinUI.Helpers;
 using Config.Net;
 using HelixToolkit.SharpDX;
@@ -54,14 +55,23 @@ public enum ImagePreviewMode
 
 public interface ISettingsService : INotifyPropertyChanged
 {
+	// General settings
+
+	public string? Pso2BinPath { get; set; }
+
 	[DefaultValue(ElementTheme.Default)]
 	public ElementTheme AppTheme { get; set; }
+
+	[DefaultValue(true)]
+	bool ShowPreviewPanel { get; set; }
 
 	[DefaultValue(false)]
 	bool RememberLastOpenedFile { get; set; }
 
 	[DefaultValue(null)]
 	string? LastOpenedFile { get; set; }
+
+	// Extract settings
 
 	[DefaultValue(CollisionOption.Ask)]
 	CollisionOption CollisionOption { get; set; }
@@ -78,11 +88,12 @@ public interface ISettingsService : INotifyPropertyChanged
 	[DefaultValue(true)]
 	bool OpenFolderWhenDone { get; set; }
 
-	[DefaultValue(true)]
-	bool ShowPreviewPanel { get; set; }
+	// Texture preview settings
 
 	[DefaultValue(ImagePreviewMode.ColorAndAlpha)]
 	ImagePreviewMode ImagePreviewMode { get; set; }
+
+	// Model preview settings
 
 	[DefaultValue(FXAALevel.Medium)]
 	FXAALevel ModelPreviewFXAALevel { get; set; }
@@ -96,8 +107,17 @@ public interface ISettingsService : INotifyPropertyChanged
 	[DefaultValue(false)]
 	bool ModelPreviewShowWireframe { get; set; }
 
+	[DefaultValue("f65a2a073f5550ddf04717ccd5267ccc")]
+	string SkinTextureT1File { get; set; }
+
+	[DefaultValue("af90e2fdc4e355ecb5e868a04e0e5491")]
+	string SkinTextureT2File { get; set; }
+
 	[DefaultValue("#f5c4bA")]
 	Color SkinColor { get; set; }
+
+	[DefaultValue("#ff0000")]
+	Color SubSkinColor { get; set; }
 
 	[DefaultValue("#E81123")]
 	Color RedColor { get; set; }
@@ -143,6 +163,26 @@ public static class SettingsExtensions
 		public void UpdateLastOpenedFile(string? path)
 		{
 			settings.LastOpenedFile = settings.RememberLastOpenedFile ? path : null;
+		}
+
+		public string? GetSkinTextureT1Path()
+		{
+			if (settings.Pso2BinPath is null)
+			{
+				return null;
+			}
+
+			return Path.Join(settings.Pso2BinPath, "data", "win32", settings.SkinTextureT1File);
+		}
+
+		public string? GetSkinTextureT2Path()
+		{
+			if (settings.Pso2BinPath is null)
+			{
+				return null;
+			}
+
+			return Path.Join(settings.Pso2BinPath, "data", "win32", settings.SkinTextureT2File);
 		}
 	}
 }

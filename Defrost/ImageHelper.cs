@@ -146,10 +146,10 @@ public static class ImageHelper
 		});
 
 		return new RgbaVector(
-			mask.R < 255 ? 1 : 0,
-			mask.G < 255 ? 1 : 0,
-			mask.B < 255 ? 1 : 0,
-			mask.A < 255 ? 1 : 0
+			mask.R < 252 ? 1 : 0,
+			mask.G < 252 ? 1 : 0,
+			mask.B < 252 ? 1 : 0,
+			mask.A < 252 ? 1 : 0
 		);
 	}
 
@@ -207,22 +207,6 @@ public static class ImageHelper
 			PixelAlphaCompositionMode.SrcAtop
 		);
 		return ColorizeDiffuseTexture(diffuseImage, maskImage, colors, blender, token);
-	}
-
-	public static Image<Rgba32> ColorizeDiffuseTexture(
-		Image<Rgba32> diffuseImage,
-		Image<Rgba32> maskImage,
-		MaskColors colors,
-		CancellationToken token = default
-	)
-	{
-		return ColorizeDiffuseTexture(
-			diffuseImage,
-			maskImage,
-			colors,
-			PixelColorBlendingMode.Normal,
-			token
-		);
 	}
 }
 
