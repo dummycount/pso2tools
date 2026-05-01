@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Buffers;
+using System.Diagnostics;
 using System.IO;
 using System.Numerics;
 using System.Runtime.CompilerServices;
@@ -22,9 +24,12 @@ namespace Pso2Tools.Defrost;
 
 public enum CastTextureShift
 {
-	Arms,
-	Body,
-	Legs,
+	NgsArms,
+	NgsBody,
+	NgsLegs,
+	ClassicArms,
+	ClassicBody,
+	ClassicLegs,
 }
 
 public struct MaskColors
@@ -33,6 +38,16 @@ public struct MaskColors
 	public Rgba32 G;
 	public Rgba32 B;
 	public Rgba32 A;
+}
+
+public struct MaskUsedChannels
+{
+	public bool R;
+	public bool G;
+	public bool B;
+	public bool A;
+
+	public readonly bool Any => R || G || B || A;
 }
 
 public static class ImageHelper
@@ -106,17 +121,16 @@ public static class ImageHelper
 		var usedWidth = (int)((double)image.Width * 2 / 3);
 		var offset = shift switch
 		{
-			CastTextureShift.Arms => 0,
-			CastTextureShift.Body => usedWidth,
-			CastTextureShift.Legs => usedWidth * 2,
+			CastTextureShift.NgsArms => 0,
+			CastTextureShift.NgsBody => usedWidth,
+			CastTextureShift.NgsLegs => usedWidth * 2,
+			CastTextureShift.ClassicArms => usedWidth * 2,
+			CastTextureShift.ClassicBody => usedWidth,
+			CastTextureShift.ClassicLegs => 0,
 			_ => 0,
 		};
 
-		using var newImage = new Image<Rgba32>(
-			image.Width * 2,
-			image.Height,
-			new Rgba32(0, 0, 0, 0)
-		);
+		var newImage = new Image<Rgba32>(image.Width * 2, image.Height, new Rgba32(0, 0, 0, 0));
 
 		newImage.Mutate(x =>
 			x.DrawImage(
@@ -130,9 +144,14 @@ public static class ImageHelper
 		return newImage;
 	}
 
-	public static RgbaVector GetUsedMaskChannels(Image<Rgba32> image)
+	public static MaskUsedChannels GetUsedMaskChannels(Image<Rgba32> image)
 	{
-		var mask = new Rgba32(255, 255, 255, 255);
+		var sw = Stopwatch.StartNew();
+
+		long totalR = 0;
+		long totalG = 0;
+		long totalB = 0;
+		long totalA = 0;
 
 		image.ProcessPixelRows(accessor =>
 		{
@@ -140,17 +159,29 @@ public static class ImageHelper
 			{
 				foreach (ref var pixel in accessor.GetRowSpan(y))
 				{
-					mask.PackedValue &= pixel.PackedValue;
+					totalR += pixel.R;
+					totalG += pixel.G;
+					totalB += pixel.B;
+					totalA += pixel.A;
 				}
 			}
 		});
 
-		return new RgbaVector(
-			mask.R < 252 ? 1 : 0,
-			mask.G < 252 ? 1 : 0,
-			mask.B < 252 ? 1 : 0,
-			mask.A < 252 ? 1 : 0
-		);
+		var pixelCount = image.Width * image.Height;
+		var averageR = totalR / pixelCount;
+		var averageG = totalG / pixelCount;
+		var averageB = totalB / pixelCount;
+		var averageA = totalA / pixelCount;
+
+		Debug.WriteLine($"GetMaskUsedChannels {sw.ElapsedMilliseconds} ms");
+
+		return new MaskUsedChannels()
+		{
+			R = 0 < averageR && averageR < 252,
+			G = 0 < averageG && averageG < 252,
+			B = 0 < averageB && averageB < 252,
+			A = 0 < averageA && averageA < 252,
+		};
 	}
 
 	public static Image<Rgba32> ColorizeDiffuseTexture(
@@ -158,6 +189,7 @@ public static class ImageHelper
 		Image<Rgba32> maskImage,
 		MaskColors colors,
 		PixelBlender<Rgba32> blender,
+		out MaskUsedChannels usedChannels,
 		CancellationToken token = default
 	)
 	{
@@ -167,12 +199,45 @@ public static class ImageHelper
 		}
 
 		var used = GetUsedMaskChannels(maskImage);
+		usedChannels = used;
 
-		// TODO: there are probably much faster ways to do this
 		diffuseImage.ProcessPixelRows(
 			maskImage,
 			(destAccessor, maskAccessor) =>
 			{
+				var configuration = new Configuration();
+				int width = destAccessor.Width;
+
+				using var colorBuffer = configuration.MemoryAllocator.Allocate<Rgba32>(width * 4);
+				using var floatBuffer = configuration.MemoryAllocator.Allocate<float>(width * 4);
+
+				var colorR = colorBuffer.Memory.Span.Slice(width * 0, width);
+				var colorG = colorBuffer.Memory.Span.Slice(width * 1, width);
+				var colorB = colorBuffer.Memory.Span.Slice(width * 2, width);
+				var colorA = colorBuffer.Memory.Span.Slice(width * 3, width);
+
+				var maskR = floatBuffer.Memory.Span.Slice(width * 0, width);
+				var maskG = floatBuffer.Memory.Span.Slice(width * 1, width);
+				var maskB = floatBuffer.Memory.Span.Slice(width * 2, width);
+				var maskA = floatBuffer.Memory.Span.Slice(width * 3, width);
+
+				if (used.R)
+				{
+					colorR.Fill(colors.R);
+				}
+				if (used.G)
+				{
+					colorG.Fill(colors.G);
+				}
+				if (used.B)
+				{
+					colorB.Fill(colors.B);
+				}
+				if (used.A)
+				{
+					colorA.Fill(colors.A);
+				}
+
 				for (int y = 0; y < destAccessor.Height; y++)
 				{
 					token.ThrowIfCancellationRequested();
@@ -180,12 +245,35 @@ public static class ImageHelper
 					var dest = destAccessor.GetRowSpan(y);
 					var mask = maskAccessor.GetRowSpan(y);
 
-					for (int x = 0; x < dest.Length; x++)
+					for (int x = 0; x < width; x++)
 					{
-						dest[x] = blender.Blend(dest[x], colors.R, used.R * mask[x].R / 255f);
-						dest[x] = blender.Blend(dest[x], colors.G, used.G * mask[x].G / 255f);
-						dest[x] = blender.Blend(dest[x], colors.B, used.B * mask[x].B / 255f);
-						dest[x] = blender.Blend(dest[x], colors.A, used.A * mask[x].A / 255f);
+						var maskVector = mask[x].ToScaledVector4();
+
+						maskR[x] = maskVector.X;
+						maskG[x] = maskVector.Y;
+						maskB[x] = maskVector.Z;
+						maskA[x] = maskVector.W;
+					}
+
+					// TODO: this would be faster if I could access the pixel blender's internal
+					// BlendFunction() and do all four things as Vector4 without and only convert
+					// from Rgba32 once at the start and back to Rgba32 once at the end.
+
+					if (used.R)
+					{
+						blender.Blend(configuration, dest, dest, colorR, maskR);
+					}
+					if (used.G)
+					{
+						blender.Blend(configuration, dest, dest, colorG, maskG);
+					}
+					if (used.B)
+					{
+						blender.Blend(configuration, dest, dest, colorB, maskB);
+					}
+					if (used.A)
+					{
+						blender.Blend(configuration, dest, dest, colorA, maskA);
 					}
 				}
 			}
@@ -198,7 +286,8 @@ public static class ImageHelper
 		Image<Rgba32> diffuseImage,
 		Image<Rgba32> maskImage,
 		MaskColors colors,
-		PixelColorBlendingMode colorMode = PixelColorBlendingMode.Normal,
+		PixelColorBlendingMode colorMode,
+		out MaskUsedChannels usedChannels,
 		CancellationToken token = default
 	)
 	{
@@ -206,7 +295,14 @@ public static class ImageHelper
 			colorMode,
 			PixelAlphaCompositionMode.SrcAtop
 		);
-		return ColorizeDiffuseTexture(diffuseImage, maskImage, colors, blender, token);
+		return ColorizeDiffuseTexture(
+			diffuseImage,
+			maskImage,
+			colors,
+			blender,
+			out usedChannels,
+			token
+		);
 	}
 }
 

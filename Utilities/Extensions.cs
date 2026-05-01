@@ -11,6 +11,9 @@ public static partial class Extensions
 		public string RemovePrefix(string prefix) =>
 			str.StartsWith(prefix) ? str[prefix.Length..] : str;
 
+		public string RemoveSuffix(string suffix) =>
+			str.EndsWith(suffix) ? str[..(str.Length - suffix.Length)] : str;
+
 		public string ToSentenceCaseLower() =>
 			CapitalWordStartRegex().Replace(str, m => m.Groups[0].Value.ToLower());
 	}

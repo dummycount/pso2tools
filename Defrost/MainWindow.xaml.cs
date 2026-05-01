@@ -18,11 +18,13 @@ public sealed partial class MainWindow : Window
 	{
 		viewModel = App.Current.Services.GetRequiredService<IceArchiveModel>();
 		notificationService = App.Current.Services.GetRequiredService<NotificationService>();
-		notificationService.NotificationQueue = NotificationQueue;
+
 		manager = WindowManager.Get(this);
 
 		InitializeComponent();
 		SetWindowProperties();
+
+		notificationService.NotificationQueue = NotificationQueue;
 
 		RootGrid.ActualThemeChanged += (_, _) =>
 			ThemeService.ApplySystemThemeToCaptionButtons(this, RootGrid.ActualTheme);

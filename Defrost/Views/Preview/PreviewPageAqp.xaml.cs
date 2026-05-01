@@ -19,12 +19,9 @@ public sealed partial class PreviewPageAqp : Page
 
 		InitializeComponent();
 
-		Loaded += PreviewPageAqp_Loaded;
-	}
-
-	private void PreviewPageAqp_Loaded(object sender, RoutedEventArgs e)
-	{
-		SkinColor.ColorPicker.CustomPalette = new SkinToneColorPalette();
+		// TODO: find a workaround for https://github.com/CommunityToolkit/Windows/issues/379
+		// This doesn't work because ColorPicker is null if the picker is initially invisible.
+		// SkinColor.ColorPicker.CustomPalette = new SkinToneColorPalette();
 	}
 
 	protected override async void OnNavigatedTo(NavigationEventArgs e)

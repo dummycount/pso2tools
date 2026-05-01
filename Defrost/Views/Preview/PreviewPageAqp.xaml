@@ -15,6 +15,7 @@
 			<VisualStateGroup>
 				<VisualState x:Name="Collapsed">
 					<VisualState.Setters>
+						<Setter Target="MainColorSeparator.Visibility" Value="Collapsed" />
 						<Setter Target="RedColor.Visibility" Value="Collapsed" />
 						<Setter Target="GreenColor.Visibility" Value="Collapsed" />
 						<Setter Target="BlueColor.Visibility" Value="Collapsed" />
@@ -25,6 +26,7 @@
 				</VisualState>
 				<VisualState x:Name="Expanded">
 					<VisualState.Setters>
+						<Setter Target="SkinColorSeparator.Visibility" Value="Collapsed" />
 						<Setter Target="SkinColor.Visibility" Value="Collapsed" />
 						<Setter Target="SubSkinColor.Visibility" Value="Collapsed" />
 					</VisualState.Setters>
@@ -71,29 +73,43 @@
 				<FontIcon Glyph="&#xE774;" />
 			</ToggleButton>
 
+			<AppBarSeparator
+				x:Name="MainColorSeparator"
+				Visibility="{x:Bind viewModel.MainUsedChannels.Any, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+			/>
+
 			<controls:ColorPickerButton
 				x:Name="RedColor"
 				ToolTipService.ToolTip="Red channel color"
 				SelectedColor="{x:Bind viewModel.RedColor, Mode=TwoWay}"
 				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+				Visibility="{x:Bind viewModel.MainUsedChannels.R, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 			/>
 			<controls:ColorPickerButton
 				x:Name="GreenColor"
 				ToolTipService.ToolTip="Green channel color"
 				SelectedColor="{x:Bind viewModel.GreenColor, Mode=TwoWay}"
 				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+				Visibility="{x:Bind viewModel.MainUsedChannels.G, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 			/>
 			<controls:ColorPickerButton
 				x:Name="BlueColor"
 				ToolTipService.ToolTip="Blue channel color"
 				SelectedColor="{x:Bind viewModel.BlueColor, Mode=TwoWay}"
 				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+				Visibility="{x:Bind viewModel.MainUsedChannels.B, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 			/>
 			<controls:ColorPickerButton
 				x:Name="AlphaColor"
 				ToolTipService.ToolTip="Alpha channel color"
 				SelectedColor="{x:Bind viewModel.AlphaColor, Mode=TwoWay}"
 				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+				Visibility="{x:Bind viewModel.MainUsedChannels.A, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+			/>
+
+			<AppBarSeparator
+				x:Name="SkinColorSeparator"
+				Visibility="{x:Bind viewModel.SkinUsedChannels.Any, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 			/>
 
 			<controls:ColorPickerButton
@@ -101,12 +117,14 @@
 				ToolTipService.ToolTip="Main skin color"
 				SelectedColor="{x:Bind viewModel.SkinColor, Mode=TwoWay}"
 				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+				Visibility="{x:Bind viewModel.SkinUsedChannels.R, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 			/>
 			<controls:ColorPickerButton
 				x:Name="SubSkinColor"
 				ToolTipService.ToolTip="Sub skin color"
 				SelectedColor="{x:Bind viewModel.SubSkinColor, Mode=TwoWay}"
 				ColorPickerStyle="{StaticResource ColorPickerStyle}"
+				Visibility="{x:Bind viewModel.SkinUsedChannels.G, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
 			/>
 		</StackPanel>
 
