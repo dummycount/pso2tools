@@ -59,7 +59,16 @@ public sealed partial class SettingsPage : Page
 
 	private async void CustomExtractFolderButton_Click(object sender, RoutedEventArgs e)
 	{
-		var picker = new FolderPicker(App.MainWindow.AppWindow.Id);
+		var picker = new FolderPicker(App.MainWindow.AppWindow.Id)
+		{
+			Title = "Select default extract location",
+			SettingsIdentifier = "defaultExtract",
+		};
+
+		if (viewModel.CustomExtractFolder is not null)
+		{
+			picker.SuggestedFolder = viewModel.CustomExtractFolder;
+		}
 
 		var result = await picker.PickSingleFolderAsync();
 
@@ -110,8 +119,15 @@ public sealed partial class SettingsPage : Page
 	{
 		var openPicker = new FolderPicker(App.MainWindow.AppWindow.Id)
 		{
+			Title = "Select pso2_bin folder",
 			SuggestedStartLocation = PickerLocationId.ComputerFolder,
+			SettingsIdentifier = "pso2_bin",
 		};
+
+		if (settings.Pso2BinPath is not null)
+		{
+			openPicker.SuggestedFolder = settings.Pso2BinPath;
+		}
 
 		var folder = await openPicker.PickSingleFolderAsync();
 		if (folder != null)

@@ -99,8 +99,15 @@ public sealed partial class SettingsPage : Page
 	{
 		var openPicker = new FolderPicker(App.MainWindow.AppWindow.Id)
 		{
+			Title = "Select pso2_bin folder",
 			SuggestedStartLocation = PickerLocationId.ComputerFolder,
+			SettingsIdentifier = "pso2_bin",
 		};
+
+		if (settings.Pso2BinPath is not null)
+		{
+			openPicker.SuggestedFolder = settings.Pso2BinPath;
+		}
 
 		var folder = await openPicker.PickSingleFolderAsync();
 		if (folder != null)

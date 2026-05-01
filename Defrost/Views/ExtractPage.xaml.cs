@@ -123,7 +123,11 @@ public sealed partial class ExtractPage : Page
 	{
 		ArgumentNullException.ThrowIfNull(Window);
 
-		var picker = new FolderPicker(Window.AppWindow.Id);
+		var picker = new FolderPicker(Window.AppWindow.Id)
+		{
+			Title = "Select a destination",
+			SuggestedFolder = Path.GetDirectoryName(viewModel.DestinationPath) ?? "",
+		};
 
 		var result = await picker.PickSingleFolderAsync();
 
