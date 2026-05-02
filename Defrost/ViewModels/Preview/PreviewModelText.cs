@@ -56,6 +56,12 @@ public partial class PreviewModelText : ObservableObject
 	public AdvancedCollectionView Categories { get; set; } = [];
 
 	[ObservableProperty]
+	[NotifyPropertyChangedFor(nameof(TextRows))]
+	public partial Pso2TextCategoryModel? SelectedCategory { get; set; }
+
+	public IEnumerable<Pso2TextRowModel> TextRows => SelectedCategory?.Items ?? [];
+
+	[ObservableProperty]
 	public partial bool IsLoading { get; set; }
 
 	public async Task LoadFileAsync(IceDataFile file)
@@ -85,6 +91,8 @@ public partial class PreviewModelText : ObservableObject
 			}
 
 			Debug.WriteLine($"Collection loaded in {sw.ElapsedMilliseconds} ms");
+
+			SelectedCategory = Categories.FirstOrDefault() as Pso2TextCategoryModel;
 		}
 		finally
 		{
