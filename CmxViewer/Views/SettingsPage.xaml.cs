@@ -106,7 +106,7 @@ public sealed partial class SettingsPage : Page
 
 		if (settings.Pso2BinPath is not null)
 		{
-			openPicker.SuggestedFolder = settings.Pso2BinPath;
+			openPicker.SuggestedStartFolder = settings.Pso2BinPath;
 		}
 
 		var folder = await openPicker.PickSingleFolderAsync();

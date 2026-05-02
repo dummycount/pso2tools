@@ -67,7 +67,7 @@ public sealed partial class SettingsPage : Page
 
 		if (viewModel.CustomExtractFolder is not null)
 		{
-			picker.SuggestedFolder = viewModel.CustomExtractFolder;
+			picker.SuggestedStartFolder = viewModel.CustomExtractFolder;
 		}
 
 		var result = await picker.PickSingleFolderAsync();
@@ -126,7 +126,7 @@ public sealed partial class SettingsPage : Page
 
 		if (settings.Pso2BinPath is not null)
 		{
-			openPicker.SuggestedFolder = settings.Pso2BinPath;
+			openPicker.SuggestedStartFolder = settings.Pso2BinPath;
 		}
 
 		var folder = await openPicker.PickSingleFolderAsync();

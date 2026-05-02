@@ -126,7 +126,8 @@ public sealed partial class ExtractPage : Page
 		var picker = new FolderPicker(Window.AppWindow.Id)
 		{
 			Title = "Select a destination",
-			SuggestedFolder = Path.GetDirectoryName(viewModel.DestinationPath) ?? "",
+			SuggestedStartFolder = Path.GetDirectoryName(viewModel.DestinationPath) ?? "",
+			SettingsIdentifier = "extract",
 		};
 
 		var result = await picker.PickSingleFolderAsync();

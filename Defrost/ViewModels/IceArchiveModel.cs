@@ -139,6 +139,11 @@ public partial class IceArchiveModel(
 			ViewMode = PickerViewMode.List,
 		};
 
+		if (settings.Pso2BinPath is not null)
+		{
+			picker.SuggestedStartFolder = Path.Join(settings.Pso2BinPath, "data");
+		}
+
 		var result = await picker.PickSingleFileAsync();
 		if (result is null)
 		{
