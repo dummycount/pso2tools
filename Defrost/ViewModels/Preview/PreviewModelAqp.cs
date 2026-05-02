@@ -665,6 +665,12 @@ public partial class ModelImporter
 					{
 						var maskImage = await mask.ToImageAsync(token);
 
+						// Color mask must be the same size as the diffuse texture to colorize it.
+						if (maskImage.Size != image.Size)
+						{
+							return image;
+						}
+
 						token.ThrowIfCancellationRequested();
 
 						var isSkin = TextureNames.IsSkin(texture.FileName);
