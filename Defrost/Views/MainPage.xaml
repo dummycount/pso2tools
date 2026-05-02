@@ -200,7 +200,11 @@
 			</Grid>
 		</Grid>
 
-		<ProgressRing Grid.Row="1" IsActive="{x:Bind viewModel.IsLoading, Mode=OneWay}" />
+		<ProgressRing
+			Grid.Row="1"
+			IsActive="{x:Bind viewModel.IsLoading, Mode=OneWay}"
+			Visibility="{x:Bind viewModel.IsLoading, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+		/>
 
 		<Border
 			Grid.Row="2"

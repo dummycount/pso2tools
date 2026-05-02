@@ -170,7 +170,10 @@
 				<hx:PostEffectMeshBorderHighlight EffectName="highlight" />
 			</hx:Viewport3DX>
 
-			<ProgressRing IsActive="{x:Bind viewModel.LoadModelCommand.IsRunning, Mode=OneWay}" />
+			<ProgressRing
+				IsActive="{x:Bind viewModel.LoadModelCommand.IsRunning, Mode=OneWay}"
+				Visibility="{x:Bind viewModel.LoadModelCommand.IsRunning, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}"
+			/>
 		</Grid>
 	</Grid>
 </Page>

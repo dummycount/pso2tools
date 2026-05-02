@@ -16,6 +16,18 @@
 	xmlns:interactivity="using:Microsoft.Xaml.Interactivity"
 >
 	<Grid>
+		<VisualStateManager.VisualStateGroups>
+			<VisualStateGroup>
+				<VisualState x:Name="Loading">
+					<VisualState.Setters>
+						<Setter Target="Progress.IsActive" Value="True" />
+						<Setter Target="Progress.Visibility" Value="Visible" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="Ready" />
+			</VisualStateGroup>
+		</VisualStateManager.VisualStateGroups>
+
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
@@ -202,6 +214,6 @@
 			</ListView.ItemContainerStyle>
 		</ListView>
 
-		<ProgressRing x:Name="Progress" Grid.Row="2" IsActive="True" />
+		<ProgressRing x:Name="Progress" Grid.Row="2" Visibility="Collapsed" />
 	</Grid>
 </Page>

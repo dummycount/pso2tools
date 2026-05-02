@@ -2,6 +2,7 @@ using System;
 using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
 using Pso2Tools.CmxViewer.ViewModels;
@@ -41,9 +42,11 @@ public sealed partial class ColorSetsPage : Page
 	{
 		base.OnNavigatedTo(e);
 
+		VisualStateManager.GoToState(this, "Loading", true);
+
 		await viewModel.LoadAsync();
 
-		Progress.IsActive = false;
+		VisualStateManager.GoToState(this, "Ready", true);
 	}
 
 	protected override void OnNavigatedFrom(NavigationEventArgs e)

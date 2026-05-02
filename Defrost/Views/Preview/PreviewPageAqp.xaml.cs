@@ -21,6 +21,8 @@ public sealed partial class PreviewPageAqp : Page
 		// TODO: find a workaround for https://github.com/CommunityToolkit/Windows/issues/379
 		// This doesn't work because ColorPicker is null if the picker is initially invisible.
 		// SkinColor.ColorPicker.CustomPalette = new SkinToneColorPalette();
+
+		UpdateVisualState();
 	}
 
 	protected override async void OnNavigatedTo(NavigationEventArgs e)

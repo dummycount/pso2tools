@@ -3,6 +3,7 @@ using CommunityToolkit.WinUI;
 using CommunityToolkit.WinUI.Collections;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
@@ -71,9 +72,11 @@ public sealed partial class CmxEntryListPage : Page
 
 		App.MainWindow.EnsureNavigationSelection(typeof(CmxEntryListPage), viewModel.ObjectType);
 
+		VisualStateManager.GoToState(this, "Loading", true);
+
 		await viewModel.LoadAsync();
 
-		Progress.IsActive = false;
+		VisualStateManager.GoToState(this, "Ready", true);
 	}
 
 	protected override void OnNavigatedFrom(NavigationEventArgs e)
