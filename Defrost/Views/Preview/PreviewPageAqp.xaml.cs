@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Navigation;
-using Pso2Tools.Defrost.ViewModels;
 using Pso2Tools.Defrost.ViewModels.Preview;
 
 namespace Pso2Tools.Defrost.Views.Preview;
@@ -28,7 +27,7 @@ public sealed partial class PreviewPageAqp : Page
 	{
 		base.OnNavigatedTo(e);
 
-		if (e.Parameter is IceFileModel file)
+		if (e.Parameter is IceDataFile file)
 		{
 			await viewModel.LoadModelCommand.ExecuteAsync(file);
 		}

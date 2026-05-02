@@ -24,7 +24,7 @@ public sealed partial class PreviewPageDds : Page
 	private readonly ISettingsService settings;
 	private readonly PreviewModelDds viewModel;
 
-	private IceFileModel? file;
+	private IceDataFile? file;
 	private Image? baseImage;
 	private readonly Dictionary<ImagePreviewMode, SoftwareBitmap> cachedBitmaps = [];
 
@@ -44,7 +44,7 @@ public sealed partial class PreviewPageDds : Page
 	{
 		base.OnNavigatedTo(e);
 
-		if (e.Parameter is IceFileModel file)
+		if (e.Parameter is IceDataFile file)
 		{
 			this.file = file;
 			await UpdateImageSourceAsync();

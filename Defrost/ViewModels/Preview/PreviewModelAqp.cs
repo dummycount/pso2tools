@@ -77,7 +77,7 @@ public partial class PreviewModelAqp(
 	[ObservableProperty]
 	public partial MaskUsedChannels SkinUsedChannels { get; set; } = default;
 
-	private IceFileModel? file = null;
+	private IceDataFile? file = null;
 	private readonly List<TextureFile> textureCache = [];
 
 	private HelixToolkitScene? scene = null;
@@ -98,7 +98,7 @@ public partial class PreviewModelAqp(
 	}
 
 	[RelayCommand]
-	private async Task LoadModel(IceFileModel file)
+	private async Task LoadModel(IceDataFile file)
 	{
 		this.file = file;
 
@@ -135,7 +135,7 @@ public partial class PreviewModelAqp(
 
 		var importer = new ModelImporter
 		{
-			AqpFile = file.File,
+			AqpFile = file,
 			AqnFile = FindAqnFile(),
 			DdsFiles = FindDdsFiles(),
 			Options = new()

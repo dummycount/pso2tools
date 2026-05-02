@@ -104,7 +104,7 @@ public sealed partial class MainPage : Page
 
 		if (FileList.SelectedItems.Count == 1 && FileList.SelectedItem is IceFileModel file)
 		{
-			PreviewFrame.Navigate(GetPreviewPaneType(file), file, transition);
+			PreviewFrame.Navigate(GetPreviewPaneType(file), file.File, transition);
 		}
 		else
 		{
@@ -300,6 +300,7 @@ public sealed partial class MainPage : Page
 		{
 			".aqp" => typeof(PreviewPageAqp),
 			".dds" => typeof(PreviewPageDds),
+			".text" => typeof(PreviewPageText),
 			_ => typeof(PreviewPageUnavailable),
 		};
 	}

@@ -58,8 +58,10 @@ public partial class App : Application
 		services.AddSingleton<IceArchiveModel>(); // shared state between all windows
 		services.AddTransient<ExtractModel>();
 		services.AddTransient<SettingsModel>();
+
 		services.AddTransient<PreviewModelAqp>();
 		services.AddTransient<PreviewModelDds>();
+		services.AddTransient<PreviewModelText>();
 
 		return services.BuildServiceProvider();
 	}

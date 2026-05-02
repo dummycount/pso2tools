@@ -23,6 +23,7 @@
     <None Remove="Views\PreviewPageDds.xaml" />
     <None Remove="Views\PreviewPageUnavailable.xaml" />
     <None Remove="Views\Preview\PreviewPageAqp.xaml" />
+    <None Remove="Views\Preview\PreviewPageText.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
   </ItemGroup>
 
@@ -85,6 +86,11 @@
     <ProjectReference Include="..\PSO2-Aqua-Library\AquaModelLibrary.Data\AquaModelLibrary.Data.csproj" />
     <ProjectReference Include="..\PSO2-Aqua-Library\ZamboniLib\ZamboniLib\ZamboniLib.csproj" />
     <ProjectReference Include="..\Utilities\Utilities.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\Preview\PreviewPageText.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <Page Update="Views\PreviewPageDds.xaml">
