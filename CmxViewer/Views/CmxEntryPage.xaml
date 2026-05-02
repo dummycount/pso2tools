@@ -75,9 +75,13 @@
 			<RowDefinition Height="*" />
 		</Grid.RowDefinitions>
 
+		<!--
+		Smaller margin to account for extra space around BreadcrumbBarItem elements.
+		Matches the size of the title on CmxEntryListPage.
+		-->
 		<BreadcrumbBar
 			x:Name="Breadcrumbs"
-			Margin="36,24,36,16"
+			Margin="35,21,36,13"
 			Style="{StaticResource BreadcrumbBarTitleStyle}"
 		/>
 
