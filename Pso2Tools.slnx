@@ -43,6 +43,7 @@
     <File Path=".pre-commit-config.yaml" />
     <File Path="dotnet-tools.json" />
     <File Path="LICENSE" />
+    <File Path="README.md" />
     <File Path="setup_fbx_sdk.py" />
     <File Path="THIRD-PARTY-LICENSES.md" />
   </Folder>
