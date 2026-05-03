@@ -39,9 +39,8 @@ public sealed partial class PreviewPageAqp : Page
 	{
 		var state = ActualWidth switch
 		{
-			(< 600) => "Collapsed",
-			(< 800) => "Expanded",
-			_ => "Expanded2",
+			(< 800) => "Collapsed",
+			_ => "Expanded",
 		};
 
 		VisualStateManager.GoToState(this, state, true);
