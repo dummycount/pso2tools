@@ -67,8 +67,9 @@ public sealed partial class MainWindow : Window
 		manager.MinWidth = 500;
 		manager.MinHeight = 400;
 
-		SetTitleBar(TitleBar);
 		ExtendsContentIntoTitleBar = true;
+		SetTitleBar(TitleBar);
+		AppWindow.SetIcon("Assets/Cube.ico");
 
 		SetTitle();
 	}
