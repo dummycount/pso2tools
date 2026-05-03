@@ -11,6 +11,19 @@
 	xmlns:controls1="using:Pso2Tools.Defrost.Controls"
 	mc:Ignorable="d"
 >
+	<Page.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.ThemeDictionaries>
+				<ResourceDictionary x:Key="Default">
+					<Color x:Key="ViewportBackgroundColor">#3f3f3f</Color>
+				</ResourceDictionary>
+				<ResourceDictionary x:Key="Light">
+					<Color x:Key="ViewportBackgroundColor">#646464</Color>
+				</ResourceDictionary>
+			</ResourceDictionary.ThemeDictionaries>
+		</ResourceDictionary>
+	</Page.Resources>
+
 	<Grid SizeChanged="Grid_SizeChanged">
 		<VisualStateManager.VisualStateGroups>
 			<VisualStateGroup>
@@ -131,7 +144,7 @@
 		<Grid Grid.Row="1">
 			<hx:Viewport3DX
 				x:Name="Viewport"
-				BackgroundColor="#272727"
+				BackgroundColor="{ThemeResource ViewportBackgroundColor}"
 				Camera="{x:Bind viewModel.Camera}"
 				EffectsManager="{x:Bind viewModel.EffectsManager, Mode=OneWay}"
 				IsViewCubeEdgeClicksEnabled="True"
@@ -161,7 +174,8 @@
 					GridSpacing="0.5"
 					GridThickness="0.02"
 					GridPattern="Grid"
-					FadingFactor="0.7"
+					FadingFactor="0.8"
+					GridColor="Black"
 					PlaneColor="Transparent"
 				/>
 
