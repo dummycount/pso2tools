@@ -72,8 +72,6 @@
     <PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
     <PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.251219" />
     <PackageReference Include="Config.Net" Version="5.2.1" />
-    <PackageReference Include="HelixToolkit.SharpDX.Assimp" Version="3.1.2" />
-    <PackageReference Include="HelixToolkit.WinUI.SharpDX" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
     <PackageReference Include="Microsoft.Graphics.Win2D" Version="1.4.0" />
@@ -85,6 +83,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CmxDatabase\CmxDatabase.csproj" />
+    <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\HelixToolkit.Native.ShaderBuilder.csproj" />
+    <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.SharpDX.Assimp\HelixToolkit.SharpDX.Assimp.csproj" />
+    <ProjectReference Include="..\helix-toolkit\Source\HelixToolkit.WinUI.SharpDX\HelixToolkit.WinUI.SharpDX.csproj" />
     <ProjectReference Include="..\PSO2-Aqua-Library\AquaModelLibrary.Core\AquaModelLibrary.Core.csproj" />
     <ProjectReference Include="..\PSO2-Aqua-Library\AquaModelLibrary.Data\AquaModelLibrary.Data.csproj" />
     <ProjectReference Include="..\PSO2-Aqua-Library\ZamboniLib\ZamboniLib\ZamboniLib.csproj" />
@@ -144,6 +145,14 @@
     <Page Update="Views\Preview\PreviewPageAqp.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource
+      Include="..\helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\bin\$(Configuration)\**\*.cso"
+      LinkBase="Resources"
+    >
+      <LogicalName>HelixToolkit.SharpDX.Resources.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
 
   <!--

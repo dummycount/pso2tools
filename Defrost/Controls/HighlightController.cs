@@ -125,14 +125,10 @@ public partial class HighlightController : Control
 		}
 
 		isClickingToSelect = true;
-
-		// TODO: remove this once OnMouse3DUp gets fixed
-		SelectedItem = e.HitTestResult?.ModelHit as SceneNode;
 	}
 
 	private void NewViewport_OnMouse3DUp(object? sender, MouseUp3DEventArgs e)
 	{
-		// TODO: this never gets raised for some reason
 		if (isClickingToSelect)
 		{
 			SelectedItem = e.HitTestResult?.ModelHit as SceneNode;
