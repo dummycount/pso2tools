@@ -627,7 +627,24 @@ public static class TextureNames
 
 	public static bool IsCastArm(string name) => ContainsPart(name, "rm");
 
-	public static bool IsCastBody(string name) => ContainsPart(name, "bd", "tr");
+	public static bool IsCastBody(string name)
+	{
+		var parts = Split(name);
+
+		// Classic cast body
+		if (parts.Contains("tr"))
+		{
+			return true;
+		}
+
+		// NGS cast body
+		if (parts.Contains("rbd") && parts.Contains("bd"))
+		{
+			return true;
+		}
+
+		return false;
+	}
 
 	public static bool IsCastLeg(string name) => ContainsPart(name, "lg");
 }
