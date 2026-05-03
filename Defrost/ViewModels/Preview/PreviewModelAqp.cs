@@ -196,7 +196,11 @@ public partial class PreviewModelAqp(
 
 	private IceDataFile? FindAqnFile()
 	{
-		return mainViewModel.FilesTyped.FirstOrDefault(file => file.Name.EndsWith(".aqn"))?.File;
+		return mainViewModel
+			.FilesTyped.FirstOrDefault(file =>
+				file.Name.EndsWith(".aqn") || file.Name.EndsWith(".trn")
+			)
+			?.File;
 	}
 
 	private IEnumerable<TextureFile> FindDdsFiles()

@@ -298,7 +298,7 @@ public sealed partial class MainPage : Page
 	{
 		return Path.GetExtension(file.Name) switch
 		{
-			".aqp" => typeof(PreviewPageAqp),
+			".aqp" or ".trp" => typeof(PreviewPageAqp),
 			".dds" => typeof(PreviewPageDds),
 			".text" => typeof(PreviewPageText),
 			_ => typeof(PreviewPageUnavailable),
