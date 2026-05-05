@@ -27,13 +27,27 @@
     <Project Path="PSO2-Aqua-Library/ZamboniLib/ZamboniLib/ZamboniLib.csproj" Id="84d63988-81de-4639-8e44-fe5a25eddc97" />
   </Folder>
   <Folder Name="/Helix/">
-    <Project Path="helix-toolkit/Source/HelixToolkit.Geometry/HelixToolkit.Geometry.csproj" />
-    <Project Path="helix-toolkit/Source/HelixToolkit.Maths/HelixToolkit.Maths.csproj" />
-    <Project Path="helix-toolkit/Source/HelixToolkit.Native.ShaderBuilder/HelixToolkit.Native.ShaderBuilder.csproj" />
-    <Project Path="helix-toolkit/Source/HelixToolkit.SharpDX.Assimp/HelixToolkit.SharpDX.Assimp.csproj" />
-    <Project Path="helix-toolkit/Source/HelixToolkit.SharpDX/HelixToolkit.SharpDX.csproj" />
-    <Project Path="helix-toolkit/Source/HelixToolkit.WinUI.SharpDX/HelixToolkit.WinUI.SharpDX.csproj" />
-    <Project Path="helix-toolkit/Source/HelixToolkit/HelixToolkit.csproj" />
+    <Project Path="helix-toolkit/Source/HelixToolkit.Geometry/HelixToolkit.Geometry.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
+    <Project Path="helix-toolkit/Source/HelixToolkit.Maths/HelixToolkit.Maths.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
+    <Project Path="helix-toolkit/Source/HelixToolkit.Native.ShaderBuilder/HelixToolkit.Native.ShaderBuilder.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
+    <Project Path="helix-toolkit/Source/HelixToolkit.SharpDX.Assimp/HelixToolkit.SharpDX.Assimp.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
+    <Project Path="helix-toolkit/Source/HelixToolkit.SharpDX/HelixToolkit.SharpDX.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
+    <Project Path="helix-toolkit/Source/HelixToolkit.WinUI.SharpDX/HelixToolkit.WinUI.SharpDX.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
+    <Project Path="helix-toolkit/Source/HelixToolkit/HelixToolkit.csproj">
+      <BuildType Solution="Debug|x64" Project="Release" />
+    </Project>
   </Folder>
   <Folder Name="/Solution Items/">
     <File Path=".csharpierignore" />
