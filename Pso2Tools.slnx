@@ -57,8 +57,9 @@
     <File Path=".pre-commit-config.yaml" />
     <File Path="dotnet-tools.json" />
     <File Path="LICENSE" />
+    <File Path="make_release.ps1" />
     <File Path="README.md" />
-    <File Path="setup_fbx_sdk.py" />
+    <File Path="setup_fbx_sdk.ps1" />
     <File Path="THIRD-PARTY-LICENSES.md" />
   </Folder>
   <Project Path="CmxDatabase/CmxDatabase.csproj" Id="021e5587-9fc7-4d79-9f30-3a71b6a7e879" />
@@ -74,5 +75,6 @@
     <Platform Solution="*|x86" Project="x86" />
     <Deploy />
   </Project>
+  <Project Path="Launcher/Launcher.csproj" Id="086472b6-0e9c-4346-bdc8-30ba57f07e74" />
   <Project Path="Utilities/Utilities.csproj" Id="5cdc4a21-6e7f-44e7-aed8-626ca092ee69" />
 </Solution>

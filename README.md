@@ -1,6 +1,8 @@
 # PSO2 Tools
 
-Programs for working with PSO2 file formats. See [the releases page](https://github.com/dummycount/pso2tools/releases) for downloads.
+Windows programs for working with PSO2 file formats. See [the releases page](https://github.com/dummycount/pso2tools/releases) for downloads.
+
+Each program is in its own subfolder. The .exe files in the root folder of the release .zip file are simply links to the actual programs for convenience.
 
 ## Prerequisites
 
@@ -69,8 +71,45 @@ The following features are not yet implemented. I'll maybe get to them eventuall
 	- `.aqn`, `.trn` - skeleton
 	- `.fltd` - physics
 	- `.lac` - lobby action command
+	- `.lua` - compiled Lua script
 	- `.mso` - my space object
 	- `.tcb` - terrain
 	- `.txl` - texture list
 	- `.wdsn` - window design
 	- Let me know if there are other file formats you want to see supported
+- Right click menu with more options
+	- Export models to FBX?
+	- Export textures to PNG?
+	- Export text files?
+
+## Building
+
+Install these prerequisites:
+
+- [FBX SDK 2020.1](https://www.autodesk.com/content/dam/autodesk/www/adn/fbx/2020-1/fbx20201_fbxsdk_vs2017_win.exe)
+- [Visual Studio 2026](https://visualstudio.microsoft.com/) with the ".NET desktop development" and "WinUI application development" workloads
+- [.NET 10.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+
+Clone this repo with submodules:
+
+```sh
+git clone --recurse-submodules https://github.com/dummycount/pso2tools.git
+```
+
+Run the setup_fbx_sdk.ps1 script to link the FBX dependencies:
+
+```sh
+./setup_fbx_sdk.ps1
+```
+
+Open [Pso2Tools.slnx](Pso2Tools.slnx) and build the solution.
+
+### Making a Release
+
+Build the solution in release mode, then run the make_release.ps1 script:
+
+```sh
+./make_release.ps1
+```
+
+This will copy the programs into a `release` folder and create a .zip archive.

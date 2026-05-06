@@ -483,3 +483,6 @@ $RECYCLE.BIN/
 
 # Project-specific files
 Shared/
+
+# Release builds folder
+/release/
