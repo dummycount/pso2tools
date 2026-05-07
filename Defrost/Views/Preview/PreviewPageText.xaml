@@ -12,7 +12,7 @@
 >
 	<Grid SizeChanged="Grid_SizeChanged">
 		<VisualStateManager.VisualStateGroups>
-			<VisualStateGroup>
+			<VisualStateGroup x:Name="SizeGroups">
 				<VisualState x:Name="Collapsed">
 					<VisualState.Setters>
 						<Setter Target="CategoryTabs.Visibility" Value="Collapsed" />
@@ -24,20 +24,33 @@
 					</VisualState.Setters>
 				</VisualState>
 			</VisualStateGroup>
+
+			<VisualStateGroup x:Name="PageStates">
+				<VisualState x:Name="SinglePage">
+					<VisualState.Setters>
+						<Setter Target="PageTabRow.Visibility" Value="Collapsed" />
+					</VisualState.Setters>
+				</VisualState>
+				<VisualState x:Name="MultiplePages">
+					<VisualState.Setters>
+						<Setter Target="PageTabRow.Visibility" Value="Visible" />
+					</VisualState.Setters>
+				</VisualState>
+			</VisualStateGroup>
 		</VisualStateManager.VisualStateGroups>
 
 		<Grid.Resources>
 			<DataTemplate x:Key="TextItemTemplate" x:DataType="preview:Pso2TextItemModel">
 				<StackPanel Spacing="8">
 					<TextBlock
-						Text="{x:Bind Name}"
+						Text="{x:Bind Name, TargetNullValue='(Empty)'}"
 						Style="{StaticResource BodyStrongTextBlockStyle}"
 						Foreground="{ThemeResource TextFillColorTertiaryBrush}"
 						IsTextSelectionEnabled="True"
 						TextWrapping="NoWrap"
 					/>
 					<TextBlock
-						Text="{x:Bind Text}"
+						Text="{x:Bind Text, TargetNullValue='(Empty)'}"
 						IsTextSelectionEnabled="True"
 						TextWrapping="WrapWholeWords"
 					/>
@@ -47,7 +60,7 @@
 			<DataTemplate x:Key="RowTemplate" x:DataType="preview:Pso2TextRowModel">
 				<ItemContainer>
 					<ItemsControl
-						ItemsSource="{x:Bind Items}"
+						ItemsSource="{x:Bind PageItems, Mode=OneWay}"
 						ItemTemplate="{StaticResource TextItemTemplate}"
 					>
 						<ItemsControl.ItemsPanel>
@@ -78,38 +91,66 @@
 			<RowDefinition />
 		</Grid.RowDefinitions>
 
-		<controls:Segmented
-			x:Name="CategoryTabs"
-			Style="{StaticResource PivotSegmentedStyle}"
-			ItemsSource="{x:Bind viewModel.Categories, Mode=OneWay}"
-			SelectedItem="{x:Bind viewModel.SelectedCategory, Mode=OneWay}"
-			SelectionChanged="Category_SelectionChanged"
-			Padding="12,0,12,12"
-		>
-			<controls:Segmented.ItemTemplate>
-				<DataTemplate x:DataType="preview:Pso2TextCategoryModel">
-					<TextBlock Text="{x:Bind Category}" />
-				</DataTemplate>
-			</controls:Segmented.ItemTemplate>
-		</controls:Segmented>
+		<StackPanel Spacing="4" Padding="0,0,0,8">
+			<StackPanel Orientation="Horizontal" Padding="24,0" Spacing="16" MinHeight="32">
+				<TextBlock
+					Text="Category"
+					VerticalAlignment="Center"
+					Style="{StaticResource BodyStrongTextBlockStyle}"
+				/>
+				<controls:Segmented
+					x:Name="CategoryTabs"
+					Style="{StaticResource PivotSegmentedStyle}"
+					ItemsSource="{x:Bind viewModel.Categories, Mode=OneWay}"
+					SelectedItem="{x:Bind viewModel.SelectedCategory, Mode=OneWay}"
+					SelectionChanged="Category_SelectionChanged"
+					Margin="0,-2,0,-4"
+				>
+					<controls:Segmented.ItemTemplate>
+						<DataTemplate x:DataType="preview:Pso2TextCategoryModel">
+							<TextBlock Text="{x:Bind Category, TargetNullValue='(Empty)'}" />
+						</DataTemplate>
+					</controls:Segmented.ItemTemplate>
+				</controls:Segmented>
 
-		<StackPanel x:Name="CategoryComboBox" Orientation="Horizontal" Padding="24,8" Spacing="8">
-			<TextBlock
-				Text="Category"
-				VerticalAlignment="Center"
-				Style="{StaticResource BodyStrongTextBlockStyle}"
-				Margin="0,0,0,1"
-			/>
-			<ComboBox
-				ItemsSource="{x:Bind viewModel.Categories, Mode=OneWay}"
-				SelectedItem="{x:Bind viewModel.SelectedCategory, Mode=TwoWay}"
+				<ComboBox
+					x:Name="CategoryComboBox"
+					ItemsSource="{x:Bind viewModel.Categories, Mode=OneWay}"
+					SelectedItem="{x:Bind viewModel.SelectedCategory, Mode=TwoWay}"
+				>
+					<ComboBox.ItemTemplate>
+						<DataTemplate x:DataType="preview:Pso2TextCategoryModel">
+							<TextBlock Text="{x:Bind Category, TargetNullValue='Empty'}" />
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
+			</StackPanel>
+			<StackPanel
+				x:Name="PageTabRow"
+				Orientation="Horizontal"
+				Padding="24,0,24,0"
+				Spacing="16"
+				MinHeight="32"
+				Visibility="Collapsed"
 			>
-				<ComboBox.ItemTemplate>
-					<DataTemplate x:DataType="preview:Pso2TextCategoryModel">
-						<TextBlock Text="{x:Bind Category}" />
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
-			</ComboBox>
+				<TextBlock
+					Text="Page"
+					VerticalAlignment="Center"
+					Style="{StaticResource BodyStrongTextBlockStyle}"
+				/>
+				<controls:Segmented
+					x:Name="PageTabs"
+					Style="{StaticResource PivotSegmentedStyle}"
+					SelectionChanged="PageTabs_SelectionChanged"
+					Margin="0,-2,0,-4"
+				>
+					<controls:Segmented.ItemTemplate>
+						<DataTemplate x:DataType="x:Int32">
+							<TextBlock Text="{x:Bind Converter={StaticResource IndexToPageConverter}}" />
+						</DataTemplate>
+					</controls:Segmented.ItemTemplate>
+				</controls:Segmented>
+			</StackPanel>
 		</StackPanel>
 
 		<ItemsView
@@ -118,7 +159,8 @@
 			ItemsSource="{x:Bind viewModel.TextRows, Mode=OneWay}"
 			ItemTemplate="{StaticResource RowTemplate}"
 			SelectionMode="None"
-			Padding="24,0,24,24"
+			Padding="24,12,24,24"
+			CornerRadius="0"
 		>
 			<ItemsView.Layout>
 				<StackLayout Spacing="24" />

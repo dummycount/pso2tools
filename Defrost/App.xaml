@@ -21,6 +21,7 @@
 			<converters:StringFormatConverter x:Key="StringFormatConverter" />
 			<local:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter" />
 			<local:NotNullToBoolConverter x:Key="NotNullToBoolConverter" />
+			<local:IndexToPageConverter x:Key="IndexToPageConverter" />
 
 			<DataTemplate x:Name="EnumDisplayNameTemplate">
 				<TextBlock Text="{Binding Converter={StaticResource EnumDisplayNameConverter}}" />
@@ -41,6 +42,11 @@
 				<Setter Property="IsAlphaEnabled" Value="False" />
 				<Setter Property="ShowAccentColors" Value="False" />
 				<Setter Property="ColorSpectrumShape" Value="Ring" />
+			</Style>
+
+			<Style x:Name="CodeBlockStyle" TargetType="TextBlock">
+				<Setter Property="IsTextSelectionEnabled" Value="True" />
+				<Setter Property="FontFamily" Value="Consolas, Cascadia Code" />
 			</Style>
 		</ResourceDictionary>
 	</Application.Resources>

@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.WinUI.Controls;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
@@ -17,7 +18,22 @@ public sealed partial class PreviewPageText : Page
 
 		InitializeComponent();
 
-		UpdateVisualState();
+		UpdateSizeState();
+
+		viewModel.PropertyChanged += ViewModel_PropertyChanged;
+	}
+
+	private void ViewModel_PropertyChanged(
+		object? sender,
+		System.ComponentModel.PropertyChangedEventArgs e
+	)
+	{
+		switch (e.PropertyName)
+		{
+			case nameof(viewModel.Pages):
+				UpdatePagesState();
+				break;
+		}
 	}
 
 	protected override async void OnNavigatedTo(NavigationEventArgs e)
@@ -28,8 +44,15 @@ public sealed partial class PreviewPageText : Page
 		{
 			await viewModel.LoadFileAsync(file);
 
-			UpdateVisualState();
+			UpdateSizeState();
 		}
+	}
+
+	protected override void OnNavigatedFrom(NavigationEventArgs e)
+	{
+		base.OnNavigatedFrom(e);
+
+		viewModel.PropertyChanged -= ViewModel_PropertyChanged;
 	}
 
 	private void Category_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -42,10 +65,10 @@ public sealed partial class PreviewPageText : Page
 
 	private void Grid_SizeChanged(object sender, SizeChangedEventArgs e)
 	{
-		UpdateVisualState();
+		UpdateSizeState();
 	}
 
-	private void UpdateVisualState()
+	private void UpdateSizeState()
 	{
 		var state =
 			viewModel.Categories.Count >= 8
@@ -57,5 +80,23 @@ public sealed partial class PreviewPageText : Page
 				};
 
 		VisualStateManager.GoToState(this, state, true);
+	}
+
+	private void UpdatePagesState()
+	{
+		var state = viewModel.Pages.Length <= 1 ? "SinglePage" : "MultiplePages";
+
+		VisualStateManager.GoToState(this, state, true);
+
+		PageTabs.ItemsSource = viewModel.Pages;
+		PageTabs.SelectedItem = viewModel.Pages[viewModel.CurrentPage];
+	}
+
+	private void PageTabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
+	{
+		if (PageTabs.SelectedItem is int index)
+		{
+			viewModel.CurrentPage = index;
+		}
 	}
 }
