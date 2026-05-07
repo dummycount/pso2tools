@@ -66,7 +66,7 @@ Preview currently supports the following file types:
 
 The following features are not yet implemented. I'll maybe get to them eventually:
 
-- Edit and saving ICE archives
+- Edit and save ICE archives
 - Customize which program opens for each file extension instead of using Windows' file associations
 - Preview for more file types:
 	- `.aqn`, `.trn` - skeleton
@@ -77,7 +77,7 @@ The following features are not yet implemented. I'll maybe get to them eventuall
 	- `.txl` - texture list
 	- `.wdsn` - window design
 	- Let me know if there are other file formats you want to see supported
-- Right click menu with more options
+- More right click menu options
 	- Export models to FBX?
 	- Export textures to PNG?
 	- Export text files?

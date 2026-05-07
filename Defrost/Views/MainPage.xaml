@@ -21,6 +21,16 @@
 			<toolkit:Case Value="1" Content="item" />
 			<toolkit:Case IsDefault="True" Content="items" />
 		</converters:SwitchConverter>
+
+		<!-- Right click context menu for the file list -->
+		<MenuFlyout x:Name="FileItemFlyout" Placement="Right">
+			<MenuFlyoutItem x:Name="ContextMenuCopy" Text="Copy" Click="ContextMenuCopy_Click">
+				<MenuFlyoutItem.Icon>
+					<FontIcon Glyph="&#xE8C8;" />
+				</MenuFlyoutItem.Icon>
+			</MenuFlyoutItem>
+			<!-- TODO: add more options like export, make them conditional on the type of file -->
+		</MenuFlyout>
 	</Page.Resources>
 
 	<Grid>
@@ -172,6 +182,7 @@
 								CanDrag="True"
 								DragStarting="Item_DragStarting"
 								PointerPressed="Item_PointerPressed"
+								ContextRequested="Item_ContextRequested"
 							>
 								<controls:DataRow Margin="0" Height="28">
 									<TextBlock Text="{x:Bind Name}" VerticalAlignment="Center" />

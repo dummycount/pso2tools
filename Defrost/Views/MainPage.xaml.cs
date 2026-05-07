@@ -229,7 +229,37 @@ public sealed partial class MainPage : Page
 		e.Data.SetStorageItems(files);
 	}
 
+	private void Item_ContextRequested(
+		UIElement sender,
+		Microsoft.UI.Xaml.Input.ContextRequestedEventArgs args
+	)
+	{
+		if (sender is ItemContainer container && container.Tag is IceFileModel item)
+		{
+			if (!FileList.SelectedItems.Contains(item))
+			{
+				FileList.DeselectAll();
+				FileList.Select(viewModel.Files.IndexOf(item));
+			}
+
+			if (args.TryGetPosition(container, out var point))
+			{
+				FileItemFlyout.ShowAt(container, point);
+			}
+		}
+	}
+
+	private async void ContextMenuCopy_Click(object sender, RoutedEventArgs e)
+	{
+		await CopySelectedItems();
+	}
+
 	private async void Copy_Click(object sender, RoutedEventArgs e)
+	{
+		await CopySelectedItems();
+	}
+
+	private async Task CopySelectedItems()
 	{
 		var files = await CreateStreamedFilesForItemsAsync(
 			FileList.SelectedItems.Cast<IceFileModel>()
