@@ -149,7 +149,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="..\helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\bin\$(Configuration)\**\*.cso" LinkBase="Resources">
+    <EmbeddedResource
+      Include="..\helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\bin\$(Configuration)\**\*.cso"
+      LinkBase="Resources"
+    >
       <LogicalName>HelixToolkit.SharpDX.Resources.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
   </ItemGroup>
@@ -178,5 +181,6 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <UserSecretsId>451c4ea4-858b-4384-a471-61d0ea2e66cd</UserSecretsId>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
   </PropertyGroup>
 </Project>

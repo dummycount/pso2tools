@@ -11,7 +11,7 @@
   <Identity
     Name="7689ccd2-640a-4a50-866b-e880caad374c"
     Publisher="CN=Dummycount"
-    Version="1.0.1.0" />
+    Version="1.1.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="7689ccd2-640a-4a50-866b-e880caad374c" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
