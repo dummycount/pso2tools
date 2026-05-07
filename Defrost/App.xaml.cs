@@ -61,6 +61,7 @@ public partial class App : Application
 
 		services.AddTransient<PreviewModelAqp>();
 		services.AddTransient<PreviewModelDds>();
+		services.AddTransient<PreviewModelLua>();
 		services.AddTransient<PreviewModelText>();
 
 		return services.BuildServiceProvider();

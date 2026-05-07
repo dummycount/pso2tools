@@ -300,6 +300,7 @@ public sealed partial class MainPage : Page
 		{
 			".aqp" or ".trp" => typeof(PreviewPageAqp),
 			".dds" => typeof(PreviewPageDds),
+			".lua" => typeof(PreviewPageLua),
 			".text" => typeof(PreviewPageText),
 			_ => typeof(PreviewPageUnavailable),
 		};

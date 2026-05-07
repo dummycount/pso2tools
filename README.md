@@ -59,6 +59,7 @@ Preview currently supports the following file types:
 
 	- You can hide the alpha channel or view individual channels with the controls at the top.
 
+- `.lua` - Lua script
 - `.text` - Text data
 
 ### Planned features
@@ -71,7 +72,6 @@ The following features are not yet implemented. I'll maybe get to them eventuall
 	- `.aqn`, `.trn` - skeleton
 	- `.fltd` - physics
 	- `.lac` - lobby action command
-	- `.lua` - compiled Lua script
 	- `.mso` - my space object
 	- `.tcb` - terrain
 	- `.txl` - texture list

@@ -26,6 +26,7 @@
     <None Remove="Views\PreviewPageDds.xaml" />
     <None Remove="Views\PreviewPageUnavailable.xaml" />
     <None Remove="Views\Preview\PreviewPageAqp.xaml" />
+    <None Remove="Views\Preview\PreviewPageLua.xaml" />
     <None Remove="Views\Preview\PreviewPageText.xaml" />
     <None Remove="Views\SettingsPage.xaml" />
   </ItemGroup>
@@ -148,12 +149,14 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource
-      Include="..\helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\bin\$(Configuration)\**\*.cso"
-      LinkBase="Resources"
-    >
+    <EmbeddedResource Include="..\helix-toolkit\Source\HelixToolkit.Native.ShaderBuilder\bin\$(Configuration)\**\*.cso" LinkBase="Resources">
       <LogicalName>HelixToolkit.SharpDX.Resources.%(Filename)%(Extension)</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Views\Preview\PreviewPageLua.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 
   <!--
